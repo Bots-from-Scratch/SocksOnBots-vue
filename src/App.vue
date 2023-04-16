@@ -32,13 +32,9 @@ function getIsClearRef()  {
 }
 function showCode () {
     code.value = javascriptGenerator.workspaceToCode(foo.value.workspace);
+    // saves and prints workspace (for startBlocks or saving options later)
     console.log(Blockly.serialization.workspaces.save(foo.value.workspace));
-
-    console.log(value.value);
     eval(code.value);
-    console.log(lvl4.value.rightIsClearRef)
-    console.log(this.rightIsClear)
-    console.log(value.value);
 };
 </script>
 

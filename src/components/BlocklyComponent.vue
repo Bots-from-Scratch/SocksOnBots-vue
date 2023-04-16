@@ -18,43 +18,28 @@ const blocklyToolbox = ref();
 const blocklyDiv = ref();
 const workspace = shallowRef();
 
-
-
-
 const startBlocks = {
-
-    "blocks": {
-    "languageVersion": 0,
-        "blocks": [
-        {
-            "type": "controls_whileUntil",
-            "x": 0,
-            "y": 0,
-            "fields": {
-                "MODE": "UNTIL"
+  blocks: {
+    languageVersion: 0,
+    blocks: [
+      {
+        type: "move_player",
+        x: 38,
+        y: 62,
+        fields: {
+          VALUE: "RIGHT",
+        },
+        next: {
+          block: {
+            type: "move_player",
+            fields: {
+              VALUE: "DOWN",
             },
-            "inputs": {
-                "BOOL": {
-                    "block": {
-                        "type": "direction_blocked",
-                        "fields": {
-                            "NAME": "RIGHT_BLOCKED"
-                        }
-                    }
-                },
-                "DO": {
-                    "block": {
-                        "type": "move_player",
-                        "fields": {
-                            "VALUE": "DOWN"
-                        }
-                    }
-                }
-            }
-        }
-    ]
-}
-
+          },
+        },
+      },
+    ],
+  },
 };
 
 defineExpose({ workspace });
