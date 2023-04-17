@@ -15,7 +15,8 @@ import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
 
 import { javascriptGenerator } from "blockly/javascript";
-import {toolboxJson} from "@/toolbox_phaser";
+import { toolboxJson } from "@/toolbox_phaser";
+import Game from "@/components/Game.vue";
 
 const foo = ref();
 const code = ref();
@@ -35,17 +36,20 @@ const showCode = () =>
 </script>
 
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" class="w-12"/>
-    <BlocklyComponent
+  <div id="app" class="flex flex-row justify-center shrink-0 flex-wrap m-8 w-screen">
+    <div><img alt="Vue logo" src="./assets/logo.png" class="w-12 h-12" />
+      <div id="code" class="w-12 h-12 bg-amber-600 rounded text-center">
+          <button v-on:click="showCode()" class="">Play</button>
+          <pre v-html="code"></pre>
+      </div>
+    </div>
+    <BlocklyComponent class="w-96 h-96 "
       id="blockly"
       :options="options"
       ref="foo"
     ></BlocklyComponent>
-    <div id="code">
-      <button v-on:click="showCode()">Show JavaScript</button>
-      <pre v-html="code"></pre>
-    </div>
+
+    <Game />
   </div>
 </template>
 
@@ -57,26 +61,30 @@ const showCode = () =>
   color: #2c3e50;
 }
 
-html,
-body {
-  margin: 0;
-}
+/*html,*/
+/*body {*/
+/*  height: 100vh;*/
+/*  display: flex;*/
+/*  justify-content: center;*/
+/*  align-items: center;*/
+/*  margin: 0;*/
+/*}*/
 
-#code {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 50%;
-  height: 50%;
-  margin: 0;
-  background-color: beige;
-}
+/*#code {*/
+/*  position: absolute;*/
+/*  right: 0;*/
+/*  bottom: 0;*/
+/*  width: 50%;*/
+/*  height: 50%;*/
+/*  margin: 0;*/
+/*  background-color: beige;*/
+/*}*/
 
-#blockly {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 50%;
-  height: 50%;
-}
+/*#blockly {*/
+/*  position: absolute;*/
+/*  left: 0;*/
+/*  bottom: 0;*/
+/*  width: 50%;*/
+/*  height: 50%;*/
+/*}*/
 </style>

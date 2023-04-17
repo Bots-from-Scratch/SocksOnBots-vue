@@ -47,4 +47,8 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+    build: {
+        // phaser doesn't accept inlined assets
+        assetsInlineLimit: 0
+    }
 });

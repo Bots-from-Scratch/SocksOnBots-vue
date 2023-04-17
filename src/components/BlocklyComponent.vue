@@ -12,6 +12,7 @@
 
 import { onMounted, ref, shallowRef } from "vue";
 import Blockly from "blockly";
+// import '@/blocks/move_player';
 
 const props = defineProps(["options"]);
 const blocklyToolbox = ref();
@@ -30,8 +31,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="bg-amber-700">
-    <div class="blocklyDiv" ref="blocklyDiv"></div>
+  <div class="">
+    <div class="blocklyDiv h-full w-full text-left" ref="blocklyDiv"></div>
     <xml ref="blocklyToolbox" >
       <slot></slot>
     </xml>
@@ -40,9 +41,10 @@ onMounted(() => {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.blocklyDiv {
-  height: 100%;
-  width: 100%;
-  text-align: left;
-}
+/*.blocklyDiv {*/
+/*  height: 100%;*/
+/*  width: 100%;*/
+/*  text-align: left;*/
+/*}*/
+
 </style>

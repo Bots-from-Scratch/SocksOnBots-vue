@@ -8,7 +8,7 @@
  * @fileoverview Shared toolbox for JS-Interpreter demos.
  */
 
-
+import '@/blocks/direction_blocked'
 
 export var toolboxJson = {
   "contents": [
@@ -171,40 +171,16 @@ export var toolboxJson = {
       "colour": "%{BKY_LOOPS_HUE}",
       "contents": [
         {
-          'kind': 'block',
-          'type': 'controls_if',
+          "kind": "BLOCK",
+          "type": "controls_if",
         },
         {
-          'kind': 'block',
-          'type': 'logic_boolean',
+          "kind": "BLOCK",
+          "type": "direction_blocked",
         },
         {
-          'kind': 'block',
-          'type': 'move_player'
-        },
-        {
-          'kind': 'block',
-          'type': 'walked_around'
-        },
-        {
-          'kind': 'block',
-          'type': 'direction_blocked'
-        },
-        {
-          'kind': 'block',
-          'type': 'direction_clear'
-        },
-        {
-          'kind': 'block',
-          'type': 'object_sock'
-        },
-        {
-          'kind': 'block',
-          'type': 'scan_for_object'
-        },
-        {
-          'kind': 'block',
-          'type': 'bool_sighted'
+          "kind": "BLOCK",
+          "type": "controls_if",
         },
       ]
     },
