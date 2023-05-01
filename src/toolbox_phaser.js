@@ -8,7 +8,8 @@
  * @fileoverview Shared toolbox for JS-Interpreter demos.
  */
 
-import '@/blocks/direction_blocked'
+import '@/blocks/direction_blocked';
+import  '@/blocks/move_player';
 
 export var toolboxJson = {
   "contents": [
@@ -181,6 +182,10 @@ export var toolboxJson = {
         {
           "kind": "BLOCK",
           "type": "controls_if",
+        },
+        {
+          "kind": "BLOCK",
+          "type": "move_player"
         },
       ]
     },

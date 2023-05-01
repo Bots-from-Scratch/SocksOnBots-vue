@@ -12,7 +12,6 @@
 
 import { onMounted, ref, shallowRef } from "vue";
 import Blockly from "blockly";
-// import '@/blocks/move_player';
 
 const props = defineProps(["options"]);
 const blocklyToolbox = ref();

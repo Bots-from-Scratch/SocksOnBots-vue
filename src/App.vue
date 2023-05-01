@@ -1,14 +1,5 @@
 <script setup>
-/**
- * @license
- * Copyright 2022 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
 
-/**
- * @fileoverview Main Vue component that includes the Blockly component.
- * @author dcoodien@google.com (Dylan Coodien)
- */
 
 import { ref } from "vue";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
@@ -17,9 +8,11 @@ import "./blocks/stocks";
 import { javascriptGenerator } from "blockly/javascript";
 import { toolboxJson } from "@/toolbox_phaser";
 import Game from "@/components/Game.vue";
+import Level4 from "@/components/Level4.vue";
 
 const foo = ref();
 const code = ref();
+let value = ref('');
 const options = {
   media: "media/",
   grid: {
@@ -31,8 +24,12 @@ const options = {
   toolbox: toolboxJson,
 };
 
-const showCode = () =>
-  (code.value = javascriptGenerator.workspaceToCode(foo.value.workspace));
+function showCode () {
+    code.value = javascriptGenerator.workspaceToCode(foo.value.workspace);
+    console.log(value.value);
+    eval(code.value);
+    console.log(value.value);
+};
 </script>
 
 <template>
@@ -40,7 +37,6 @@ const showCode = () =>
     <div><img alt="Vue logo" src="./assets/logo.png" class="w-12 h-12" />
       <div id="code" class="w-12 h-12 bg-amber-600 rounded text-center">
           <button v-on:click="showCode()" class="">Play</button>
-          <pre v-html="code"></pre>
       </div>
     </div>
     <BlocklyComponent class="w-96 h-96 "
@@ -48,9 +44,14 @@ const showCode = () =>
       :options="options"
       ref="foo"
     ></BlocklyComponent>
+      <pre v-html="code"></pre>
 
-    <Game />
+
+<!--    <Game />-->
+      <p>{{value}}</p>
+      <Level4 :direction="value"/>
   </div>
+
 </template>
 
 <style>
