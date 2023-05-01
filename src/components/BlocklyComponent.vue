@@ -18,96 +18,43 @@ const blocklyToolbox = ref();
 const blocklyDiv = ref();
 const workspace = shallowRef();
 
+
+
+
 const startBlocks = {
-  blocks: {
-    blocks: [
-      {
-        type: "variables_set",
-        x: 20,
-        y: 20,
-        inline: true,
-        fields: {
-          VAR: { id: "n" },
-        },
-        inputs: {
-          VALUE: {
-            block: {
-              type: "math_number",
-              fields: { NUM: 1 },
+
+    "blocks": {
+    "languageVersion": 0,
+        "blocks": [
+        {
+            "type": "controls_whileUntil",
+            "x": 0,
+            "y": 0,
+            "fields": {
+                "MODE": "UNTIL"
             },
-          },
-        },
-        next: {
-          block: {
-            type: "controls_repeat_ext",
-            inline: true,
-            inputs: {
-              TIMES: {
-                block: {
-                  type: "math_number",
-                  fields: { NUM: 4 },
+            "inputs": {
+                "BOOL": {
+                    "block": {
+                        "type": "direction_blocked",
+                        "fields": {
+                            "NAME": "RIGHT_BLOCKED"
+                        }
+                    }
                 },
-              },
-              DO: {
-                block: {
-                  type: "variables_set",
-                  inline: true,
-                  fields: {
-                    VAR: { id: "n" },
-                  },
-                  inputs: {
-                    VALUE: {
-                      block: {
-                        type: "math_arithmetic",
-                        fields: { OP: "MULTIPLY" },
-                        inputs: {
-                          A: {
-                            block: {
-                              type: "variables_get",
-                              fields: {
-                                VAR: { id: "n" },
-                              },
-                            },
-                          },
-                          B: {
-                            block: {
-                              type: "math_number",
-                              fields: { NUM: 2 },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                  next: {
-                    block: {
-                      type: "text_print",
-                      inputs: {
-                        TEXT: {
-                          block: {
-                            type: "variables_get",
-                            fields: {
-                              VAR: { id: "n" },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    ],
-  },
-  variables: [
-    {
-      name: "n",
-      id: "n",
-    },
-  ],
+                "DO": {
+                    "block": {
+                        "type": "move_player",
+                        "fields": {
+                            "VALUE": "DOWN"
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
+
 };
 
 defineExpose({ workspace });
@@ -118,7 +65,7 @@ onMounted(() => {
     options.toolbox = blocklyToolbox.value;
   }
   workspace.value = Blockly.inject(blocklyDiv.value, options);
-  Blockly.serialization.workspaces.load(startBlocks, workspace);
+  Blockly.serialization.workspaces.load(startBlocks, workspace.value);
 });
 </script>
 

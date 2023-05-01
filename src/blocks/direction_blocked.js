@@ -40,7 +40,7 @@ javascriptGenerator['direction_blocked'] = function(block) {
     var code = '';
     // TODO: Assemble JavaScript into code variable.
     if (dropdown_name == 'RIGHT_BLOCKED') {
-        code += '!this.rightIsClear'
+        code += '!lvl4.value?.rightIsClearRef'
     } else if (dropdown_name == 'LEFT_BLOCKED') {
         code += '!this.leftIsClear'
     } else if (dropdown_name == 'UP_BLOCKED') {

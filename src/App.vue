@@ -4,6 +4,7 @@
 import { ref } from "vue";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
+import Blockly from "blockly";
 
 import { javascriptGenerator } from "blockly/javascript";
 import { toolboxJson } from "@/toolbox_phaser";
@@ -12,6 +13,7 @@ import Level4 from "@/components/Level4.vue";
 
 const foo = ref();
 const code = ref();
+const lvl4 = ref();
 let value = ref('');
 const options = {
   media: "media/",
@@ -24,10 +26,18 @@ const options = {
   toolbox: toolboxJson,
 };
 
+function getIsClearRef()  {
+    console.log("get func: " + lvl4.value?.rightIsClearRef);
+    return lvl4.value?.rightIsClearRef
+}
 function showCode () {
     code.value = javascriptGenerator.workspaceToCode(foo.value.workspace);
+    console.log(Blockly.serialization.workspaces.save(foo.value.workspace));
+
     console.log(value.value);
     eval(code.value);
+    console.log(lvl4.value.rightIsClearRef)
+    console.log(this.rightIsClear)
     console.log(value.value);
 };
 </script>
@@ -49,7 +59,10 @@ function showCode () {
 
 <!--    <Game />-->
       <p>{{value}}</p>
-      <Level4 :direction="value"/>
+      <p>{{ getIsClearRef() }}</p>
+
+      <Level4 :direction="value"
+      ref="lvl4"/>
   </div>
 
 </template>
@@ -62,30 +75,4 @@ function showCode () {
   color: #2c3e50;
 }
 
-/*html,*/
-/*body {*/
-/*  height: 100vh;*/
-/*  display: flex;*/
-/*  justify-content: center;*/
-/*  align-items: center;*/
-/*  margin: 0;*/
-/*}*/
-
-/*#code {*/
-/*  position: absolute;*/
-/*  right: 0;*/
-/*  bottom: 0;*/
-/*  width: 50%;*/
-/*  height: 50%;*/
-/*  margin: 0;*/
-/*  background-color: beige;*/
-/*}*/
-
-/*#blockly {*/
-/*  position: absolute;*/
-/*  left: 0;*/
-/*  bottom: 0;*/
-/*  width: 50%;*/
-/*  height: 50%;*/
-/*}*/
 </style>
