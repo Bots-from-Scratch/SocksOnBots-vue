@@ -2,7 +2,6 @@ import Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
 
 
-
 Blockly.common.defineBlocksWithJsonArray([{
     "type": "direction_blocked",
     "message0": "%1",
@@ -51,6 +50,6 @@ javascriptGenerator['direction_blocked'] = function(block) {
     }
 
     // TODO: Change ORDER_NONE to the correct strength.
-    return [code, Blockly.JavaScript.ORDER_NONE];
+    return [code, javascriptGenerator.ORDER_NONE];
 };
 
