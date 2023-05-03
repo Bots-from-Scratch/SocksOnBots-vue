@@ -50,7 +50,7 @@ function showCode () {
       :options="options"
       ref="foo"
     ></BlocklyComponent>
-      <pre v-html="code"></pre>
+<!--      <pre v-html="code"></pre>-->
 
 
 <!--    <Game />-->
