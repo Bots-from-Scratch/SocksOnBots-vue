@@ -15,7 +15,7 @@ const blocklyDiv = ref();
 const workspace = shallowRef();
 
 const acornInterpreterScript = document.createElement('script');
-acornInterpreterScript.src = "./acorn_interpreter";
+acornInterpreterScript.src = "./src/acorn_interpreter";
 document.head.appendChild(acornInterpreterScript);
 
 const startBlocks = {

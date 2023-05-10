@@ -16,7 +16,10 @@ export default defineConfig({
   plugins: [
     vue({
       template: {
-        compilerOptions: {
+        compilerOptions: {"baseUrl": ".",
+            "paths": {
+                "@/*": ["./src/*"]
+            },
             "experimentalDecorators": true,
 
           isCustomElement: (tag) =>
@@ -30,6 +33,7 @@ export default defineConfig({
               "sep",
               "shadow",
             ].includes(tag),
+
         },
       },
     }),
@@ -50,13 +54,13 @@ export default defineConfig({
     },
   },
   build: {
-      rollupOptions: {
-          input: {
-              acornInterpreter: 'src/acorn_interpreter.js',
-              blocklyCompressed: 'https://blockly-demo.appspot.com/static/blockly_compressed.js',
-              // Weitere Skripte hinzufügen
-          }
-      },
+      // rollupOptions: {
+      //     input: {
+      //         acornInterpreter: 'src/acorn_interpreter.js',
+      //         blocklyCompressed: 'https://blockly-demo.appspot.com/static/blockly_compressed.js',
+      //         // Weitere Skripte hinzufügen
+      //     }
+      // },
     // phaser doesn't accept inlined assets
     assetsInlineLimit: 0,
   },

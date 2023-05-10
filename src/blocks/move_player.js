@@ -47,7 +47,7 @@ javascriptGenerator['move_player'] = function (block, el) {
   let code;
 
 
-  code = 'move_player(); \n ';
+  code = "console.log('move_player()') \n ";
 
 
   return code;
