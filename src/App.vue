@@ -41,7 +41,7 @@ function showCode () {
 <template>
   <div id="app" class="flex flex-row justify-center shrink-0 flex-wrap m-8 w-screen">
     <div><img alt="Vue logo" src="./assets/logo.png" class="w-12 h-12" />
-      <div id="code" class="w-12 h-12 bg-amber-600 rounded text-center">
+      <div id="code" class="w-12 h-12 bg-amber-100 rounded text-center">
           <button v-on:click="showCode()" class="">Play</button>
       </div>
     </div>

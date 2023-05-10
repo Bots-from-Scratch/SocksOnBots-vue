@@ -12,23 +12,23 @@ Blockly.common.defineBlocksWithJsonArray([
         "options": [
           [
             "left",
-            "LEFT"
+            "Left"
           ],
           [
             "right",
-            "RIGHT"
+            "Right"
           ],
           [
             "up",
-            "UP"
+            "Up"
           ],
           [
             "down",
-            "DOWN"
+            "Down"
           ],
           [
             "to object",
-            "TO_OBJECT"
+            "toObject"
           ]
         ]
       }
@@ -47,28 +47,42 @@ javascriptGenerator['move_player'] = function (block, el) {
   let code;
 
 
-  code = "console.log('move_player()') \n ";
-
+  code = "moveDirection(" + blockValue + ") \n ";
+console.log(blockValue)
 
   return code;
 };
 
-function initInterpreterGoRight(interpreter, scope) {
+function initInterpreterMoveDirection(interpreter, scope) {
   // Ensure function name does not conflict with variable names.
-  console.log("InitInterpreterGoRight");
   // uses to time outs, terminates the upward motion before termination moving right
-  Blockly.JavaScript.addReservedWords('move_player');
+  javascriptGenerator.addReservedWords('moveDirection');
   var wrapper = interpreter.createAsyncFunction(
-      function (callback) {
-        console.log("move_player function")
-        direction = 'RIGHT';
+      function (direction, callback) {
+        console.log("moveRight function")
         console.log(direction);
         // setTimeout(function () {
         //     direction = "UP";
         //     callback();
         // }, 300);
       });
-  interpreter.setProperty(scope, 'move_player', wrapper);
+  interpreter.setProperty(scope, 'moveDirection', wrapper);
+}
+function initInterpreterGoLeft(interpreter, scope) {
+  // Ensure function name does not conflict with variable names.
+  // uses to time outs, terminates the upward motion before termination moving right
+  javascriptGenerator.addReservedWords('moveLeft');
+  var wrapper = interpreter.createAsyncFunction(
+      function (callback) {
+        console.log("moveLeft function")
+        let direction = 'LEFT';
+        console.log(direction);
+        // setTimeout(function () {
+        //     direction = "UP";
+        //     callback();
+        // }, 300);
+      });
+  interpreter.setProperty(scope, 'moveLeft', wrapper);
 }
 
-export {initInterpreterGoRight}
+export {initInterpreterMoveDirection, initInterpreterGoLeft}

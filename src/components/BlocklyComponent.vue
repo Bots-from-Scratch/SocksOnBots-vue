@@ -5,7 +5,7 @@ import { onMounted, ref, shallowRef } from "vue";
 import Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
 import "@/blocks/move_player"
-import {initInterpreterGoRight} from "@/blocks/move_player";
+import {initInterpreterGoLeft, initInterpreterMoveDirection} from "@/blocks/move_player";
 // import "@/acorn_interpreter"
 
 
@@ -56,6 +56,8 @@ onMounted(() => {
   generateCodeAndLoadIntoInterpreter();
 });
 
+var direction = ref("LEFT");
+
 // var outputArea = document.getElementById("output");
 // var runButton = document.getElementById("runButton");
 var myInterpreter = null;
@@ -97,7 +99,8 @@ function initApi(interpreter, scope) {
   );
 
   // Add all the custom block api calls here
-    initInterpreterGoRight(interpreter, scope);
+    initInterpreterMoveDirection(interpreter, scope);
+    initInterpreterGoLeft(interpreter, scope);
 
   // Add an API function for highlighting blocks.
   var wrapper = function (id) {
@@ -126,6 +129,7 @@ var highlightPause = false;
 var latestCode = "";
 
 function highlightBlock(id) {
+    console.log("hightlightBlock")
   workspace.value.highlightBlock(id);
   highlightPause = true;
 }
@@ -162,6 +166,7 @@ function speak() {
 }
 
 function runCode() {
+    console.log(runCode)
   if (!myInterpreter) {
     // First statement of this code.
     // Clear the program output.
@@ -215,7 +220,7 @@ function runCode() {
       <div id="code" class="w-12 h-12 bg-amber-600 rounded text-center">
           <button v-on:click="runCode()" class="">Play</button>
       </div>
-    <div id="output"></div>
+    <div id="output">{{direction}}</div>
   </div>
 </template>
 
