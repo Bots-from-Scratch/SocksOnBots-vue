@@ -1,3 +1,6 @@
+import Blockly from "blockly";
+import {javascriptGenerator} from "blockly/javascript";
+
 Blockly.common.defineBlocksWithJsonArray([
     {
         "type": "scan_for_object",
@@ -19,22 +22,11 @@ Blockly.common.defineBlocksWithJsonArray([
     }
 ]);
 
-Blockly.JavaScript['scan_for_object'] = function (block) {
+javascriptGenerator['scan_for_object'] = function (block) {
     // console.log(block);
-    var value_look_for = Blockly.JavaScript.valueToCode(block, 'look for', Blockly.JavaScript.ORDER_ATOMIC);
-    var code =
-        'this.objectToScanFor = ' + value_look_for + ';\n    ' +
-        'if (this.scannedObject) {\n' +
-        '   if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {\n' +
-        '       console.log(\'not in view\');\n' +
-        '       this.scanLineGfx.setVisible(false);\n' +
-        '        this.objectSighted = false;\n' +
-        '   } else {\n' +
-        '       this.scanLineGfx.setVisible(true);\n' +
-        '        this.objectSighted = true;\n' +
-        '   }\n' +
-        '} else {' +
-        '  this.objectSighted = false;\n' +
-        '};\n';
+    var value_look_for = javascriptGenerator.valueToCode(block, 'look for', javascriptGenerator.ORDER_ATOMIC);
+    var code = "yield;\n"
+    code +=
+        'objectToScanFor = ' + value_look_for + ';\n    ';
     return code;
 };

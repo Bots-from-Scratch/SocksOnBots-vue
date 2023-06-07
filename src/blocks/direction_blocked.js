@@ -1,6 +1,5 @@
 import Blockly from "blockly";
-import { javascriptGenerator } from "blockly/javascript";
-
+import {javascriptGenerator} from "blockly/javascript";
 
 Blockly.common.defineBlocksWithJsonArray([{
     "type": "direction_blocked",
@@ -12,19 +11,19 @@ Blockly.common.defineBlocksWithJsonArray([{
             "options": [
                 [
                     "right is blocked",
-                    "RIGHT_BLOCKED"
+                    "right"
                 ],
                 [
                     "left is blocked",
-                    "LEFT_BLOCKED"
+                    "left"
                 ],
                 [
                     "up is blocked",
-                    "UP_BLOCKED"
+                    "up"
                 ],
                 [
                     "down is blocked",
-                    "DOWN_BLOCKED"
+                    "down"
                 ]
             ]
         }
@@ -35,21 +34,9 @@ Blockly.common.defineBlocksWithJsonArray([{
     "helpUrl": ""
 }])
 
-javascriptGenerator['direction_blocked'] = function(block) {
-    var dropdown_name = block.getFieldValue('NAME');
-    var code = '';
-    // TODO: Assemble JavaScript into code variable.
-    if (dropdown_name == 'RIGHT_BLOCKED') {
-        code += '!lvl4.value?.rightIsClearRef'
-    } else if (dropdown_name == 'LEFT_BLOCKED') {
-        code += '!this.leftIsClear'
-    } else if (dropdown_name == 'UP_BLOCKED') {
-        code += '!this.upIsClear'
-    } else {
-        code += '!this.downIsClear'
-    }
+javascriptGenerator['direction_blocked'] = function (block) {
+    let blockValue = block.getFieldValue('NAME');
+    let code = "!direction." + blockValue + ".isClear";
 
-    // TODO: Change ORDER_NONE to the correct strength.
-    return [code, javascriptGenerator.ORDER_NONE];
+    return [code, javascriptGenerator.ORDER_ATOMIC];
 };
-

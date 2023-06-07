@@ -1,12 +1,16 @@
 <template>
   <div ref="game"></div>
+  <div class="flex flex-col">
   <div>direction: {{ direction }}</div>
+  <div>playGame: {{ playGame }}</div>
+  <div>blockList: {{ blockList }}</div>
+  </div>
 </template>
 
 <script>
 import * as Phaser from "phaser";
 import { Scene } from "phaser";
-import {defineComponent, ref} from "vue";
+import { defineComponent, ref } from "vue";
 import sky from "@/game/assets/sky.png";
 import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
@@ -18,16 +22,48 @@ import level_4 from "@/assets/SocksOnBots_lvl_4.json";
 
 export default {
   name: "Level4",
-  expose: ["rightIsClearRef"],
+  expose: ["runBlocks"],
   props: {
     direction: String,
+    playGame: Boolean,
+    blockList: null,
   },
 
-  setup(props, {refs}) {
+  watch: {
+    playGame() {
+      if (this.playGame) {
+        this.runBlocks(this.blockList);
+      }
+    },
+  },
 
-      const rightIsClearRef = ref(null);
+  setup(props, { refs }) {
+    if (props.playGame) {
+      console.log("playGAME");
+    }
 
-      class GameScene_Level_4 extends Scene {
+    let blockGenerator;
+    let blockFunction;
+    const direction = {
+      right: { isClear: true, isMoving: false },
+      left: { isClear: true, isMoving: false },
+      up: { isClear: true, isMoving: false },
+      down: { isClear: true, isMoving: false },
+      toObject: { isClear: false, isMoving: false },
+    };
+    let objectToScanFor;
+    let blueStar;
+    let walkedBy;
+
+    const runBlocks = (blockList) => {
+      console.log("runBlocks wurde aufgerufen.");
+      console.log(blockList);
+      const blockGenerator = eval(`(function* () {
+            ${blockList.join(";")}
+        })`);
+      blockFunction = blockGenerator();
+    };
+    class GameScene_Level_4 extends Scene {
       ROTATION_RIGHT = 0;
       ROTATION_LEFT = 180;
       ROTATION_UP = -90;
@@ -39,12 +75,13 @@ export default {
       }
 
       init() {
-        this.direction = "";
+        this.resetDirection();
+
         this.level = 4;
 
         this.score = 0;
 
-        this.walkedBy = false;
+        walkedBy = false;
 
         this.value;
         // let codeFromBlock;
@@ -64,7 +101,7 @@ export default {
         this.scannedObject = false;
         this.objectCollidedWith = {};
         this.blockingObjects = undefined;
-        this.objectToScanFor = undefined;
+        objectToScanFor = undefined;
         this.objectSighted = false;
         this.scanAngle = 0;
         this.itemCollected = false;
@@ -90,21 +127,18 @@ export default {
       create() {
         // this.add.image(400, 300, 'sky');
 
-        this.map = this.make.tilemap({ key: "map" });
+        const map = this.make.tilemap({ key: "map" });
 
-        const tileset = this.map.addTilesetImage(
+        const tileset = map.addTilesetImage(
           "CosmicLilac_Tiles_64x64-cd3",
           "tileset"
         );
-        const backgroundLayer = this.map.createLayer(
-          "background",
-          tileset,
-          0,
-          0
-        );
-        const groundLayer = this.map.createLayer("floor", tileset, 0, 0);
-        this.wallLayer = this.map.createLayer("walls", tileset, 0, 0);
-        const objectLayer = this.map.createLayer("objects", tileset, 0, 0);
+        const backgroundLayer = map.createLayer("background", tileset, 0, 0);
+        const groundLayer = map.createLayer("floor", tileset, 0, 0);
+        this.wallLayer = map.createLayer("walls", tileset, 0, 0);
+        const objectLayer = map.createLayer("objects", tileset, 0, 0);
+        console.log("this.wallLayer");
+        console.log(this.wallLayer);
 
         this.wallLayer.setCollisionByProperty({ collision: true });
         // this.wallLayer.setCollisionFromCollisionGroup(true, true);
@@ -115,10 +149,10 @@ export default {
         const collisionRect = new Phaser.Geom.Rectangle();
 
         // let gidMapEntries = this.wallLayer.tileset[0].getTileData(0);
-
+        //
         // for (const el of gidMapEntries) console.log(el[1]);
 
-        this.map.setBaseTileSize(64, 64);
+        map.setBaseTileSize(64, 64);
 
         // const debugGraphics = this.add.graphics().setAlpha(0.5);
         // this.wallLayer.renderDebug(debugGraphics, {
@@ -126,7 +160,7 @@ export default {
         //     collidingTileColor: new Phaser.Display.Color(255, 255, 50, 255)
         // });
 
-        this.createPlatforms();
+        this.createBlockingObjects(map);
         this.createPlayer();
         this.createCursor();
         this.createSock();
@@ -152,7 +186,7 @@ export default {
             fill: "#fff",
           }
         );
-        this.statusText.setVisible(false);
+        this.statusText.setVisible(true);
 
         this.gfx = this.add.graphics();
         // this.bombs = this.physics.add.group();
@@ -175,12 +209,12 @@ export default {
             alpha: 0.5,
           },
         });
-        this.scanGfx.setVisible(false);
+        this.scanGfx.setVisible(true);
         this.scanLine = new Phaser.Geom.Line(
           this.player.x,
           this.player.y,
-          this.blueStar.x,
-          this.blueStar.y
+          blueStar.x,
+          blueStar.y
         );
 
         this.scanLineRot = new Phaser.Geom.Line(
@@ -200,28 +234,25 @@ export default {
 
         // this.testBlockRect = new Phaser.Geom.Rectangle(200, 50, 100, 200);
         this.scanCircle = new Phaser.Geom.Circle(300, 400, this.SCAN_DISTANCE);
-        this.blockingObjects = this.platforms;
+
+        this.frameGraphics = this.add.graphics();
+        this.frameColor = 0x00ff00; // Rahmenfarbe (Grün)
+        this.blockingObjects = this.rectangles;
       }
 
       //------------------------------------------------------------------------------------------------------------
       //-------CREATE FUNCTIONS
 
-      createPlatforms() {
-        this.platforms = this.physics.add.staticGroup();
+      createBlockingObjects(map) {
+        // this.platforms = this.physics.add.staticGroup();
+        this.rectangles = this.physics.add.staticGroup();
+        this.createTileFrames(this.wallLayer);
 
         // this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        this.platforms
-          .create(512, 128, "ground")
-          .setScale(0.66, 8.1)
-          .setAlpha(0)
-          .refreshBody();
+        // this.platforms.create(512, 128, 'ground').setScale(0.66, 8.1).setAlpha(0).refreshBody();
         //
         //
-        this.platforms
-          .create(864, 288, "ground")
-          .setScale(0.5, 6)
-          .setAlpha(0)
-          .refreshBody();
+        // this.platforms.create(864, 288, 'ground').setScale(0.5, 6).setAlpha(0).refreshBody();
         // this.platforms.create(50, 250, 'ground');
         // this.platforms.create(750, 220, 'ground');
 
@@ -236,29 +267,31 @@ export default {
         if (this.level === 4) {
           this.player.setX(160).setY(80);
         }
+
         // this.player.body.bounce.set(1);
         this.player.body.setMaxSpeed(160);
         this.player.setCircle(20, 12, 28);
         this.physics.add.collider(
           this.player,
-          this.platforms,
+          this.rectangles,
           function (_player, _platform) {
             this.objectCollidedWith = _platform;
             this.collided = true;
-            this.walkedBy = false;
+            walkedBy = false;
             if (!_player.body.blocked.none) {
               if (_player.body.blocked.up) {
+                console.log("frontBlocked");
                 // player.setY(player.y + 2);
-                this.upIsClear = false;
+                direction.up.isClear = false;
               } else if (_player.body.blocked.down) {
                 // player.setY(player.y - 2);
-                this.downIsClear = false;
+                direction.down.isClear = false;
               } else if (_player.body.blocked.right) {
                 // player.setX(player.x - 2);
-                this.rightIsClear = false;
+                direction.right.isClear = false;
               } else {
                 // player.setX(player.x + 2);
-                this.leftIsClear = false;
+                direction.left.isClear = false;
               }
               this.player.setVelocityX(0);
               this.player.setVelocityY(0);
@@ -385,13 +418,13 @@ export default {
       }
 
       createSock() {
-        this.blueStar = this.physics.add.sprite(750, 120, "star");
-        // this.blueStar.setTint(0x006db2);
-        this.blueStar.setScale(0.4);
+        blueStar = this.physics.add.sprite(750, 120, "star");
+        // blueStar.setTint(0x006db2);
+        blueStar.setScale(0.4);
 
         this.physics.add.overlap(
           this.player,
-          this.blueStar,
+          blueStar,
           this.collectStar,
           null,
           this
@@ -404,14 +437,14 @@ export default {
         this.buttonScan = this.add.text(600, 450, "Scan For Star");
         this.button.setInteractive();
         this.buttonUp.setInteractive().setVisible(false);
-        this.buttonScan.setInteractive().setVisible(false);
+        this.buttonScan.setInteractive().setVisible(true);
         this.button
           .on("pointerover", () => this.button.setStyle({ fill: "#006db2" }))
           .on("pointerout", () => this.button.setStyle({ fill: "#fff" }))
           .on("pointerdown", () => this.scene.start("PreloadScene"));
         this.buttonScan.on("pointerdown", () => {
+          objectToScanFor = blueStar;
           if (this.scannedObject) {
-            console.log(this.blockingObjects);
             if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
               console.log("not in view");
               this.scanLineGfx.setVisible(false);
@@ -428,6 +461,24 @@ export default {
         });
       }
 
+      createTileFrames(mapLayer) {
+        let map = mapLayer.tilemap;
+        let tileWidth = map.tileWidth;
+        let tileHeight = map.tileHeight;
+        mapLayer.forEachTile(function (tile) {
+          let tileWorldPos = mapLayer.tileToWorldXY(tile.x, tile.y);
+          if (tile.properties.collision) {
+            let rectangle = new Phaser.GameObjects.Rectangle(
+              this,
+              tileWorldPos.x + tileWidth / 2,
+              tileWorldPos.y + tileHeight / 2,
+              tileWidth,
+              tileHeight
+            );
+            this.rectangles.add(rectangle);
+          }
+        }, this);
+      }
       checkIfObjectBlocksViewline(gameObject) {
         if (gameObject.isParent) {
           let intersects = gameObject
@@ -478,32 +529,72 @@ export default {
         }
       }
 
-      update() {
-          rightIsClearRef.value = this.rightIsClear;
+      resetDirection() {
+        direction.right.isClear = true;
+        direction.right.isMoving = false;
+        direction.left.isClear = true;
+        direction.left.isMoving = false;
+        direction.up.isClear = true;
+        direction.up.isMoving = false;
+        direction.down.isClear = true;
+        direction.down.isMoving = false;
+        direction.toObject.isClear = false;
+        direction.toObject.isMoving = false;
+      }
 
-        var tile = this.wallLayer.getTileAtWorldXY(
-          this.player.x,
-          this.player.y,
-          true
-        );
-        // console.log(this.player.x + "  " + this.player.y);
-        if (tile && tile.properties.slowingDown) {
-          // slow down the player
-          this.player.setVelocity(
-            this.player.body.velocity.x * 0.5,
-            this.player.body.velocity.y * 0.5
-          );
+      update() {
+        if (this.scannedObject) {
+          if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
+            console.log("not in view");
+            this.scanLineGfx.setVisible(false);
+            this.objectSighted = false;
+            direction.toObject.isClear = false;
+          } else {
+            this.scanLineGfx.setVisible(true);
+            this.objectSighted = true;
+            direction.toObject.isClear = true;
+          }
+        } else {
+          this.objectSighted = false;
         }
 
+        // let lastBlock;
+        // for (const block of gen) {
+        //     console.log("Next block: " + block);
+        //     lastBlock = block;
+        // }
+        // direction = lastBlock;
+        // console.log(this.direction + playGame);
+        if (blockFunction !== undefined) {
+          var blockResult = blockFunction.next();
+          console.log("next");
+          if (blockResult.value !== undefined) {
+            console.log(blockResult.value);
+            blockResult.value;
+          }
+          if (blockResult.done) {
+            //...
+            blockFunction = undefined;
+            this.resetDirection();
+          }
+        }
+
+        // var tile = wallLayer.getTileAtWorldXY(this.player.x, this.player.y, true);
+        // // console.log(this.player.x + '  ' + this.player.y);
+        // if (tile && tile.properties.slowingDown) {
+        //     // slow down the player
+        //     this.player.setVelocity(this.player.body.velocity.x * 0.5, this.player.body.velocity.y * 0.5);
+        // }
+
         if (!this.scannedObject) {
-          this.scanLineGfx.setVisible(false);
+          this.scanLineGfx.setVisible(true);
         }
         this.scanCircle.setPosition(this.player.x, this.player.y);
         this.scanLine.setTo(
           this.player.x,
           this.player.y,
-          this.blueStar.x,
-          this.blueStar.y
+          blueStar.x,
+          blueStar.y
         );
         this.scanAngle -= 0.04;
         Phaser.Geom.Line.SetToAngle(
@@ -514,13 +605,11 @@ export default {
           200
         );
         if (
-          Phaser.Geom.Intersects.LineToRectangle(
-            this.scanLineRot,
-            this.blueStar
-          ) &&
+          Phaser.Geom.Intersects.LineToRectangle(this.scanLineRot, blueStar) &&
           this.scannedObject
         ) {
           this.objectSighted = true;
+          direction.toObject.isClear = true;
         }
 
         this.scanGfx
@@ -529,11 +618,11 @@ export default {
           .strokeLineShape(this.scanLineRot);
 
         this.scanLineGfx.clear().strokeLineShape(this.scanLine);
-        if (this.objectToScanFor) {
+        if (objectToScanFor) {
           if (
             Phaser.Geom.Intersects.CircleToRectangle(
               this.scanCircle,
-              this.objectToScanFor
+              objectToScanFor
             )
           ) {
             this.scannedObject = true;
@@ -574,20 +663,20 @@ export default {
             // if (distClosest < Phaser.Math.Distance.Between(closest.x, closest.y, (closest.body.position.x + 1), (closest.body.position.y + 1))) {
             if (distClosest > hypot) {
               console.log("clear");
-              this.leftIsClear = true;
-              this.rightIsClear = true;
-              this.downIsClear = true;
-              this.upIsClear = true;
+              direction.left.isClear = true;
+              direction.right.isClear = true;
+              direction.down.isClear = true;
+              direction.up.isClear = true;
               if (
                 this.player.body.x - this.player.body.prev.x !== 0 &&
                 (this.rotation === 0 || this.rotation === 180)
               ) {
-                this.walkedBy = true;
+                walkedBy = true;
               } else if (
                 this.player.body.y - this.player.body.prev.y !== 0 &&
                 (this.rotation === 90 || this.rotation === -90)
               ) {
-                this.walkedBy = true;
+                walkedBy = true;
               }
 
               // this.physics.accelerateToObject(player, blueStar, 4000);
@@ -613,39 +702,27 @@ export default {
                 this.player.y
               );
           }
+          // this.statusText.setText('  right clear: ' + direction.right.isClear + ' Object sighted: ' + this.objectSighted + '\n distClosest: ' + distClosest + ' hypot: ' + hypot + ' body.angle: ' + this.player.body.angle + '\nwalkedBy: ' + walkedBy + '\nx: ' + this.player.body.prev.x + ' collided:' + this.collided);
           this.statusText.setText(
             "  right clear: " +
-              this.rightIsClear +
-              " Object sighted: " +
-              this.objectSighted +
-              "\n distClosest: " +
-              distClosest +
+              direction.right.isClear +
+              "\n moving right: " +
+              direction.right.isMoving +
               " hypot: " +
               hypot +
               " body.angle: " +
               this.player.body.angle +
               "\nwalkedBy: " +
-              this.walkedBy +
+              walkedBy +
               "\nx: " +
               this.player.body.prev.x +
               " collided:" +
-              this.collided
+              this.collided +
+              "\nobjectSighted: " +
+              direction.toObject.isClear +
+              "\nmoveToObject: " +
+              direction.toObject.isMoving
           );
-
-          let playGame = true;
-
-          if (playGame) {
-            eval(code);
-            this.physics.velocityFromAngle(
-              this.rotation,
-              this.player.body.maxSpeed,
-              this.player.body.acceleration
-            );
-            try {
-            } catch (error) {
-              console.log(error);
-            }
-          }
         }
 
         if (this.cursors.space.isDown) {
@@ -668,14 +745,15 @@ export default {
           this.player.anims.playAfterRepeat("down");
         }
 
-        if (this.cursors.left.isDown || props.direction === "LEFT") {
+        if (this.cursors.left.isDown || direction.left.isMoving) {
           if (this.rotation !== this.ROTATION_LEFT) {
             this.player.anims.play("turnToSide", true);
           }
           this.rotation = this.ROTATION_LEFT;
-          // this.player.setVelocityX(-160);
-          this.player.setVelocityY(0);
-        } else if (this.cursors.right.isDown || props.direction === "RIGHT") {
+          this.player.setVelocityX(-160);
+          // this.player.setVelocityY(0);
+          this.resetDirection();
+        } else if (this.cursors.right.isDown || direction.right.isMoving) {
           if (this.rotation !== this.ROTATION_RIGHT) {
             if (this.rotation === this.ROTATION_LEFT) {
               this.player.anims.play("leftToRight");
@@ -686,15 +764,10 @@ export default {
             }
           }
           this.rotation = this.ROTATION_RIGHT;
-          // this.player.setVelocityX(160);
-          this.player.setVelocityY(0);
-        } else {
-          // player.setVelocityX(0);
-          // this.player.flipX = false;
-          // this.player.anims.play('turnToFront');
-        }
-
-        if (this.cursors.up.isDown || props.direction === "UP") {
+          this.player.setVelocityX(160);
+          // this.player.setVelocityY(0);
+          this.resetDirection();
+        } else if (this.cursors.up.isDown || direction.up.isMoving) {
           if (this.rotation !== this.ROTATION_UP) {
             if (this.rotation === this.ROTATION_LEFT) {
               this.player.anims.play("leftToUp");
@@ -707,8 +780,9 @@ export default {
 
           this.rotation = this.ROTATION_UP;
           this.player.setVelocityX(0);
-          // this.player.setVelocityY(-160);
-        } else if (this.cursors.down.isDown || props.direction === "DOWN") {
+          this.player.setVelocityY(-160);
+          this.resetDirection();
+        } else if (this.cursors.down.isDown || direction.down.isMoving) {
           if (this.rotation !== this.ROTATION_DOWN) {
             if (this.rotation === this.ROTATION_LEFT) {
               this.player.anims.play("leftToDown");
@@ -721,35 +795,36 @@ export default {
 
           this.rotation = this.ROTATION_DOWN;
           this.player.setVelocityX(0);
-          // this.player.setVelocityY(160);
+          this.player.setVelocityY(160);
+          this.resetDirection();
         } else {
           // player.setVelocityY(0);
         }
         // playGame = false;
-        if (this.direction == "TO_OBJECT") {
-          this.physics.accelerateToObject(this.player, this.blueStar, 4000);
+        if (direction.toObject.isClear && direction.toObject.isMoving) {
+          this.physics.accelerateToObject(this.player, blueStar, 4000);
           // player.setVelocityY(0);
         }
       }
     }
 
-    const gameConfig = {
-      type: Phaser.AUTO,
-      parent: "phaser-example",
-      width: 800,
-      height: 600,
-      scene: GameScene_Level_4,
-      physics: {
-        default: "arcade",
-        arcade: {
-          // gravity: { y: 300 },
-          debug: false,
-        },
-      },
-    };
-    new Phaser.Game(gameConfig);
+    // const gameConfig = {
+    //   type: Phaser.AUTO,
+    //   parent: "phaser-example",
+    //   width: 800,
+    //   height: 600,
+    //   scene: GameScene_Level_4,
+    //   physics: {
+    //     default: "arcade",
+    //     arcade: {
+    //       // gravity: { y: 300 },
+    //       debug: false,
+    //     },
+    //   },
+    // };
+    // new Phaser.Game(gameConfig);
 
-      return { GameScene_Level_4, rightIsClearRef: rightIsClearRef };
+    return { GameScene_Level_4, runBlocks };
   },
 };
 </script>
