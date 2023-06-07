@@ -1,214 +1,71 @@
 <script setup>
-
-
 import { onMounted, ref, shallowRef } from "vue";
 import Blockly from "blockly";
+import "@/blocks/move_player";
+import level4 from "@/components/Level4.vue";
+import { toolboxJson } from "@/toolbox_phaser";
+import { useLocalStorage } from "@vueuse/core";
 import { javascriptGenerator } from "blockly/javascript";
-import "@/blocks/move_player"
-import {initInterpreterGoLeft, initInterpreterMoveDirection} from "@/blocks/move_player";
-// import "@/acorn_interpreter"
 
-
+const emit = defineEmits(["runCodePressed"]);
 const props = defineProps(["options"]);
 const blocklyToolbox = ref();
 const blocklyDiv = ref();
 const workspace = shallowRef();
-
-const acornInterpreterScript = document.createElement('script');
-acornInterpreterScript.src = "./src/acorn_interpreter";
-document.head.appendChild(acornInterpreterScript);
-
-const startBlocks = {
-  blocks: {
-    languageVersion: 0,
-    blocks: [
-      {
-        type: "move_player",
-        x: 38,
-        y: 62,
-        fields: {
-          VALUE: "RIGHT",
-        },
-        next: {
-          block: {
-            type: "move_player",
-            fields: {
-              VALUE: "DOWN",
-            },
-          },
-        },
-      },
-    ],
-  },
-};
-
+const store = useLocalStorage("userBlocks", null);
+let startBlocks;
 defineExpose({ workspace });
 
 onMounted(() => {
-
   const options = props.options || {};
   if (!options.toolbox) {
     options.toolbox = blocklyToolbox.value;
   }
+
+  if (store.value !== "undefined") {
+    // localStorage ist definiert
+    startBlocks = JSON.parse(store.value);
+    console.log(startBlocks);
+    // Weitere Aktionen mit dem localStorage durchführen
+  } else {
+    // localStorage ist undefined
+    console.log("localStorage ist nicht verfügbar.");
+    // Alternative Aktionen durchführen oder Fehlerbehandlung durchführen
+  }
+
   workspace.value = Blockly.inject(blocklyDiv.value, options);
-  Blockly.serialization.workspaces.load(startBlocks, workspace.value);
   console.log(workspace.value);
-  generateCodeAndLoadIntoInterpreter();
+  if (startBlocks) {
+    Blockly.serialization.workspaces.load(startBlocks, workspace.value);
+  }
 });
 
 var direction = ref("LEFT");
-
+var playGame = ref();
 // var outputArea = document.getElementById("output");
 // var runButton = document.getElementById("runButton");
-var myInterpreter = null;
-var runner;
 
-function initApi(interpreter, scope) {
-  // Add an API function for the alert() block, generated for "text_print" blocks.
-  var wrapper = function (text) {
-    text = text ? text.toString() : "";
-    // outputArea.value = outputArea.value + "\n" + text;
-  };
-  interpreter.setProperty(
-    scope,
-    "alert",
-    interpreter.createNativeFunction(wrapper)
-  );
-
-  // Add an API function for the prompt() block.
-  var wrapper = function (text) {
-    text = text ? text.toString() : "";
-    return interpreter.createPrimitive(1);
-  };
-  interpreter.setProperty(
-    scope,
-    "prompt",
-    interpreter.createNativeFunction(wrapper)
-  );
-
-  // Add an API function for the jump() block.
-  var wrapper = function (text) {
-    text = text ? text.toString() : "";
-    //return interpreter.createPrimitive(prompt(text));
-  };
-
-  interpreter.setProperty(
-    scope,
-    "jump",
-    interpreter.createNativeFunction(wrapper)
-  );
-
-  // Add all the custom block api calls here
-    initInterpreterMoveDirection(interpreter, scope);
-    initInterpreterGoLeft(interpreter, scope);
-
-  // Add an API function for highlighting blocks.
-  var wrapper = function (id) {
-    id = id ? id.toString() : "";
-    return interpreter.createPrimitive(highlightBlock(id));
-  };
-  interpreter.setProperty(
-    scope,
-    "highlightBlock",
-    interpreter.createNativeFunction(wrapper)
-  );
-
-  var wrapper = function (id) {
-    id = id ? id.toString() : "";
-    return goRightX(id);
-    //return interpreter.createPrimitive(highlightBlock(id));
-  };
-  interpreter.setProperty(
-    scope,
-    "bb",
-    interpreter.createNativeFunction(wrapper)
-  );
-}
-
-var highlightPause = false;
-var latestCode = "";
-
-function highlightBlock(id) {
-    console.log("hightlightBlock")
-  workspace.value.highlightBlock(id);
-  highlightPause = true;
-}
-
-function resetStepUi(clearOutput) {
-  workspace.value.highlightBlock(null);
-  highlightPause = false;
-  // runButton.disabled = "";
-
-  if (clearOutput) {
-    // outputArea.value = "Program output:\n=================";
-  }
-}
-
-function generateCodeAndLoadIntoInterpreter() {
-  // Generate JavaScript code and parse it.
-  // Blockly.JavaScript.STATEMENT_PREFIX = "highlightBlock(%1);\n";
-  // Blockly.JavaScript.addReservedWords("highlightBlock");
-  latestCode = javascriptGenerator.workspaceToCode(workspace.value);
-console.log(latestCode)
-  resetStepUi(true);
-}
-
-function resetInterpreter() {
-  myInterpreter = null;
-  if (runner) {
-    clearTimeout(runner);
-    runner = null;
-  }
-}
-
-function speak() {
-  displayText.setText("Score: ");
-}
-
+console.log(startBlocks);
 function runCode() {
-    console.log(runCode)
-  if (!myInterpreter) {
-    // First statement of this code.
-    // Clear the program output.
-    resetStepUi(true);
-    // runButton.disabled = "disabled";
+  console.log("runCode");
+  let blockList = [];
+  let blockListTmp = [];
 
-    // And then show generated code in an alert.
-    // In a timeout to allow the outputArea.value to reset first.
+  const savedBlocks = Blockly.serialization.workspaces.save(workspace.value);
+  store.value = JSON.stringify(savedBlocks);
+  console.log(store.value);
 
-      // Begin execution
-      highlightPause = false;
-      console.log(latestCode)
-      myInterpreter = new Interpreter(latestCode, initApi);
-      runner = function () {
-        if (myInterpreter) {
-          var hasMore = myInterpreter.run();
-          if (hasMore) {
-            // Execution is currently blocked by some async call.
-            // Try again later.
-            setTimeout(runner, 10);
-          } else {
-            // Program is complete.
-            // outputArea.value += "\n\n<< Program complete >>";
-            resetInterpreter();
-            resetStepUi(false);
-          }
-        }
-      };
-      runner();
+  blockList = [];
+  javascriptGenerator.init(Blockly.common.getMainWorkspace());
 
-    return;
-  }
+  blockListTmp = Blockly.common.getMainWorkspace().getAllBlocks(true);
+
+  blockListTmp.forEach(function (block) {
+    blockList.push(javascriptGenerator.blockToCode(block, true));
+  });
+  console.log(blockList);
+  emit("runCodePressed", blockList);
 }
-
-// // Load the interpreter now, and upon future changes.
-// workspace.value.addChangeListener(function (event) {
-//     if (!(event instanceof Blockly.Events.Ui)) {
-//         // Something changed. Parser needs to be reloaded.
-//         resetInterpreter();
-//         generateCodeAndLoadIntoInterpreter();
-//     }
-// });
 </script>
 
 <template>
@@ -217,10 +74,12 @@ function runCode() {
     <xml ref="blocklyToolbox">
       <slot></slot>
     </xml>
-      <div id="code" class="w-12 h-12 bg-amber-600 rounded text-center">
-          <button v-on:click="runCode()" class="">Play</button>
-      </div>
-    <div id="output">{{direction}}</div>
+    <div id="code" class="w-12 h-12 bg-amber-600 rounded text-center">
+      <button @click="runCode" class="">
+        Play
+      </button>
+    </div>
+    <div id="output">{{ direction }}</div>
   </div>
 </template>
 

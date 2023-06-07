@@ -1,3 +1,6 @@
+import Blockly from "blockly";
+import {javascriptGenerator} from "blockly/javascript";
+
 Blockly.common.defineBlocksWithJsonArray([
     {
         "type": "object_sock",
@@ -16,8 +19,8 @@ Blockly.common.defineBlocksWithJsonArray([
     }
 ]);
 
-Blockly.JavaScript['object_sock'] = function(block) {
+javascriptGenerator['object_sock'] = function(block) {
     // TODO: Assemble JavaScript into code variable.
-    var code = 'this.blueStar';
-    return [code, Blockly.JavaScript.ORDER_NONE];
+    var code = 'blueStar';
+    return [code, javascriptGenerator.ORDER_NONE];
 };

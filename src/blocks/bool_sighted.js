@@ -1,3 +1,6 @@
+import Blockly from "blockly";
+import {javascriptGenerator} from "blockly/javascript";
+
 Blockly.common.defineBlocksWithJsonArray([
     {
         "type": "bool_sighted",
@@ -9,9 +12,9 @@ Blockly.common.defineBlocksWithJsonArray([
     }
 ])
 
-Blockly.JavaScript['bool_sighted'] = function(block) {
+javascriptGenerator['bool_sighted'] = function(block) {
     // TODO: Assemble JavaScript into code variable.
-    var code = 'this.objectSighted';
+    var code = 'direction.toObject.isClear';
     // TODO: Change ORDER_NONE to the correct strength.
-    return [code, Blockly.JavaScript.ORDER_NONE];
+    return [code, javascriptGenerator.ORDER_NONE];
 };

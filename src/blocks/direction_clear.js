@@ -1,3 +1,7 @@
+import Blockly from "blockly";
+import {javascriptGenerator} from "blockly/javascript";
+
+
 Blockly.common.defineBlocksWithJsonArray([{
   "type": "direction_clear",
   "message0": "%1",
@@ -31,7 +35,7 @@ Blockly.common.defineBlocksWithJsonArray([{
   "helpUrl": ""
 }])
 
-Blockly.JavaScript['direction_clear'] = function(block) {
+javascriptGenerator['direction_clear'] = function(block) {
   var dropdown_name = block.getFieldValue('NAME');
   var code = '';
   // TODO: Assemble JavaScript into code variable.
@@ -46,5 +50,5 @@ Blockly.JavaScript['direction_clear'] = function(block) {
   }
 
   // TODO: Change ORDER_NONE to the correct strength.
-  return [code, Blockly.JavaScript.ORDER_NONE];
+  return [code, javascriptGenerator.ORDER_NONE];
 };

@@ -8,8 +8,15 @@
  * @fileoverview Shared toolbox for JS-Interpreter demos.
  */
 
+
+import '@/blocks/move_player';
+import '@/blocks/walked_around';
 import '@/blocks/direction_blocked';
-import  '@/blocks/move_player';
+import '@/blocks/direction_clear';
+import '@/blocks/object_sock';
+import '@/blocks/scan_for_object';
+import '@/blocks/bool_sighted';
+import '@/blocks/whileUntil';
 
 export var toolboxJson = {
   "contents": [
@@ -181,11 +188,27 @@ export var toolboxJson = {
         },
         {
           "kind": "BLOCK",
-          "type": "controls_if",
+          "type": "move_player"
         },
         {
           "kind": "BLOCK",
-          "type": "move_player"
+          "type": "whileUntil"
+        },
+        {
+          "kind": "BLOCK",
+          "type": "bool_sighted"
+        },
+        {
+          "kind": "BLOCK",
+          "type": "scan_for_object"
+        },
+        {
+          "kind": "BLOCK",
+          "type": "object_sock"
+        },
+        {
+          "kind": "BLOCK",
+          "type": "walked_around"
         },
       ]
     },

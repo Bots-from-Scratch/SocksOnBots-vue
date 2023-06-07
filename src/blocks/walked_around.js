@@ -1,3 +1,6 @@
+import Blockly from "blockly";
+import {javascriptGenerator} from "blockly/javascript";
+
 Blockly.common.defineBlocksWithJsonArray([
     {
         "type": "walked_around",
@@ -10,9 +13,9 @@ Blockly.common.defineBlocksWithJsonArray([
 ]);
 
 
-Blockly.JavaScript['walked_around'] = function(block) {
+javascriptGenerator['walked_around'] = function(block) {
     // TODO: Assemble JavaScript into code variable.
-    var code = 'this.walkedBy';
+    var code = 'walkedBy';
     // TODO: Change ORDER_NONE to the correct strength.
-    return [code, Blockly.JavaScript.ORDER_NONE];
+    return [code, javascriptGenerator.ORDER_NONE];
 };

@@ -11,9 +11,9 @@ import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 function launch(containerId) {
     return new Phaser.Game({
         type: Phaser.AUTO,
-        width: 800,
-        height: 600,
         parent: containerId,
+        width: 960,
+        height: 640,
         physics: {
             default: 'arcade',
             arcade: {
@@ -21,9 +21,11 @@ function launch(containerId) {
                 debug: false
             }
         },
-        // scene: [BootScene, PlayScene],
+        pixelArt: true,
+        // scene: [GameScene_Level_1, PreloadScene, GameScene_Level_4, GameScene_Level_3, GameScene_Level_2, CutSceneFirstSock ],
+        // scene: [GameScene_Level_2, PreloadScene, GameScene_Level_4, GameScene_Level_3, GameScene_Level_1, CutSceneFirstSock ],
         scene: [GameScene_Level_4, PreloadScene, GameScene_Level_1, GameScene_Level_3, GameScene_Level_2, CutSceneFirstSock ],
-
+        // scene: [CutSceneFirstSock, GameScene_Level_4, PreloadScene, GameScene_Level_1, GameScene_Level_3, GameScene_Level_2  ],
     })
 }
 
