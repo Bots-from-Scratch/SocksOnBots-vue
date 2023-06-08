@@ -19,7 +19,8 @@
     "acorn": "^8.8.2",
     "blockly": "^9.3.2",
     "phaser": "^3.60.0",
-    "vue": "^3.2.37"
+    "vue": "^3.2.37",
+    "vue-router": "^4.2.2"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",

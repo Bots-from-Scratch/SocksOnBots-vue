@@ -1,14 +1,11 @@
-<script setup>
-import { ref } from "vue";
-import BlocklyComponent from "./components/BlocklyComponent.vue";
-import "./blocks/stocks";
-import Blockly from "blockly";
+<script setup lang="ts">
 
-import { javascriptGenerator } from "blockly/javascript";
-import { toolboxJson } from "@/toolbox_phaser";
 import Game from "@/components/Game.vue";
-import Level4 from "@/components/Level4.vue";
-import { data } from "autoprefixer";
+import BlocklyComponent from "@/components/BlocklyComponent.vue";
+import {ref} from "vue";
+import {javascriptGenerator} from "blockly/javascript";
+import Blockly from "blockly";
+import { toolboxJson } from "@/toolbox_phaser.js";
 
 const foo = ref();
 const code = ref();
@@ -60,25 +57,20 @@ function showCode() {
 </script>
 
 <template>
-  <div
-    id="app"
-    class="flex flex-row gap-12 justify-center shrink-0 flex-wrap m-8 w-screen"
-  >
-    <p>
-      <router-link to="/">Go to Home</router-link>
-      <router-link to="/about">Go to About</router-link>
-      <router-link to="/game">Go to Game</router-link>
-    </p>
-    <router-view></router-view>
+  <div class="container flex flex-row flex-wrap justify-center">
 
+  <BlocklyComponent
+      class="w-96 h-96"
+      id="blockly"
+      :options="options"
+      ref="foo"
+      @runCodePressed="blockListReceived"
+  ></BlocklyComponent>
+
+  <Game :playGame="playGame" :blockList="receivedBlocklist" />
   </div>
 </template>
 
-<style>
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
+<style scoped>
+
 </style>
