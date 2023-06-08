@@ -1,10 +1,12 @@
 <script setup>
 import PhaserContainer from '@/components/PhaserContainer.vue'
+
+defineProps(["playGame","blockList"])
 </script>
 
 <template>
   <Suspense>
-    <PhaserContainer />
+    <PhaserContainer :playGame="playGame" :blockList="blockList"/>
 
     <template #fallback>
       <div class="placeholder">

@@ -62,9 +62,10 @@ function showCode() {
 </script>
 
 <template>
+  <header class="w-full fixed top-0 left-0 bg-amber-600 h-12"></header>
   <div
     id="app"
-    class="flex flex-row justify-center shrink-0 flex-wrap m-8 w-screen"
+    class="flex flex-row gap-12 justify-center shrink-0 flex-wrap m-8 w-screen"
   >
     <div>
       <img alt="Vue logo" src="./assets/logo.png" class="w-12 h-12" />
@@ -83,12 +84,13 @@ function showCode() {
     ></BlocklyComponent>
     <!--      <pre v-html="code"></pre>-->
 
-    <!--    <Game />-->
+        <Game :playGame="playGame" :blockList="receivedBlocklist"/>
     <!--      <p>{{value}}</p>-->
     <!--      <p>{{ getPlayGameRef }}</p>-->
 
-    <Level4 :direction="value" :playGame="playGame" :blockList="receivedBlocklist"/>
+<!--    <Level4 :direction="value" :playGame="playGame" :blockList="receivedBlocklist"/>-->
   </div>
+  <footer class="bottom-0 left-0 bg-amber-600 h-12 w-full">Impressum</footer>
 </template>
 
 <style>
