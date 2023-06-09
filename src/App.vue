@@ -9,6 +9,9 @@ import { toolboxJson } from "@/toolbox_phaser";
 import Game from "@/components/Game.vue";
 import Level4 from "@/components/Level4.vue";
 import { data } from "autoprefixer";
+import AppLayout from "@/layouts/AppLayout.vue";
+import Footer from "@/components/Footer.vue";
+import Header from "@/components/Header.vue";
 
 const foo = ref();
 const code = ref();
@@ -60,18 +63,11 @@ function showCode() {
 </script>
 
 <template>
-  <div
-    id="app"
-    class="flex flex-row gap-12 justify-center shrink-0 flex-wrap m-8 w-screen"
-  >
-    <p>
-      <router-link to="/">Go to Home</router-link>
-      <router-link to="/about">Go to About</router-link>
-      <router-link to="/game">Go to Game</router-link>
-    </p>
-    <router-view></router-view>
 
-  </div>
+  <Header />
+  <router-view></router-view>
+  <Footer />
+
 </template>
 
 <style>

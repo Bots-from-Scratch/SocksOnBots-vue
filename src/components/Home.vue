@@ -1,11 +1,16 @@
-<script  lang="ts">
+<script lang="ts">
+import {defineComponent} from "vue";
+import HeroBanner from "@/components/HeroBanner.vue";
 
+export default defineComponent({
+  components: {HeroBanner}
+})
 </script>
 
 <template>
-<div class="bg-amber-600 w-full h-12">Hello</div>
+  <div class="">
+    <HeroBanner />
+  </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
