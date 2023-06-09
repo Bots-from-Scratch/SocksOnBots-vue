@@ -57,7 +57,7 @@ function showCode() {
 </script>
 
 <template>
-  <div class="flex xl:flex-row flex-col justify-center items-center xl:items-start p-8">
+  <div class="flex xl:flex-row flex-col justify-center items-center xl:items-start my-24 mx-16">
   <Game :playGame="playGame" :blockList="receivedBlocklist" />
   <BlocklyComponent
       class=" w-full max-w-[960px] h-96 shrink grow-0"

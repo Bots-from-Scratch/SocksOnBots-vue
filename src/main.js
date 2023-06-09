@@ -12,10 +12,11 @@ import GameComponent from "@/components/GameComponent.vue";
 import Header from "@/components/Header.vue";
 import Footer from "@/components/Footer.vue";
 import Home from "@/components/Home.vue"
+import About from "@/components/About.vue";
 
 // const Home = { template: "<div>Home</div>" };
 // const GameComponent = { template: "<div>Game</div>" };
-const About = { template: "<div>About</div>" };
+// const About = { template: "<div>About</div>" };
 
 // 2. Define some routes
 // Each route should map to a component.
