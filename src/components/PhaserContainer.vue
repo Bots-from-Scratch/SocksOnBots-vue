@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-amber-600" :id="containerId" />
+  <div class="" :id="containerId" />
 <!--  <div class="bg-amber-600">{{ playGame }}</div>-->
 </template>
 

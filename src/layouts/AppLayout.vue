@@ -4,9 +4,11 @@ import Header from "@/components/Header.vue";
 </script>
 
 <template>
-  <Header />
-  <router-view></router-view>
-  <Footer />
+  <div class="flex flex-col min-h-screen">
+    <Header />
+    <router-view class="grow" />
+    <Footer class="shrink-0"/>
+  </div>
 </template>
 
 <style scoped></style>

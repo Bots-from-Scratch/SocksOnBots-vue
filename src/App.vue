@@ -63,11 +63,7 @@ function showCode() {
 </script>
 
 <template>
-
-  <Header />
-  <router-view></router-view>
-  <Footer />
-
+  <AppLayout />
 </template>
 
 <style>

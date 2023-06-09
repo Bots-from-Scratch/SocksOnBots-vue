@@ -57,17 +57,16 @@ function showCode() {
 </script>
 
 <template>
-  <div class="container flex flex-row flex-wrap justify-center">
-
+  <div class="flex xl:flex-row flex-col justify-center items-center xl:items-start p-8">
+  <Game :playGame="playGame" :blockList="receivedBlocklist" />
   <BlocklyComponent
-      class="w-96 h-96"
+      class=" w-full max-w-[960px] h-96 shrink grow-0"
       id="blockly"
       :options="options"
       ref="foo"
       @runCodePressed="blockListReceived"
-  ></BlocklyComponent>
+  />
 
-  <Game :playGame="playGame" :blockList="receivedBlocklist" />
   </div>
 </template>
 

@@ -6,6 +6,7 @@ import level4 from "@/components/Level4.vue";
 import { toolboxJson } from "@/toolbox_phaser";
 import { useLocalStorage } from "@vueuse/core";
 import { javascriptGenerator } from "blockly/javascript";
+import PixelButton from "@/components/PixelButton.vue";
 
 const emit = defineEmits(["runCodePressed"]);
 const props = defineProps(["options"]);
@@ -40,7 +41,6 @@ onMounted(() => {
   }
 });
 
-var direction = ref("LEFT");
 var playGame = ref();
 // var outputArea = document.getElementById("output");
 // var runButton = document.getElementById("runButton");
@@ -70,24 +70,13 @@ function runCode() {
 
 <template>
   <div class="">
-    <div class="blocklyDiv h-full w-full text-left" ref="blocklyDiv"></div>
-    <xml ref="blocklyToolbox">
+    <div class="h-full w-full" ref="blocklyDiv"></div>
+    <div ref="blocklyToolbox">
       <slot></slot>
-    </xml>
-    <div id="code" class="w-12 h-12 bg-amber-600 rounded text-center">
-      <button @click="runCode" class="">
-        Play
-      </button>
     </div>
-    <div id="output">{{ direction }}</div>
+    <div class="flex justify-start my-8">
+    <PixelButton text="Play" @click="runCode" /></div>
   </div>
 </template>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-/*.blocklyDiv {*/
-/*  height: 100%;*/
-/*  width: 100%;*/
-/*  text-align: left;*/
-/*}*/
-</style>
+<style scoped></style>

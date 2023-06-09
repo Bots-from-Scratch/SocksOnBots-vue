@@ -8,7 +8,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="">
+  <div>
     <HeroBanner />
   </div>
 </template>
