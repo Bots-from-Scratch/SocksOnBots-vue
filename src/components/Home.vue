@@ -1,20 +1,22 @@
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
 import HeroBanner from "@/components/HeroBanner.vue";
 import PixelCard from "@/components/PixelCard.vue";
 
-export default defineComponent({
-  components: {PixelCard, HeroBanner}
-})
+const cards = [
+  { text: "Card1" },
+  { text: "Card2" },
+  { text: "Card3" },
+  { text: "Card4" },
+];
 </script>
 
 <template>
   <div>
     <HeroBanner />
     <div class="container mx-auto flex justify-center gap-20 my-32 flex-wrap">
-    <PixelCard text="text"/>
-    <PixelCard />
-    <PixelCard />
+      <div v-for="card in cards">
+        <PixelCard :text="card.text" />
+      </div>
     </div>
   </div>
 </template>
