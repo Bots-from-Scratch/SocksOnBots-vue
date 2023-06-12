@@ -19,10 +19,21 @@ io.on("connection", function (socket) {
         console.log("A user with ID: " + socket.id + " disconnected");
     });
 
-
     socket.on("foo", (data) => {
         socket.broadcast.emit("foo", data);
         console.log("foo method");
+        console.log(data);
+    });
+
+    socket.on("direction", (data) => {
+        socket.emit("direction", data);
+        console.log("direction method");
+        console.log(data);
+    });
+
+    socket.on("playerX", (data) => {
+        // socket.emit("direction", data);
+        console.log("playerX method");
         console.log(data);
     });
 

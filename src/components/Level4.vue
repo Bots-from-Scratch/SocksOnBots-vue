@@ -21,6 +21,7 @@ import bot_with_sock from "@/assets/Spritesheet.png";
 import level_4 from "@/assets/SocksOnBots_lvl_4.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
+import {socket} from "@/socket";
 
 export default defineComponent({
   name: "Level4",
@@ -35,14 +36,6 @@ export default defineComponent({
       GameScene: Scene,
       actualScene: Scene,
     };
-  },
-
-  watch: {
-    playGame() {
-      if (this.playGame) {
-        runBlocks(this.blockList);
-      }
-    },
   },
 
   mounted() {
@@ -79,6 +72,8 @@ let walkedBy;
 
 const runBlocks = (blockList) => {
   console.log("runBlocks wurde aufgerufen.");
+  console.log(direction);
+  socket.emit("direction", direction)
   console.log(blockList);
   const blockGenerator = eval(`(function* () {
             ${blockList.join(";")}
@@ -562,6 +557,8 @@ class GameScene extends Scene {
   }
 
   update() {
+
+    // socket.emit("playerX", this.player.x);
     if (this.scannedObject) {
       if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
         console.log("not in view");

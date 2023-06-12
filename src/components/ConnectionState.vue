@@ -1,6 +1,8 @@
 <template>
   <p>State: {{ connected }}</p>
-  <p>State: {{ fooEvents }}</p>
+  <p>foo: {{ fooEvents }}</p>
+  <p>direction: {{ direction }}</p>
+
 </template>
 
 <script>
@@ -15,6 +17,9 @@ export default {
     },
     fooEvents() {
       return state.fooEvents;
+    },
+    direction() {
+      return state.direction;
     }
   }
 }
