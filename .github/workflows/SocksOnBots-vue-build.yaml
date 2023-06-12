@@ -41,8 +41,6 @@ jobs:
           npm run build
           npm install -g pm2
           pm2 start server.js --name "my-app"
-          mv dist ${{ env.DEPLOYMENT_FOLDER }}
-    
 
     # Please do not touch the following action
       - name: Store deployment content
