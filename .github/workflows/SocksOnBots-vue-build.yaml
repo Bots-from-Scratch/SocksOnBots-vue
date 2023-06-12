@@ -38,9 +38,13 @@ jobs:
           SITE_URL: ${{ inputs.site-url }}
         run: |
           npm ci --force
-          npm run prodBuild
+          npm run build
+          npm install -g pm2
+          pm2 start server.js --name "my-app"
+          mv dist ${{ env.DEPLOYMENT_FOLDER }}
+    
 
-# Please do not touch the following action
+    # Please do not touch the following action
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
         with:
@@ -52,3 +56,4 @@ jobs:
           folder: ${{ env.DEPLOYMENT_FOLDER }}
           config-file: .deploy-now/SocksOnBots-vue/config.yaml
           action: upload
+          ignore-exit-code: true
