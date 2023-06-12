@@ -7,7 +7,7 @@ import PixelButton from "@/components/PixelButton.vue";
     class="w-full h-max md:h-max bg-hero-image bg-cover bg-center flex flex-col-reverse items-center justify-evenly gap-16 md:flex-row"
   >
     <img
-      src="src/assets/robot.png"
+      src="@/assets/robot.png"
       alt="Roboter in Pixelart"
       class="-scale-x-100"
     />

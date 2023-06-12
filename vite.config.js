@@ -54,14 +54,12 @@ export default defineConfig({
     },
   },
   build: {
-      // rollupOptions: {
-      //     input: {
-      //         acornInterpreter: 'src/acorn_interpreter.js',
-      //         blocklyCompressed: 'https://blockly-demo.appspot.com/static/blockly_compressed.js',
-      //         // Weitere Skripte hinzufügen
-      //     }
-      // },
-    // phaser doesn't accept inlined assets
+      rollupOptions: {
+          external: {
+
+              // Weitere Skripte hinzufügen
+          }
+      },
     assetsInlineLimit: 0,
   },
 });

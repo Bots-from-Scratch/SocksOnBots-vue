@@ -3,7 +3,7 @@
   <div class="flex flex-col">
     <div>direction: {{ direction }}</div>
     <div>playGame: {{ playGame }}</div>
-    <div>blockList: {{ blockList }}</div>
+    <div>blockList: {{ direction }}</div>
   </div>
 </template>
 
@@ -21,7 +21,8 @@ import bot_with_sock from "@/assets/Spritesheet.png";
 import level_4 from "@/assets/SocksOnBots_lvl_4.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
-import {socket} from "@/socket";
+import {socket, state} from "@/socket";
+
 
 export default defineComponent({
   name: "Level4",
@@ -36,6 +37,13 @@ export default defineComponent({
       GameScene: Scene,
       actualScene: Scene,
     };
+  },
+
+  computed: {
+    direction() {
+      direction = state.direction
+      return state.direction;
+    }
   },
 
   mounted() {
@@ -59,7 +67,7 @@ export default defineComponent({
 });
 
 let blockFunction;
-const direction = {
+let direction = {
   right: { isClear: true, isMoving: false },
   left: { isClear: true, isMoving: false },
   up: { isClear: true, isMoving: false },
@@ -558,7 +566,7 @@ class GameScene extends Scene {
 
   update() {
 
-    // socket.emit("playerX", this.player.x);
+        // socket.emit("playerX", this.player.x);
     if (this.scannedObject) {
       if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
         console.log("not in view");
