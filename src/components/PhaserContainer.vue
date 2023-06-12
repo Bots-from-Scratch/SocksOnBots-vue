@@ -1,22 +1,33 @@
 <template>
-    <div :id="containerId" />
+  <div class="" :id="containerId" />
+<!--  <div class="bg-amber-600">{{ playGame }}</div>-->
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
-import { Game } from 'phaser'
+import { onMounted, onUnmounted, ref, watch } from "vue";
+import { runBlocks } from "@/components/Level4.vue";
 
-let gameInstance = null
-const containerId = 'game-container'
-const game = await import('@/game/game')
+const props = defineProps(["playGame","blockList"]);
+
+let gameInstance = null;
+const containerId = "game-container";
+const game = await import("@/game/game");
 const value = "VALUE";
 onMounted(() => {
-  gameInstance = game.launch(containerId)
-})
+  gameInstance = game.launch(containerId);
+  console.log(gameInstance.scene.getScenes());
+});
+
+watch(
+  () => props.playGame,
+  () => {
+    console.log(props.blockList);
+    runBlocks(props.blockList);
+  }
+);
+
 
 onUnmounted(() => {
-  gameInstance?.destroy(false)
-})
+  gameInstance?.destroy(false);
+});
 </script>
-
-
