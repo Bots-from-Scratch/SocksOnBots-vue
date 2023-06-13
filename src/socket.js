@@ -9,7 +9,7 @@ export const state = reactive({
 
 // "undefined" means the URL will be computed from the `window.location` object
 const URL =
-  process.env.NODE_ENV === "production" ? "https://socket-server-fd5m.onrender.com/" : "http://localhost:3010";
+  process.env.NODE_ENV === "production" ? "https://socket-server-3jgo.onrender.com" : "http://localhost:3010";
 
 export const socket = io(URL, {
   autoConnect: true,
