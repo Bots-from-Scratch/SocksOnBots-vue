@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 
 export const state = reactive({
   connected: false,
-  fooEvents: [],
+  playerXY: {},
   direction: {}
 });
 
@@ -24,9 +24,9 @@ socket.on("disconnect", () => {
   state.connected = false;
 });
 
-socket.on("foo", (data) => {
-  console.log("foo");
-  state.fooEvents.push(data);
+socket.on("playerXY", (data) => {
+  console.log("playerXY");
+  state.playerXY = data;
   // state.fooEvents.push(args);
 });
 

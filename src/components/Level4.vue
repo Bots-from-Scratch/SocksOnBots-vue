@@ -10,7 +10,7 @@
 <script>
 import * as Phaser from "phaser";
 import { Scene } from "phaser";
-import { defineComponent, ref } from "vue";
+import {defineComponent, ref, toRaw} from "vue";
 import sky from "@/game/assets/sky.png";
 import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
@@ -21,8 +21,7 @@ import bot_with_sock from "@/assets/Spritesheet.png";
 import level_4 from "@/assets/SocksOnBots_lvl_4.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
-import {socket, state} from "@/socket";
-
+import { socket, state } from "@/socket";
 
 export default defineComponent({
   name: "Level4",
@@ -41,9 +40,10 @@ export default defineComponent({
 
   computed: {
     direction() {
-      direction = state.direction
+      direction = state.direction;
+      console.log(direction);
       return state.direction;
-    }
+    },
   },
 
   mounted() {
@@ -66,6 +66,9 @@ export default defineComponent({
   },
 });
 
+let playerXY = {x: 0,
+y:0};
+let player2XY;
 let blockFunction;
 let direction = {
   right: { isClear: true, isMoving: false },
@@ -80,8 +83,7 @@ let walkedBy;
 
 const runBlocks = (blockList) => {
   console.log("runBlocks wurde aufgerufen.");
-  console.log(direction);
-  socket.emit("direction", direction)
+  socket.emit("direction", direction);
   console.log(blockList);
   const blockGenerator = eval(`(function* () {
             ${blockList.join(";")}
@@ -285,6 +287,7 @@ class GameScene extends Scene {
 
   createPlayer() {
     this.player = this.physics.add.sprite(150, 150, "bot").setScale(1.4);
+    this.player2 = this.physics.add.sprite(150, 150, "bot").setScale(1.4).setAlpha(0.5).setTint(0x006db2);
     console.log(this.player);
     if (this.level === 4) {
       this.player.setX(160).setY(80);
@@ -565,8 +568,18 @@ class GameScene extends Scene {
   }
 
   update() {
+    // socket.emit("direction", direction);
+    if (Object.entries(state.direction).length > 0) {
+      direction = toRaw(state.direction);
+      console.log(direction.right.isMoving);
+    }
 
-        // socket.emit("playerX", this.player.x);
+    player2XY = toRaw(state.playerXY);
+    this.player2.setX(player2XY.x);
+    this.player2.setY(player2XY.y);
+    playerXY.x= this.player.x;
+    playerXY.y= this.player.y;
+    socket.emit("playerXY", playerXY);
     if (this.scannedObject) {
       if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
         console.log("not in view");

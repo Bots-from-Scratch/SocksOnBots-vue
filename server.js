@@ -31,10 +31,9 @@ io.on("connection", function (socket) {
         console.log(data);
     });
 
-    socket.on("playerX", (data) => {
-        // socket.emit("direction", data);
-        console.log("playerX method");
-        console.log(data);
+    socket.on("playerXY", (data) => {
+        socket.broadcast.emit("playerXY", data);
+        console.log("playerXY method");
     });
 
 });
