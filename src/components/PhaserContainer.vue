@@ -1,5 +1,5 @@
 <template>
-  <div class="" :id="containerId" />
+  <div class="game-container" :id="containerId" />
 <!--  <div class="bg-amber-600">{{ playGame }}</div>-->
 </template>
 
@@ -31,3 +31,9 @@ onUnmounted(() => {
   gameInstance?.destroy(false);
 });
 </script>
+
+<style>
+.game-container > canvas {
+  width: 100%;
+}
+</style>

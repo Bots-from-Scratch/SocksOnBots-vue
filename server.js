@@ -2,10 +2,10 @@ const app = require("express")();
 const http = require("http").Server(app);
 const io = require("socket.io")(http,{
     cors: {
-        origin: "http://localhost:5173"
+        origin: ["https://socksonbots.de", "https://vueonbots.onrender.com", "http://192.168.178.20:5173", "http://localhost:5173"]
     }
 });
-const path = require("path");
+// const path = require("path");
 
 app.get("/", (req, res) => {
     res.send("<h1>Server running</h1>");
@@ -28,7 +28,7 @@ io.on("connection", function (socket) {
     socket.on("direction", (data) => {
         socket.broadcast.emit("direction", data);
         console.log("direction method");
-        console.log(data);
+        // console.log(data);
     });
 
     socket.on("playerXY", (data) => {

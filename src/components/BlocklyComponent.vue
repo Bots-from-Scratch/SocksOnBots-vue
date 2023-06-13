@@ -69,8 +69,8 @@ function runCode() {
 </script>
 
 <template>
-  <div class="">
-    <div class="h-full w-full" ref="blocklyDiv"></div>
+  <div class="w-full">
+    <div class="h-full" ref="blocklyDiv"></div>
     <div ref="blocklyToolbox">
       <slot></slot>
     </div>
