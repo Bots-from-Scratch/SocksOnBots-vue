@@ -39,8 +39,6 @@ jobs:
         run: |
           npm ci --force
           npm run build
-          npm install -g pm2
-          pm2 start server.js --name "my-app"
 
     # Please do not touch the following action
       - name: Store deployment content
@@ -54,4 +52,3 @@ jobs:
           folder: ${{ env.DEPLOYMENT_FOLDER }}
           config-file: .deploy-now/SocksOnBots-vue/config.yaml
           action: upload
-          ignore-exit-code: true
