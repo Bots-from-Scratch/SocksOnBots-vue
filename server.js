@@ -42,11 +42,11 @@ io.on("connection", function (socket) {
     socket.to(data).emit("lobbyChat", "This is a message on " + printTime());
     console.log(data);
   });
+});
 
-  socket.on("chat", (data) => {
-    console.log(data);
-    socket.to("r_" + data.roomId).emit("chatMessage", data.msg);
-  });
+io.on("chat", (data) => {
+  console.log(data);
+  io.to("r_" + data.roomId).emit("chatMessage", data.msg);
 });
 
 function printTime() {
