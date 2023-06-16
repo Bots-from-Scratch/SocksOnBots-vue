@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, shallowRef } from "vue";
+import { computed, onMounted, ref, shallowRef } from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
 import level4 from "@/components/Level4.vue";
@@ -7,6 +7,7 @@ import { toolboxJson } from "@/toolbox_phaser";
 import { useLocalStorage } from "@vueuse/core";
 import { javascriptGenerator } from "blockly/javascript";
 import PixelButton from "@/components/PixelButton.vue";
+import { state } from "../socket";
 
 const emit = defineEmits(["runCodePressed"]);
 const props = defineProps(["options"]);
@@ -42,6 +43,11 @@ onMounted(() => {
 });
 
 var playGame = ref();
+const directionObj = computed({
+  get() {
+    return state.direction;
+  },
+});
 // var outputArea = document.getElementById("output");
 // var runButton = document.getElementById("runButton");
 
@@ -75,7 +81,9 @@ function runCode() {
       <slot></slot>
     </div>
     <div class="flex justify-start my-8">
-    <PixelButton text="Play" @click="runCode" /></div>
+      <PixelButton text="Play" @click="runCode" />
+      <p>{{ directionObj }}</p>
+    </div>
   </div>
 </template>
 

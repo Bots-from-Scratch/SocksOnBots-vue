@@ -1,17 +1,20 @@
 <script setup lang="ts">
-
 import Game from "@/components/Game.vue";
 import BlocklyComponent from "@/components/BlocklyComponent.vue";
-import {ref} from "vue";
-import {javascriptGenerator} from "blockly/javascript";
+import {computed, ref} from "vue";
+import { javascriptGenerator } from "blockly/javascript";
 import Blockly from "blockly";
 import { toolboxJson } from "@/toolbox_phaser.js";
+import {state} from "@/socket";
+import RangeSlider from "@/components/RangeSlider.vue";
 
 const foo = ref();
 const code = ref();
 const lvl4 = ref();
 let value = ref("");
 const playGame = ref(false);
+const volume = ref({music: 40,
+  sound: 40});
 const options = {
   toolbox: toolboxJson,
   collapse: true,
@@ -54,22 +57,30 @@ function showCode() {
   console.log(playGame);
   // eval(code.value);
 }
+
+
 </script>
 
 <template>
-  <div class="flex xl:flex-row flex-col justify-start items-center xl:items-start my-24 mx-16">
-  <Game :playGame="playGame" :blockList="receivedBlocklist" />
-  <BlocklyComponent
+  <div
+    class="flex xl:flex-row flex-col justify-start items-centerr xl:items-start my-24 mx-16"
+  >
+    <Game
+      :playGame="playGame"
+      :blockList="receivedBlocklist"
+      :volume="volume"
+    />
+    <div class="flex flex-col justify-start">
+    <RangeSlider v-model="volume.music" name="Music Volume"/>
+    <RangeSlider v-model="volume.sound" name="Sound Volume"/></div>
+    <BlocklyComponent
       class="w-full max-w-[960px] xl:max-w-xl h-96 shrink grow-0"
       id="blockly"
       :options="options"
       ref="foo"
       @runCodePressed="blockListReceived"
-  />
-
+    />
   </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

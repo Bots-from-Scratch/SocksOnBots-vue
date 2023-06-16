@@ -1,5 +1,5 @@
 <template>
-  <div ref="game"></div>
+  <div ref="gamee"></div>
   <div class="flex flex-col">
     <div>direction: {{ direction }}</div>
     <div>playGame: {{ playGame }}</div>
@@ -10,7 +10,7 @@
 <script>
 import * as Phaser from "phaser";
 import { Scene } from "phaser";
-import {defineComponent, ref, toRaw} from "vue";
+import { defineComponent, ref, toRaw } from "vue";
 import sky from "@/game/assets/sky.png";
 import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
@@ -21,6 +21,8 @@ import bot_with_sock from "@/assets/Spritesheet.png";
 import level_4 from "@/assets/SocksOnBots_lvl_4.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
+import collisionSound from "@/assets/sounds/HIT/HIT1.ogg";
+import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import { socket, state } from "@/socket";
 
 export default defineComponent({
@@ -57,7 +59,7 @@ export default defineComponent({
         default: "arcade",
         arcade: {
           // gravity: { y: 300 },
-          debug: false,
+          debug: true,
         },
       },
       pixelArt: true,
@@ -66,11 +68,17 @@ export default defineComponent({
   },
 });
 
-let playerXY = {x: 0,
-y:0};
+let playerXY = { x: 0, y: 0 };
 let player2XY;
 let blockFunction;
 let direction = {
+  right: { isClear: true, isMoving: false },
+  left: { isClear: true, isMoving: false },
+  up: { isClear: true, isMoving: false },
+  down: { isClear: true, isMoving: false },
+  toObject: { isClear: false, isMoving: false },
+};
+let directionPlayer2 = {
   right: { isClear: true, isMoving: false },
   left: { isClear: true, isMoving: false },
   up: { isClear: true, isMoving: false },
@@ -149,6 +157,8 @@ class GameScene extends Scene {
       frameHeight: 64,
     });
     this.load.tilemapTiledJSON("map", level_4);
+    this.load.audio("collision", "./src/assets/sounds/HIT/HIT1.ogg");
+    this.load.audio("backgroundSound", bgSound);
   }
 
   create() {
@@ -164,8 +174,6 @@ class GameScene extends Scene {
     const groundLayer = map.createLayer("floor", tileset, 0, 0);
     this.wallLayer = map.createLayer("walls", tileset, 0, 0);
     const objectLayer = map.createLayer("objects", tileset, 0, 0);
-    console.log("this.wallLayer");
-    console.log(this.wallLayer);
 
     this.wallLayer.setCollisionByProperty({ collision: true });
     // this.wallLayer.setCollisionFromCollisionGroup(true, true);
@@ -180,12 +188,6 @@ class GameScene extends Scene {
     // for (const el of gidMapEntries) console.log(el[1]);
 
     map.setBaseTileSize(64, 64);
-
-    // const debugGraphics = this.add.graphics().setAlpha(0.5);
-    // this.wallLayer.renderDebug(debugGraphics, {
-    //     tileColor: null,
-    //     collidingTileColor: new Phaser.Display.Color(255, 255, 50, 255)
-    // });
 
     this.createBlockingObjects(map);
     this.createPlayer();
@@ -262,6 +264,10 @@ class GameScene extends Scene {
     this.frameGraphics = this.add.graphics();
     this.frameColor = 0x00ff00; // Rahmenfarbe (Grün)
     this.blockingObjects = this.rectangles;
+
+    this.collisionSound = this.sound.add("collision");
+    this.backgroundSound = this.sound.add("backgroundSound")
+    // this.backgroundSound.setVolume(0.3).play();
   }
 
   //------------------------------------------------------------------------------------------------------------
@@ -287,19 +293,24 @@ class GameScene extends Scene {
 
   createPlayer() {
     this.player = this.physics.add.sprite(150, 150, "bot").setScale(1.4);
-    this.player2 = this.physics.add.sprite(150, 150, "bot").setScale(1.4).setAlpha(0.5).setTint(0x006db2);
+    this.player2 = this.physics.add
+      .sprite(150, 150, "bot")
+      .setScale(1.4)
+      .setAlpha(0.5)
+      .setTint(0x006db2);
     console.log(this.player);
     if (this.level === 4) {
       this.player.setX(160).setY(80);
+      this.player2.setX(160).setY(80);
     }
 
     // this.player.body.bounce.set(1);
     this.player.body.setMaxSpeed(160);
-    this.player.setCircle(20, 12, 28);
-    this.physics.add.collider(
-      this.player,
-      this.rectangles,
-      function (_player, _platform) {
+    this.player.body.setCircle(20, 12, 28);
+    this.player2.setCircle(20, 12, 28);
+
+    function detectCollisionDirection(_player, _platform) {
+      return function (_player, _platform) {
         this.objectCollidedWith = _platform;
         this.collided = true;
         walkedBy = false;
@@ -308,22 +319,63 @@ class GameScene extends Scene {
             console.log("frontBlocked");
             // player.setY(player.y + 2);
             direction.up.isClear = false;
+            direction.up.isMoving = false;
           } else if (_player.body.blocked.down) {
             // player.setY(player.y - 2);
             direction.down.isClear = false;
+            direction.down.isMoving = false;
           } else if (_player.body.blocked.right) {
             // player.setX(player.x - 2);
             direction.right.isClear = false;
+            direction.right.isMoving = false;
           } else {
             // player.setX(player.x + 2);
             direction.left.isClear = false;
+            direction.left.isMoving = false;
           }
-          this.player.setVelocityX(0);
-          this.player.setVelocityY(0);
+          // this.player.setVelocityX(0);
+          // this.player.setVelocityY(0);
+        }
+      };
+    }
+
+
+    this.physics.add.collider(
+      this.player,
+      this.rectangles,
+      (_player, _rectangles) => {
+        this.objectCollidedWith = _rectangles;
+        this.collided = true;
+        walkedBy = false;
+        if (!_player.body.blocked.none) {
+          console.log(this.collisionSound)
+          if(!this.collisionSound.isPlaying){
+          this.collisionSound.setVolume(0.25).play();
+          }
+
+          if (_player.body.blocked.up) {
+            console.log("frontBlocked");
+            // player.setY(player.y + 2);
+            direction.up.isClear = false;
+            direction.up.isMoving = false;
+          } else if (_player.body.blocked.down) {
+            // player.setY(player.y - 2);
+            direction.down.isClear = false;
+            direction.down.isMoving = false;
+          } else if (_player.body.blocked.right) {
+            // player.setX(player.x - 2);
+            direction.right.isClear = false;
+            direction.right.isMoving = false;
+          } else {
+            // player.setX(player.x + 2);
+            direction.left.isClear = false;
+            direction.left.isMoving = false;
+          }
+          // this.player.setVelocityX(0);
+          // this.player.setVelocityY(0);
         }
       },
-      this.processCallback,
-      this
+      this.processCallback
     );
 
     this.player.setCollideWorldBounds(true);
@@ -554,6 +606,13 @@ class GameScene extends Scene {
     }
   }
 
+  resetMovement() {
+    direction.right.isMoving = false;
+    direction.left.isMoving = false;
+    direction.up.isMoving = false;
+    direction.down.isMoving = false;
+    direction.toObject.isMoving = false;
+  }
   resetDirection() {
     direction.right.isClear = true;
     direction.right.isMoving = false;
@@ -567,19 +626,26 @@ class GameScene extends Scene {
     direction.toObject.isMoving = false;
   }
 
+  playBackgroundSound(volume) {
+    if(!this.backgroundSound.isPlaying){
+    this.backgroundSound.setVolume(volume).play();
+    }
+    this.backgroundSound.setVolume(volume);
+
+  }
+
   update() {
-    // socket.emit("direction", direction);
+    socket.emit("direction", direction);
     if (Object.entries(state.direction).length > 0) {
-      direction = toRaw(state.direction);
-      console.log(direction.right.isMoving);
+      directionPlayer2 = toRaw(state.direction);
     }
 
-    player2XY = toRaw(state.playerXY);
-    this.player2.setX(player2XY.x);
-    this.player2.setY(player2XY.y);
-    playerXY.x= this.player.x;
-    playerXY.y= this.player.y;
-    socket.emit("playerXY", playerXY);
+    // player2XY = toRaw(state.playerXY);
+    // this.player2.setX(player2XY.x);
+    // this.player2.setY(player2XY.y);
+    // playerXY.x = this.player.x;
+    // playerXY.y = this.player.y;
+    // socket.emit("playerXY", playerXY);
     if (this.scannedObject) {
       if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
         console.log("not in view");
@@ -677,6 +743,7 @@ class GameScene extends Scene {
           ),
           0
         );
+        console.log(distCheb);
         distClosest = Phaser.Math.RoundTo(
           Phaser.Math.Distance.BetweenPoints(
             this.player,
@@ -761,78 +828,81 @@ class GameScene extends Scene {
       this.scene.restart();
     }
 
+    this.movePlayer(this.player, direction);
+    this.movePlayer(this.player2, directionPlayer2);
+  }
+
+  movePlayer(player, dir) {
     if (this.rotation === this.ROTATION_LEFT) {
-      this.player.flipX = true;
-      this.player.anims.playAfterRepeat("left");
+      player.flipX = true;
+      player.anims.playAfterRepeat("left");
     } else if (this.rotation === this.ROTATION_RIGHT) {
-      this.player.flipX = false;
-      this.player.anims.playAfterRepeat("right");
+      player.flipX = false;
+      player.anims.playAfterRepeat("right");
     } else if (this.rotation === this.ROTATION_UP) {
-      this.player.flipX = false;
-      this.player.anims.playAfterRepeat("up");
+      player.flipX = false;
+      player.anims.playAfterRepeat("up");
     } else if (this.rotation === this.ROTATION_DOWN) {
-      this.player.flipX = false;
-      this.player.anims.playAfterRepeat("down");
+      player.flipX = false;
+      player.anims.playAfterRepeat("down");
     }
 
-    if (this.cursors.left.isDown || direction.left.isMoving) {
+    if (this.cursors.left.isDown || dir.left.isMoving) {
       if (this.rotation !== this.ROTATION_LEFT) {
-        this.player.anims.play("turnToSide", true);
+        player.anims.play("turnToSide", true);
       }
       this.rotation = this.ROTATION_LEFT;
-      this.player.setVelocityX(-160);
-      // this.player.setVelocityY(0);
-      this.resetDirection();
-    } else if (this.cursors.right.isDown || direction.right.isMoving) {
+      player.setVelocityX(-160);
+      player.setVelocityY(0);
+      // this.resetDirection();
+    } else if (this.cursors.right.isDown || dir.right.isMoving) {
       if (this.rotation !== this.ROTATION_RIGHT) {
         if (this.rotation === this.ROTATION_LEFT) {
-          this.player.anims.play("leftToRight");
+          player.anims.play("leftToRight");
         } else if (this.rotation === this.ROTATION_UP) {
-          this.player.anims.play("upToRight");
+          player.anims.play("upToRight");
         } else if (this.rotation === this.ROTATION_DOWN) {
-          this.player.anims.play("turnToSide");
+          player.anims.play("turnToSide");
         }
       }
       this.rotation = this.ROTATION_RIGHT;
-      this.player.setVelocityX(160);
-      // this.player.setVelocityY(0);
-      this.resetDirection();
-    } else if (this.cursors.up.isDown || direction.up.isMoving) {
+      player.setVelocityX(160);
+      player.setVelocityY(0);
+      // this.resetDirection();
+    } else if (this.cursors.up.isDown || dir.up.isMoving) {
       if (this.rotation !== this.ROTATION_UP) {
         if (this.rotation === this.ROTATION_LEFT) {
-          this.player.anims.play("leftToUp");
+          player.anims.play("leftToUp");
         } else if (this.rotation === this.ROTATION_RIGHT) {
-          this.player.anims.play("rightToUp");
+          player.anims.play("rightToUp");
         } else if (this.rotation === this.ROTATION_DOWN) {
-          this.player.anims.play("downToUp");
+          player.anims.play("downToUp");
         }
       }
-
       this.rotation = this.ROTATION_UP;
-      this.player.setVelocityX(0);
-      this.player.setVelocityY(-160);
-      this.resetDirection();
-    } else if (this.cursors.down.isDown || direction.down.isMoving) {
+      player.setVelocityX(0);
+      player.setVelocityY(-160);
+      // this.resetDirection();
+    } else if (this.cursors.down.isDown || dir.down.isMoving) {
       if (this.rotation !== this.ROTATION_DOWN) {
         if (this.rotation === this.ROTATION_LEFT) {
-          this.player.anims.play("leftToDown");
+          player.anims.play("leftToDown");
         } else if (this.rotation === this.ROTATION_RIGHT) {
-          this.player.anims.play("rightToDown");
+          player.anims.play("rightToDown");
         } else if (this.rotation === this.ROTATION_UP) {
-          this.player.anims.play("upToDown");
+          player.anims.play("upToDown");
         }
       }
-
       this.rotation = this.ROTATION_DOWN;
-      this.player.setVelocityX(0);
-      this.player.setVelocityY(160);
-      this.resetDirection();
+      player.setVelocityX(0);
+      player.setVelocityY(160);
+      // this.resetDirection();
     } else {
       // player.setVelocityY(0);
     }
     // playGame = false;
-    if (direction.toObject.isClear && direction.toObject.isMoving) {
-      this.physics.accelerateToObject(this.player, blueStar, 4000);
+    if (dir.toObject.isClear && dir.toObject.isMoving) {
+      this.physics.accelerateToObject(player, blueStar, 4000);
       // player.setVelocityY(0);
     }
   }

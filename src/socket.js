@@ -31,7 +31,7 @@ socket.on("playerXY", (data) => {
 });
 
 socket.on("direction", (data) => {
-  console.log("direction");
+  // console.log("direction");
   state.direction = data;
 });
 

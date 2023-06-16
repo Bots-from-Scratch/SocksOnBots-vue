@@ -12,19 +12,19 @@ Blockly.common.defineBlocksWithJsonArray([{
       "options": [
         [
           "right is clear",
-          "RIGHT_CLEAR"
+          "right"
         ],
         [
           "left is clear",
-          "LEFT_CLEAR"
+          "left"
         ],
         [
           "up is clear",
-          "UP_CLEAR"
+          "up"
         ],
         [
           "down is clear",
-          "DOWN_CLEAR"
+          "down"
         ]
       ]
     }
@@ -35,20 +35,9 @@ Blockly.common.defineBlocksWithJsonArray([{
   "helpUrl": ""
 }])
 
-javascriptGenerator['direction_clear'] = function(block) {
-  var dropdown_name = block.getFieldValue('NAME');
-  var code = '';
-  // TODO: Assemble JavaScript into code variable.
-  if (dropdown_name == 'RIGHT_CLEAR') {
-    code += 'this.rightIsClear'
-  } else if (dropdown_name == 'LEFT_CLEAR') {
-    code += 'this.leftIsClear'
-  } else if (dropdown_name == 'UP_CLEAR') {
-    code += 'this.upIsClear'
-  } else {
-    code += 'this.downIsClear'
-  }
+javascriptGenerator['direction_clear'] = function (block) {
+  let blockValue = block.getFieldValue('NAME');
+  let code = "direction." + blockValue + ".isClear";
 
-  // TODO: Change ORDER_NONE to the correct strength.
-  return [code, javascriptGenerator.ORDER_NONE];
+  return [code, javascriptGenerator.ORDER_ATOMIC];
 };
