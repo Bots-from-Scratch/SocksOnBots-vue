@@ -29,7 +29,7 @@ socket.on("foo", (data) => {
   state.fooEvents.push(data);
   // state.fooEvents.push(args);
 });
-socket.on("chat", (data) => {
+socket.on("chatMessage", (data) => {
   console.log("Chat", data);
 });
 

@@ -44,9 +44,9 @@ io.on("connection", function (socket) {
   });
 });
 
-io.on("chat", (data) => {
-  console.log(data);
-  io.to("r_" + data.roomId).emit("chatMessage", data.msg);
+io.on("chat", (socket) => {
+  console.log(socket);
+  socket.to("r_" + socket.roomId).emit("chatMessage", socket.msg);
 });
 
 function printTime() {
