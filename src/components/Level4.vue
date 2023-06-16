@@ -157,7 +157,7 @@ class GameScene extends Scene {
       frameHeight: 64,
     });
     this.load.tilemapTiledJSON("map", level_4);
-    this.load.audio("collision", "./src/assets/sounds/HIT/HIT1.ogg");
+    this.load.audio("collision", collisionSound);
     this.load.audio("backgroundSound", bgSound);
   }
 
