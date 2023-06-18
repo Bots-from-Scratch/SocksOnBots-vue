@@ -44,7 +44,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("connectRoom", (data) => {
-    // Check, if room < 2, then join
+    //TODO Check, if room < 2, then join
     socket.join("r_" + data);
     roomList.push("r_" + data);
     console.log(roomList);
