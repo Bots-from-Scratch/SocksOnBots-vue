@@ -14,12 +14,6 @@ app.get("/", (req, res) => {
 
 io.on("connection", function (socket) {
   console.log("A user with ID: " + socket.id + " connected");
-  // console.log(socket);
-
-  // setInterval((socket) => {
-  //   socket.broadcast(socket);
-  // }, 1000);
-  // socket.join("r_" + socket.id);
 
   socket.on("disconnect", function () {
     console.log("A user with ID: " + socket.id + " disconnected");
@@ -65,17 +59,9 @@ io.on("connection", function (socket) {
 
   socket.on("listRooms", () => {
     console.log("Aufruf");
-    // console.log(socket);
-    // socket.to("r_" + socket.roomId).emit("chatMessage", socket.msg);
     console.log(roomList);
     socket.emit("listRooms.response", roomList);
   });
-
-  // socket.on("listRooms", () => {
-  //   const roomList = socket.rooms;
-  //   console.log(roomList);
-  //   socket.emit("listRooms.response", roomList);
-  // });
 });
 
 function printTime() {
