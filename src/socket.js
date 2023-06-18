@@ -5,6 +5,7 @@ export const state = reactive({
   connected: false,
   fooEvents: [],
   direction: {},
+  roomID: "",
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -37,9 +38,13 @@ socket.on("joinRoom", (data) => {
   socket.emit("connectRoom", data);
 });
 
+socket.on("joinedRoom", (data) => {
+  state.roomID = data;
+});
+
 socket.on("direction", (data) => {
   console.log("direction");
-  state.direction = data;
+  state.direction = data.direction;
 });
 
 socket.on("listRooms.response", (data) => {

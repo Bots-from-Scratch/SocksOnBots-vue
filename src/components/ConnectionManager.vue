@@ -3,10 +3,10 @@
     <button @click="connect()">Connect</button>
     <button @click="foo()">foo</button>
     <button @click="disconnect()">Disconnect</button>
-    <input type="text" name="lobby" id="lobby-id" v-model="room" />
-    <button @click="connectRoom(room)">Connect</button>
+    <input type="text" name="lobby" id="lobby-id" v-model="roomID" />
+    <button @click="connectRoom()">Connect</button>
     <input type="text" name="chat" id="chat" v-model="chat" />
-    <button @click="sendMessage(room, chat)">Send</button>
+    <button @click="sendMessage(chat)">Send</button>
   </div>
 </template>
 
@@ -25,6 +25,7 @@ export default {
   data() {
     return {
       test: "testString",
+      roomID: "",
     };
   },
 
@@ -40,13 +41,14 @@ export default {
     foo() {
       socket.emit("foo", this.test);
     },
-    connectRoom(roomId) {
-      socket.emit("connectRoom", roomId);
-      console.log("connect Room", roomId);
+    connectRoom() {
+      socket.emit("connectRoom", this.roomID);
+      console.log(this.roomID);
+      console.log("connect Room", this.roomID);
     },
-    sendMessage(roomId, text) {
-      socket.emit("chat", { roomId: roomId, msg: text });
-      console.log("chat", roomId, text);
+    sendMessage(text) {
+      socket.emit("chat", { roomId: this.roomID, msg: text });
+      console.log("chat", this.roomID, text);
     },
     startInterval() {
       setInterval(() => socket.emit("listRooms"), 1000);

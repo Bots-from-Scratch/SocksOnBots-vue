@@ -26,7 +26,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("direction", (data) => {
-    socket.emit("direction", data);
+    socket.to(data.roomID).emit("direction", data.direction);
     console.log("direction method");
     console.log(data);
   });
@@ -37,15 +37,22 @@ io.on("connection", function (socket) {
     console.log(data);
   });
 
-  socket.on("connectRoom", (data) => {
+  socket.on("connectRoom", (newRoom) => {
     //TODO Check, if room < 2, then join
-    socket.join("r_" + data);
-    roomList.push("r_" + data);
+    //TODO Check if room exist
+    socket.join(newRoom);
+
+    if (!roomList.includes(newRoom)) {
+      roomList.push(newRoom);
+    }
+
     console.log(roomList);
+
+    socket.emit("joinedRoom", newRoom);
     socket
-      .to("r_" + data)
+      .to(newRoom)
       .emit("chatMessage", "This is a message on " + printTime());
-    console.log(data);
+    console.log(newRoom);
     console.log("Rooms:", socket.rooms);
   });
 
@@ -53,12 +60,11 @@ io.on("connection", function (socket) {
     console.log(data);
     console.log(data.roomId);
     console.log(data.msg);
-    socket.to("r_" + data.roomId).emit("chatMessage", data.msg);
+    socket.to(data.roomId).emit("chatMessage", data.msg);
     console.log(socket.rooms);
   });
 
   socket.on("listRooms", () => {
-    console.log("Aufruf");
     console.log(roomList);
     socket.emit("listRooms.response", roomList);
   });

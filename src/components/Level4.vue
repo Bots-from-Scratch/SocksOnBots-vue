@@ -22,6 +22,7 @@ import level_4 from "@/assets/SocksOnBots_lvl_4.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 import {socket} from "@/socket";
+import {state} from "@/socket";
 
 export default defineComponent({
   name: "Level4",
@@ -73,7 +74,7 @@ let walkedBy;
 const runBlocks = (blockList) => {
   console.log("runBlocks wurde aufgerufen.");
   console.log(direction);
-  socket.emit("direction", direction)
+  socket.emit("direction", {roomID: state.roomID, direction: direction})
   console.log(blockList);
   const blockGenerator = eval(`(function* () {
             ${blockList.join(";")}
