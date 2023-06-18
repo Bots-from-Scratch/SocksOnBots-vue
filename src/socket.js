@@ -30,7 +30,7 @@ socket.on("foo", (data) => {
   // state.fooEvents.push(args);
 });
 socket.on("chatMessage", (data) => {
-  console.log("Chat", data);
+  console.log("Chat:", data);
 });
 
 socket.on("joinRoom", (data) => {
@@ -40,4 +40,8 @@ socket.on("joinRoom", (data) => {
 socket.on("direction", (data) => {
   console.log("direction");
   state.direction = data;
+});
+
+socket.on("listRooms.response", (data) => {
+  console.log(data);
 });

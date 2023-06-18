@@ -14,6 +14,12 @@
 import { socket } from "@/socket";
 
 export default {
+  setup() {},
+
+  mounted() {
+    this.startInterval();
+  },
+
   name: "ConnectionManager",
 
   data() {
@@ -38,9 +44,12 @@ export default {
       socket.emit("connectRoom", roomId);
       console.log("connect Room", roomId);
     },
-
     sendMessage(roomId, text) {
       socket.emit("chat", { roomId: roomId, msg: text });
+      console.log("chat", roomId, text);
+    },
+    startInterval() {
+      setInterval(() => socket.emit("listRooms"), 1000);
     },
   },
 };
