@@ -8,10 +8,14 @@
     "boilerplate",
     "template"
   ],
+  "engines": {
+    "node": "16.13.0"
+  },
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "dev-watch": "nodemon server.js",
     "build": "vue-tsc --noEmit && vite build",
+    "prodBuild": "vue-tsc --noEmit && node server.js && vite build",
     "preview": "vite preview --port 4173",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
@@ -24,7 +28,8 @@
     "socket.io": "^4.6.2",
     "socket.io-client": "^4.6.2",
     "vue": "^3.2.37",
-    "vue-router": "^4.2.2"
+    "vue-router": "^4.2.2",
+    "yarn": "^1.22.19"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",

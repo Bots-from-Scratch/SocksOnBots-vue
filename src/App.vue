@@ -6,7 +6,6 @@ import Blockly from "blockly";
 
 import { javascriptGenerator } from "blockly/javascript";
 import { toolboxJson } from "@/toolbox_phaser";
-import Game from "@/components/Game.vue";
 import Level4 from "@/components/Level4.vue";
 import { data } from "autoprefixer";
 import AppLayout from "@/layouts/AppLayout.vue";
@@ -73,4 +72,6 @@ function showCode() {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
+
+//body{ overflow-x: hidden}
 </style>

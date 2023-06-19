@@ -32,7 +32,7 @@ const routes = [
 // keep it simple for now.
 const router = VueRouter.createRouter({
   // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
-  history: VueRouter.createWebHashHistory(),
+  history: VueRouter.createWebHistory(),
   routes, // short for `routes: routes`
 });
 

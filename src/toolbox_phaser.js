@@ -17,6 +17,7 @@ import '@/blocks/object_sock';
 import '@/blocks/scan_for_object';
 import '@/blocks/bool_sighted';
 import '@/blocks/whileUntil';
+import '@/blocks/custom_if_controls';
 
 export var toolboxJson = {
   "contents": [
@@ -180,11 +181,15 @@ export var toolboxJson = {
       "contents": [
         {
           "kind": "BLOCK",
-          "type": "controls_if",
+          "type": "custom_if_controls",
         },
         {
           "kind": "BLOCK",
           "type": "direction_blocked",
+        },
+        {
+          "kind": "BLOCK",
+          "type": "direction_clear",
         },
         {
           "kind": "BLOCK",

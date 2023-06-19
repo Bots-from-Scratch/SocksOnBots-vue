@@ -3,14 +3,14 @@ import { io } from "socket.io-client";
 
 export const state = reactive({
   connected: false,
-  fooEvents: [],
+  playerXY: {},
   direction: {},
   roomID: "",
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
 const URL =
-  process.env.NODE_ENV === "production" ? undefined : "http://localhost:3010";
+  process.env.NODE_ENV === "production" ? "https://socket-server-3jgo.onrender.com" : "http://192.168.178.20:3010";
 
 export const socket = io(URL, {
   autoConnect: true,
@@ -25,9 +25,9 @@ socket.on("disconnect", () => {
   state.connected = false;
 });
 
-socket.on("foo", (data) => {
-  console.log("foo");
-  state.fooEvents.push(data);
+socket.on("playerXY", (data) => {
+  console.log("playerXY");
+  state.playerXY = data;
   // state.fooEvents.push(args);
 });
 socket.on("chatMessage", (data) => {
