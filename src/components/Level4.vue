@@ -636,7 +636,8 @@ class GameScene extends Scene {
   }
 
   update() {
-    socket.emit("direction", direction);
+    socket.emit("direction", {roomId: state.roomID, direction: direction});
+    
     if (Object.entries(state.direction).length > 0) {
       directionPlayer2 = toRaw(state.direction);
     }

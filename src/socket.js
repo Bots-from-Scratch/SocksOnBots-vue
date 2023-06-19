@@ -10,7 +10,7 @@ export const state = reactive({
 
 // "undefined" means the URL will be computed from the `window.location` object
 const URL =
-  process.env.NODE_ENV === "production" ? "https://socket-server-3jgo.onrender.com" : "http://192.168.178.20:3010";
+  process.env.NODE_ENV === "production" ? "https://socket-server-3jgo.onrender.com" : "http://localhost:3010";
 
 export const socket = io(URL, {
   autoConnect: true,
@@ -43,8 +43,8 @@ socket.on("joinedRoom", (data) => {
 });
 
 socket.on("direction", (data) => {
-  console.log("direction");
-  state.direction = data.direction;
+  console.log("direction", data);
+  state.direction = data;
 });
 
 socket.on("listRooms.response", (data) => {
