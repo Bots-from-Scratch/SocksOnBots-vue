@@ -92,6 +92,8 @@ let walkedBy;
 const runBlocks = (blockList) => {
   console.log("runBlocks wurde aufgerufen.");
   console.log(direction);
+  console.log("NUR STATE", state);
+  console.log("ROOM IN runBlocks", state.roomID);
   socket.emit("direction", {roomID: state.roomID, direction: direction})
   console.log(blockList);
   const blockGenerator = eval(`(function* () {

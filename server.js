@@ -26,7 +26,8 @@ io.on("connection", function (socket) {
   });
 
   socket.on("direction", (data) => {
-    socket.to(data.roomID).emit("direction", data.direction);
+    console.log(data.roomId);
+    socket.to(data.roomId).emit("direction", data.direction);
     console.log("direction method");
     console.log(data);
   });
