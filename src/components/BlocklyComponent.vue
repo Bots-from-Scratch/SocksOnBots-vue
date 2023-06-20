@@ -1,11 +1,11 @@
 <script setup>
-import { computed, onMounted, ref, shallowRef } from "vue";
+import {computed, onMounted, ref, shallowRef, watch} from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
 import { useLocalStorage } from "@vueuse/core";
 import { javascriptGenerator } from "blockly/javascript";
 import PixelButton from "@/components/PixelButton.vue";
-import { state } from "../socket";
+import { socket, state } from "../socket";
 
 const emit = defineEmits(["runCodePressed"]);
 const props = defineProps(["options"]);
@@ -40,7 +40,13 @@ onMounted(() => {
   }
 });
 
-var playGame = ref();
+// var playGame = ref();
+let playGame = computed({
+  get() {
+    return state.playGame;
+  },
+});
+
 const directionObj = computed({
   get() {
     return state.direction;
@@ -48,6 +54,12 @@ const directionObj = computed({
 });
 // var outputArea = document.getElementById("output");
 // var runButton = document.getElementById("runButton");
+
+watch(() => state.playGame, () => {
+  console.log("watcher state.playGame blocklyComponent")
+  runCode();
+})
+
 
 console.log(startBlocks);
 function runCode() {
@@ -69,6 +81,7 @@ function runCode() {
   });
   console.log(blockList);
   emit("runCodePressed", blockList);
+  socket.emit("playGame", true);
 }
 </script>
 

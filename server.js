@@ -1,42 +1,52 @@
 const app = require("express")();
 const http = require("http").Server(app);
-const io = require("socket.io")(http,{
-    cors: {
-        origin: ["https://socksonbots.de", "https://vueonbots.onrender.com", "http://192.168.178.20:5173", "http://localhost:5173", "http://192.168.178.96:5173"]
-    }
+const io = require("socket.io")(http, {
+  cors: {
+    origin: [
+      "https://socksonbots.de",
+      "https://vueonbots.onrender.com",
+      "http://192.168.178.20:5173",
+      "http://localhost:5173",
+      "http://192.168.178.96:5173",
+    ],
+  },
 });
 // const path = require("path");
 
 app.get("/", (req, res) => {
-    res.send("<h1>Server running</h1>");
+  res.send("<h1>Server running</h1>");
 });
 
 io.on("connection", function (socket) {
+  console.log("A user with ID: " + socket.id + " connected");
 
-    console.log("A user with ID: " + socket.id + " connected");
+  socket.on("disconnect", function () {
+    console.log("A user with ID: " + socket.id + " disconnected");
+  });
 
-    socket.on("disconnect", function () {
-        console.log("A user with ID: " + socket.id + " disconnected");
-    });
+  socket.on("foo", (data) => {
+    socket.broadcast.emit("foo", data);
+    console.log("foo method");
+    console.log(data);
+  });
 
-    socket.on("foo", (data) => {
-        socket.broadcast.emit("foo", data);
-        console.log("foo method");
-        console.log(data);
-    });
+  socket.on("directionSelf", (data) => {
+    socket.emit("directionSelf.response", data);
+    // console.log("directionSelf", data);
+  });
 
-    socket.on("directionSelf", (data) => {
-        socket.emit("directionSelf.response", data);
-        console.log("directionSelf",data);
-    });
+  socket.on("playerXY", (data) => {
+    socket.broadcast.emit("playerXY", data);
+    // console.log("playerXY method");
+  });
 
-    socket.on("playerXY", (data) => {
-        socket.broadcast.emit("playerXY", data);
-        console.log("playerXY method");
-    });
-
+  socket.on("playGame", (data) => {
+    console.log("playGame", data)
+    socket.broadcast.emit("playGame.response", data);
+    socket.emit("playGame.response", data);
+  });
 });
 
 http.listen(3010, () => {
-    console.log("Listening on port *: 3010");
+  console.log("Listening on port *: 3010");
 });

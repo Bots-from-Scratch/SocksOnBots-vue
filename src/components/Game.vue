@@ -2,7 +2,7 @@
   <div class="game-container" ref="phaserGame" />
   <div class="flex flex-col">
     <div>volume: {{ volume }}</div>
-    <div>playGame: {{}}</div>
+    <div>playGame: {{playGame}}</div>
     <div>blockList: {{ state.directionSelf }}</div>
   </div>
 </template>
