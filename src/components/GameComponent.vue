@@ -7,6 +7,8 @@ import Blockly from "blockly";
 import { toolboxJson } from "@/toolbox_phaser.js";
 import {state} from "@/socket";
 import RangeSlider from "@/components/RangeSlider.vue";
+import Level4 from "@/App.vue";
+import Test from "@/components/Test.vue";
 
 const foo = ref();
 const code = ref();

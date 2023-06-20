@@ -4,19 +4,22 @@ import { io } from "socket.io-client";
 export const state = reactive({
   connected: false,
   playerXY: {},
-  direction: {}
+  direction: {},
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
 const URL =
-  process.env.NODE_ENV === "production" ? "https://socket-server-3jgo.onrender.com" : "http://192.168.178.20:3010";
+  process.env.NODE_ENV === "production"
+    ? "https://socket-server-3jgo.onrender.com"
+    : "localhost:3010";
+    // : ["http://192.168.178.20:3010", "http://192.168.178.96:3010", "localhost:3010"];
 
 export const socket = io(URL, {
   autoConnect: true,
 });
 
 socket.on("connect", () => {
-  console.log("connectMethod")
+  console.log("connectMethod");
   state.connected = true;
 });
 
@@ -34,4 +37,3 @@ socket.on("direction", (data) => {
   // console.log("direction");
   state.direction = data;
 });
-
