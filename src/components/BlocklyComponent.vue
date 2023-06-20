@@ -2,8 +2,6 @@
 import { computed, onMounted, ref, shallowRef } from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
-import level4 from "@/components/Level4.vue";
-import { toolboxJson } from "@/toolbox_phaser";
 import { useLocalStorage } from "@vueuse/core";
 import { javascriptGenerator } from "blockly/javascript";
 import PixelButton from "@/components/PixelButton.vue";

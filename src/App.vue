@@ -6,11 +6,7 @@ import Blockly from "blockly";
 
 import { javascriptGenerator } from "blockly/javascript";
 import { toolboxJson } from "@/toolbox_phaser";
-import Level4 from "@/components/Level4.vue";
-import { data } from "autoprefixer";
 import AppLayout from "@/layouts/AppLayout.vue";
-import Footer from "@/components/Footer.vue";
-import Header from "@/components/Header.vue";
 
 const foo = ref();
 const code = ref();
@@ -41,6 +37,7 @@ const options = {
 };
 
 let receivedBlocklist = null;
+
 function blockListReceived(blockList) {
   console.log("blockListReceived");
   receivedBlocklist = blockList;
@@ -51,6 +48,7 @@ function getPlayGameRef() {
   console.log("get func: " + lvl4.value?.playGame);
   return lvl4.value?.playGame;
 }
+
 function showCode() {
   code.value = javascriptGenerator.workspaceToCode(foo.value.workspace);
   // saves and prints workspace (for startBlocks or saving options later)

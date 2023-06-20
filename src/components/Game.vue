@@ -2,8 +2,8 @@
   <div class="game-container" ref="phaserGame" />
   <div class="flex flex-col">
     <div>volume: {{ volume }}</div>
-    <div>playGame: {{ playGame }}</div>
-    <div>blockList: {{ direction }}</div>
+    <div>playGame: {{  }}</div>
+    <div>blockList: {{ state.direction }}</div>
   </div>
 </template>
 
@@ -11,7 +11,6 @@
 import * as Phaser from "phaser";
 import { Scene } from "phaser";
 import { defineComponent, ref, toRaw, watch } from "vue";
-import sky from "@/game/assets/sky.png";
 import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
@@ -28,7 +27,7 @@ import { socket, state } from "@/socket";
 export default defineComponent({
   name: "Game",
   props: {
-    direction: String,
+    // direction: String,
     playGame: Boolean,
     blockList: null,
     volume: Object,
@@ -36,45 +35,36 @@ export default defineComponent({
 
   data() {
     return {
-      GameScene: Scene,
-      actualScene: Scene,
+      game: null,
     };
   },
 
+
   computed: {
+    state() {
+      return state
+    },
     direction() {
       direction = state.direction;
       console.log(direction);
       return state.direction;
     },
+    activeScene() {
+      return this.game.scene.getScenes(true)[0];
+    }
   },
 
   watch: {
-    "volume.music"() {
-      if (this.game) {
-        let scene = this.game.scene.getScenes(true);
-        scene[0].backgroundSound.setVolume(this.volume.music / 200);
-        console.log(scene[0].backgroundSound.volume)
-
-      }
-    },
-    "volume.sound"() {
-      if (this.game) {
-        let scene = this.game.scene.getScenes(true);
-        scene[0].collisionSound.setVolume(this.volume.sound / 200);
-        console.log(scene[0].collisionSound.volume)
-      }
-    },
     volume: {
       handler(newVolume) {
-        console.log(newVolume);
-        if(this.game) {
-        let scene = this.game.scene.getScenes(true);
-        scene[0].collisionSound.setVolume(this.volume.sound / 200);
-        scene[0].backgroundSound.setVolume(this.volume.music / 200);}
+        if (this.game) {
+          let scene = this.activeScene;
+          scene.collisionSound.setVolume(newVolume.sound / 200);
+          scene.backgroundSound.setVolume(newVolume.music / 200);
+        }
       },
-      immediate:true,
-      deep:true
+      immediate: true,
+      deep: true,
     },
     playGame() {
       console.log(this.blockList);
@@ -82,6 +72,7 @@ export default defineComponent({
       this.game.scene.scenes[0].playBackgroundSound(this.volume.music / 200);
     },
   },
+
 
   mounted() {
     const gameConfig = {
@@ -100,6 +91,7 @@ export default defineComponent({
       pixelArt: true,
     };
     this.game = new Phaser.Game(gameConfig);
+
   },
 });
 
