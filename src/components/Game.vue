@@ -2,8 +2,8 @@
   <div class="game-container" ref="phaserGame" />
   <div class="flex flex-col">
     <div>volume: {{ volume }}</div>
-    <div>playGame: {{  }}</div>
-    <div>blockList: {{ state.direction }}</div>
+    <div>playGame: {{}}</div>
+    <div>blockList: {{ state.directionSelf }}</div>
   </div>
 </template>
 
@@ -27,7 +27,7 @@ import { socket, state } from "@/socket";
 export default defineComponent({
   name: "Game",
   props: {
-    // direction: String,
+    // directionPlayer1: String,
     playGame: Boolean,
     blockList: null,
     volume: Object,
@@ -39,19 +39,13 @@ export default defineComponent({
     };
   },
 
-
   computed: {
     state() {
-      return state
-    },
-    direction() {
-      direction = state.direction;
-      console.log(direction);
-      return state.direction;
+      return state;
     },
     activeScene() {
       return this.game.scene.getScenes(true)[0];
-    }
+    },
   },
 
   watch: {
@@ -73,7 +67,6 @@ export default defineComponent({
     },
   },
 
-
   mounted() {
     const gameConfig = {
       type: Phaser.AUTO,
@@ -91,7 +84,6 @@ export default defineComponent({
       pixelArt: true,
     };
     this.game = new Phaser.Game(gameConfig);
-
   },
 });
 
@@ -105,6 +97,14 @@ let direction = {
   down: { isClear: true, isMoving: false },
   toObject: { isClear: false, isMoving: false },
 };
+// let directionPlayer1 = {
+//   right: { isClear: true, isMoving: false },
+//   left: { isClear: true, isMoving: false },
+//   up: { isClear: true, isMoving: false },
+//   down: { isClear: true, isMoving: false },
+//   toObject: { isClear: false, isMoving: false },
+// };
+let directionPlayer1 = {};
 let directionPlayer2 = {
   right: { isClear: true, isMoving: false },
   left: { isClear: true, isMoving: false },
@@ -118,7 +118,7 @@ let walkedBy;
 
 const runBlocks = (blockList) => {
   console.log("runBlocks wurde aufgerufen.");
-  socket.emit("direction", direction);
+  socket.emit("directionSelf", direction);
   console.log(blockList);
   const blockGenerator = eval(`(function* () {
             ${blockList.join(";")}
@@ -361,20 +361,20 @@ class GameScene extends Scene {
           if (_player.body.blocked.up) {
             console.log("frontBlocked");
             // player.setY(player.y + 2);
-            direction.up.isClear = false;
-            direction.up.isMoving = false;
+            directionPlayer1.up.isClear = false;
+            directionPlayer1.up.isMoving = false;
           } else if (_player.body.blocked.down) {
             // player.setY(player.y - 2);
-            direction.down.isClear = false;
-            direction.down.isMoving = false;
+            directionPlayer1.down.isClear = false;
+            directionPlayer1.down.isMoving = false;
           } else if (_player.body.blocked.right) {
             // player.setX(player.x - 2);
-            direction.right.isClear = false;
-            direction.right.isMoving = false;
+            directionPlayer1.right.isClear = false;
+            directionPlayer1.right.isMoving = false;
           } else {
             // player.setX(player.x + 2);
-            direction.left.isClear = false;
-            direction.left.isMoving = false;
+            directionPlayer1.left.isClear = false;
+            directionPlayer1.left.isMoving = false;
           }
           // this.player.setVelocityX(0);
           // this.player.setVelocityY(0);
@@ -399,20 +399,20 @@ class GameScene extends Scene {
           if (_player.body.blocked.up) {
             console.log("frontBlocked");
             // player.setY(player.y + 2);
-            direction.up.isClear = false;
-            direction.up.isMoving = false;
+            directionPlayer1.up.isClear = false;
+            directionPlayer1.up.isMoving = false;
           } else if (_player.body.blocked.down) {
             // player.setY(player.y - 2);
-            direction.down.isClear = false;
-            direction.down.isMoving = false;
+            directionPlayer1.down.isClear = false;
+            directionPlayer1.down.isMoving = false;
           } else if (_player.body.blocked.right) {
             // player.setX(player.x - 2);
-            direction.right.isClear = false;
-            direction.right.isMoving = false;
+            directionPlayer1.right.isClear = false;
+            directionPlayer1.right.isMoving = false;
           } else {
             // player.setX(player.x + 2);
-            direction.left.isClear = false;
-            direction.left.isMoving = false;
+            directionPlayer1.left.isClear = false;
+            directionPlayer1.left.isMoving = false;
           }
           // this.player.setVelocityX(0);
           // this.player.setVelocityY(0);
@@ -649,24 +649,27 @@ class GameScene extends Scene {
     }
   }
 
-  resetMovement() {
-    direction.right.isMoving = false;
-    direction.left.isMoving = false;
-    direction.up.isMoving = false;
-    direction.down.isMoving = false;
-    direction.toObject.isMoving = false;
-  }
+  // resetMovement() {
+  //   directionPlayer1.right.isMoving = false;
+  //   directionPlayer1.left.isMoving = false;
+  //   directionPlayer1.up.isMoving = false;
+  //   directionPlayer1.down.isMoving = false;
+  //   directionPlayer1.toObject.isMoving = false;
+  // }
   resetDirection() {
-    direction.right.isClear = true;
-    direction.right.isMoving = false;
-    direction.left.isClear = true;
-    direction.left.isMoving = false;
-    direction.up.isClear = true;
-    direction.up.isMoving = false;
-    direction.down.isClear = true;
-    direction.down.isMoving = false;
-    direction.toObject.isClear = false;
-    direction.toObject.isMoving = false;
+    if (Object.keys(directionPlayer1).length > 0) {
+      console.log(directionPlayer1);
+      directionPlayer1.right.isClear = true;
+      directionPlayer1.right.isMoving = false;
+      directionPlayer1.left.isClear = true;
+      directionPlayer1.left.isMoving = false;
+      directionPlayer1.up.isClear = true;
+      directionPlayer1.up.isMoving = false;
+      directionPlayer1.down.isClear = true;
+      directionPlayer1.down.isMoving = false;
+      directionPlayer1.toObject.isClear = false;
+      directionPlayer1.toObject.isMoving = false;
+    }
   }
 
   playBackgroundSound(volume) {
@@ -677,9 +680,13 @@ class GameScene extends Scene {
   }
 
   update() {
-    socket.emit("direction", direction);
-    if (Object.entries(state.direction).length > 0) {
-      // directionPlayer2 = toRaw(state.direction);
+    Object.entries(directionPlayer1).length > 0 ?
+    socket.emit("directionSelf", directionPlayer1) : socket.emit("directionSelf", direction);
+    if (Object.entries(state.directionOpponent).length > 0) {
+      directionPlayer2 = toRaw(state.directionOpponent);
+    }
+    if (Object.entries(state.directionSelf).length > 0) {
+      directionPlayer1 = toRaw(state.directionSelf);
     }
 
     player2XY = toRaw(state.playerXY);
@@ -693,11 +700,11 @@ class GameScene extends Scene {
         console.log("not in view");
         this.scanLineGfx.setVisible(false);
         this.objectSighted = false;
-        direction.toObject.isClear = false;
+        directionPlayer1.toObject.isClear = false;
       } else {
         this.scanLineGfx.setVisible(true);
         this.objectSighted = true;
-        direction.toObject.isClear = true;
+        directionPlayer1.toObject.isClear = true;
       }
     } else {
       this.objectSighted = false;
@@ -708,11 +715,11 @@ class GameScene extends Scene {
     //     console.log("Next block: " + block);
     //     lastBlock = block;
     // }
-    // direction = lastBlock;
-    // console.log(this.direction + playGame);
+    // directionPlayer1 = lastBlock;
+    // console.log(this.directionPlayer1 + playGame);
     if (blockFunction !== undefined) {
       var blockResult = blockFunction.next();
-      console.log("next");
+      // console.log("next");
       if (blockResult.value !== undefined) {
         console.log(blockResult.value);
         blockResult.value;
@@ -749,7 +756,7 @@ class GameScene extends Scene {
       this.scannedObject
     ) {
       this.objectSighted = true;
-      direction.toObject.isClear = true;
+      directionPlayer1.toObject.isClear = true;
     }
 
     this.scanGfx
@@ -802,10 +809,10 @@ class GameScene extends Scene {
         // if (distClosest < Phaser.Math.Distance.Between(closest.x, closest.y, (closest.body.position.x + 1), (closest.body.position.y + 1))) {
         if (distClosest > hypot) {
           console.log("clear");
-          direction.left.isClear = true;
-          direction.right.isClear = true;
-          direction.down.isClear = true;
-          direction.up.isClear = true;
+          directionPlayer1.left.isClear = true;
+          directionPlayer1.right.isClear = true;
+          directionPlayer1.down.isClear = true;
+          directionPlayer1.up.isClear = true;
           if (
             this.player.body.x - this.player.body.prev.x !== 0 &&
             (this.rotation === 0 || this.rotation === 180)
@@ -841,27 +848,30 @@ class GameScene extends Scene {
             this.player.y
           );
       }
-      // this.statusText.setText('  right clear: ' + direction.right.isClear + ' Object sighted: ' + this.objectSighted + '\n distClosest: ' + distClosest + ' hypot: ' + hypot + ' body.angle: ' + this.player.body.angle + '\nwalkedBy: ' + walkedBy + '\nx: ' + this.player.body.prev.x + ' collided:' + this.collided);
-      this.statusText.setText(
-        "  right clear: " +
-          direction.right.isClear +
-          "\n moving right: " +
-          direction.right.isMoving +
-          " hypot: " +
-          hypot +
-          " body.angle: " +
-          this.player.body.angle +
-          "\nwalkedBy: " +
-          walkedBy +
-          "\nx: " +
-          this.player.body.prev.x +
-          " collided:" +
-          this.collided +
-          "\nobjectSighted: " +
-          direction.toObject.isClear +
-          "\nmoveToObject: " +
-          direction.toObject.isMoving
-      );
+      // this.statusText.setText('  right clear: ' + directionPlayer1.right.isClear + ' Object sighted: ' + this.objectSighted + '\n distClosest: ' + distClosest + ' hypot: ' + hypot + ' body.angle: ' + this.player.body.angle + '\nwalkedBy: ' + walkedBy + '\nx: ' + this.player.body.prev.x + ' collided:' + this.collided);
+
+      if (Object.keys(directionPlayer1).length > 0) {
+        this.statusText.setText(
+          "  right clear: " +
+            directionPlayer1.right.isClear +
+            "\n moving right: " +
+            directionPlayer1.right.isMoving +
+            " hypot: " +
+            hypot +
+            " body.angle: " +
+            this.player.body.angle +
+            "\nwalkedBy: " +
+            walkedBy +
+            "\nx: " +
+            this.player.body.prev.x +
+            " collided:" +
+            this.collided +
+            "\nobjectSighted: " +
+            directionPlayer1.toObject.isClear +
+            "\nmoveToObject: " +
+            directionPlayer1.toObject.isMoving
+        );
+      }
     }
 
     if (this.cursors.space.isDown) {
@@ -869,9 +879,10 @@ class GameScene extends Scene {
       this.objectCollidedWith = null;
       this.scene.restart();
     }
-
-    this.movePlayer(this.player, direction);
-    this.movePlayer(this.player2, directionPlayer2);
+    if (Object.keys(directionPlayer1).length > 0) {
+      this.movePlayer(this.player, directionPlayer1);
+      this.movePlayer(this.player2, directionPlayer2);
+    }
   }
 
   movePlayer(player, dir) {

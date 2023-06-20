@@ -4,7 +4,8 @@ import { io } from "socket.io-client";
 export const state = reactive({
   connected: false,
   playerXY: {},
-  direction: {},
+  directionSelf: {},
+  directionOpponent : {}
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -28,12 +29,13 @@ socket.on("disconnect", () => {
 });
 
 socket.on("playerXY", (data) => {
-  console.log("playerXY");
+  // console.log("playerXY");
   state.playerXY = data;
   // state.fooEvents.push(args);
 });
 
-socket.on("direction", (data) => {
+socket.on("directionSelf", (data) => {
   // console.log("direction");
-  state.direction = data;
+  state.directionSelf = data;
+  // console.log("state.directionSelf", state.directionSelf)
 });

@@ -15,7 +15,7 @@ const code = ref();
 const lvl4 = ref();
 let value = ref("");
 const playGame = ref(false);
-const volume = ref({music: 40,
+const volume = ref({music: 5,
   sound: 40});
 const options = {
   toolbox: toolboxJson,
