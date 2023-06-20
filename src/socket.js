@@ -34,7 +34,7 @@ socket.on("playerXY", (data) => {
   // state.fooEvents.push(args);
 });
 
-socket.on("directionSelf", (data) => {
+socket.on("directionSelf.response", (data) => {
   // console.log("direction");
   state.directionSelf = data;
   // console.log("state.directionSelf", state.directionSelf)

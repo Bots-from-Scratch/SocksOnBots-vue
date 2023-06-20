@@ -26,7 +26,7 @@ io.on("connection", function (socket) {
     });
 
     socket.on("directionSelf", (data) => {
-        socket.emit("directionSelf", data);
+        socket.emit("directionSelf.response", data);
         console.log("directionSelf",data);
     });
 
