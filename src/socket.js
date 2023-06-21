@@ -7,14 +7,13 @@ export const state = reactive({
   playerXY: {},
   directionSelf: {},
   directionOpponent: {},
+  direction: {},
+  roomID: "",
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
 const URL =
-  process.env.NODE_ENV === "production"
-    ? "https://socket-server-3jgo.onrender.com"
-    : "localhost:3010";
-// : ["http://192.168.178.20:3010", "http://192.168.178.96:3010", "localhost:3010"];
+  process.env.NODE_ENV === "production" ? "https://socket-server-3jgo.onrender.com" : "http://localhost:3010";
 
 export const socket = io(URL, {
   autoConnect: true,
@@ -34,6 +33,17 @@ socket.on("playerXY", (data) => {
   state.playerXY = data;
   // state.fooEvents.push(args);
 });
+socket.on("chatMessage", (data) => {
+  console.log("Chat:", data);
+});
+
+socket.on("joinRoom", (data) => {
+  socket.emit("connectRoom", data);
+});
+
+socket.on("joinedRoom", (data) => {
+  state.roomID = data;
+});
 
 socket.on("playGame.response", (data) => {
   console.log("playGame.response", data)
@@ -43,4 +53,11 @@ socket.on("directionSelf.response", (data) => {
   // console.log("direction");
   state.directionSelf = data;
   // console.log("state.directionSelf", state.directionSelf)
+socket.on("direction", (data) => {
+  console.log("direction", data);
+  state.direction = data;
+});
+
+socket.on("listRooms.response", (data) => {
+  console.log(data);
 });

@@ -11,7 +11,8 @@ const io = require("socket.io")(http, {
     ],
   },
 });
-// const path = require("path");
+const path = require("path");
+const roomList = [];
 
 app.get("/", (req, res) => {
   res.send("<h1>Server running</h1>");
@@ -24,15 +25,21 @@ io.on("connection", function (socket) {
     console.log("A user with ID: " + socket.id + " disconnected");
   });
 
-  socket.on("foo", (data) => {
-    socket.broadcast.emit("foo", data);
-    console.log("foo method");
-    console.log(data);
-  });
+    socket.on("foo", (data) => {
+        socket.broadcast.emit("foo", data);
+        console.log("foo method");
+        console.log(data);
+    });
 
   socket.on("directionSelf", (data) => {
     socket.emit("directionSelf.response", data);
     // console.log("directionSelf", data);
+  });
+  socket.on("direction", (data) => {
+    console.log(data.roomId);
+    socket.to(data.roomId).emit("direction", data.direction);
+    console.log("direction method");
+    console.log(data);
   });
 
   socket.on("playerXY", (data) => {
@@ -45,7 +52,42 @@ io.on("connection", function (socket) {
     socket.broadcast.emit("playGame.response", data);
     socket.emit("playGame.response", data);
   });
+  socket.on("connectRoom", (newRoom) => {
+    //TODO Check, if room < 2, then join
+    //TODO Check if room exist
+    socket.join(newRoom);
+
+    if (!roomList.includes(newRoom)) {
+      roomList.push(newRoom);
+    }
+
+    console.log(roomList);
+
+    socket.emit("joinedRoom", newRoom);
+    socket
+      .to(newRoom)
+      .emit("chatMessage", "This is a message on " + printTime());
+    console.log(newRoom);
+    console.log("Rooms:", socket.rooms);
+  });
+
+  socket.on("chat", (data) => {
+    console.log(data);
+    console.log(data.roomId);
+    console.log(data.msg);
+    socket.to(data.roomId).emit("chatMessage", data.msg);
+    console.log(socket.rooms);
+  });
+
+  socket.on("listRooms", () => {
+    console.log(roomList);
+    socket.emit("listRooms.response", roomList);
+  });
 });
+
+function printTime() {
+  return new Date().toLocaleTimeString("DE-de");
+}
 
 http.listen(3010, () => {
   console.log("Listening on port *: 3010");
