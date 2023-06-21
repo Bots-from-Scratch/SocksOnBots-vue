@@ -18,6 +18,8 @@ import '@/blocks/scan_for_object';
 import '@/blocks/bool_sighted';
 import '@/blocks/whileUntil';
 import '@/blocks/custom_if_controls';
+import '@/blocks/object_collected';
+import '@/blocks/break';
 
 export var toolboxJson = {
   "contents": [
@@ -214,6 +216,14 @@ export var toolboxJson = {
         {
           "kind": "BLOCK",
           "type": "walked_around"
+        },
+        {
+          "kind": "BLOCK",
+          "type": "object_collected"
+        },
+        {
+          "kind": "BLOCK",
+          "type": "break"
         },
       ]
     },

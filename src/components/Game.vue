@@ -23,14 +23,15 @@ import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
 import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import { socket, state } from "@/socket";
+import { javascriptGenerator } from "blockly/javascript";
 
 export default defineComponent({
   name: "Game",
   props: {
     // directionPlayer1: String,
     playGame: Boolean,
-    blockList: null,
     volume: Object,
+    workspace: Object,
   },
 
   data() {
@@ -61,7 +62,7 @@ export default defineComponent({
       deep: true,
     },
     playGame() {
-      runBlocks(this.blockList);
+      runBlocks(this.workspace);
       this.game.scene.scenes[0].playBackgroundSound(this.volume.music / 200);
     },
   },
@@ -96,13 +97,6 @@ let direction = {
   down: { isClear: true, isMoving: false },
   toObject: { isClear: false, isMoving: false },
 };
-// let directionPlayer1 = {
-//   right: { isClear: true, isMoving: false },
-//   left: { isClear: true, isMoving: false },
-//   up: { isClear: true, isMoving: false },
-//   down: { isClear: true, isMoving: false },
-//   toObject: { isClear: false, isMoving: false },
-// };
 let directionPlayer1 = {};
 let directionPlayer2 = {
   right: { isClear: true, isMoving: false },
@@ -114,34 +108,26 @@ let directionPlayer2 = {
 let objectToScanFor;
 let blueStar;
 let walkedBy;
+let objectCollected;
 
-const runBlocks = (blockList) => {
+function runBlocks(workspace) {
   console.log("runBlocks wurde aufgerufen.");
   socket.emit("directionSelf", direction);
-  console.log("runBlocks blocklist", blockList);
-  console.log(
-    "blocklist join",
-    blockList
-      .map(function (block) {
-        console.log(block.id)
-        console.log(document.querySelector(`[data-id="${block.id}"]`))
-      })
+  javascriptGenerator.STATEMENT_PREFIX = "highlightBlock(%1);\n";
+  javascriptGenerator.addReservedWords("highlightBlock");
+  function highlightBlock(id) {
+    workspace.highlightBlock(id);
+  }
+  const code = javascriptGenerator.workspaceToCode(workspace);
 
-  );
   const blockGenerator = eval(`
-  (function* () {
-    ${blockList.map(function (block) {
-        return `
-yield;
-        document.querySelector("[data-id='${block.id}']").classList.add("highlighted");
-        ${block.code};
-        document.querySelector("[data-id='${block.id}']").classList.remove("highlighted");
-        `;
-      }).join(";")}
-  })`
-  );
+    (function* () {
+      ${code}
+    })`);
+
   blockFunction = blockGenerator();
-};
+}
+
 class GameScene extends Scene {
   ROTATION_RIGHT = 0;
   ROTATION_LEFT = 180;
@@ -161,15 +147,8 @@ class GameScene extends Scene {
     this.score = 0;
 
     walkedBy = false;
-
+    objectCollected = false;
     this.value;
-    // let codeFromBlock;
-    // let blockList = [];
-    //
-    //
-    // let gameTick = 0;
-    // let blockListTmp;
-    // let code;
     this.collided = false;
 
     this.rightIsClear = true;
@@ -364,7 +343,8 @@ class GameScene extends Scene {
 
     // this.player.body.bounce.set(1);
     this.player.body.setMaxSpeed(160);
-    this.player.body.setSize(32, 30, 100, 20);
+    this.player.body.setCircle(20, 12, 28);
+    // this.player.body.setSize(32, 30, 100, 20);
     this.player.setOffset(16, 32);
 
     this.player2.setCircle(20, 12, 28);
@@ -655,13 +635,13 @@ class GameScene extends Scene {
         });
       }
     );
-    this.itemCollected = true;
+    objectCollected = true;
     this.physics.pause();
     this.scoreText.setVisible(true);
   }
 
   checkForWin() {
-    if (this.itemCollected) {
+    if (objectCollected) {
       return true;
     }
   }
@@ -973,7 +953,9 @@ class GameScene extends Scene {
     }
     // playGame = false;
     if (dir.toObject.isClear && dir.toObject.isMoving) {
-      this.physics.accelerateToObject(player, blueStar, 4000);
+      // TODO check if it could bug
+      this.resetDirection();
+      this.physics.accelerateToObject(player, blueStar, 4000, 100, 100);
       // player.setVelocityY(0);
     }
   }
@@ -988,6 +970,6 @@ class GameScene extends Scene {
 }
 
 .highlighted {
-  filter: drop-shadow(0 0 0.75rem crimson);
+  filter: drop-shadow(0 0 0.5rem crimson);
 }
 </style>

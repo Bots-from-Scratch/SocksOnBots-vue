@@ -10,10 +10,8 @@ import RangeSlider from "@/components/RangeSlider.vue";
 import Level4 from "@/App.vue";
 import Test from "@/components/Test.vue";
 
-const foo = ref();
-const code = ref();
-const lvl4 = ref();
-let value = ref("");
+const blockly = ref(null);
+let workspace = ref();
 const playGame = ref(state.playGame);
 const volume = ref({
   music: 5,
@@ -42,27 +40,12 @@ const options = {
   },
 };
 
-let receivedBlocklist = null;
 
-function blockListReceived(blockList) {
-  console.log("blockListReceived");
-  receivedBlocklist = blockList;
+function runCodePressed() {
   playGame.value = state.playGame;
+  workspace = blockly.value.workspace
 }
 
-function getPlayGameRef() {
-  console.log("get func: " + lvl4.value?.playGame);
-  return lvl4.value?.playGame;
-}
-
-function showCode() {
-  code.value = javascriptGenerator.workspaceToCode(foo.value.workspace);
-  // saves and prints workspace (for startBlocks or saving options later)
-  console.log(Blockly.serialization.workspaces.save(foo.value.workspace));
-  playGame.value = !playGame.value;
-  console.log(playGame);
-  // eval(code.value);
-}
 </script>
 
 <template>
@@ -71,8 +54,8 @@ function showCode() {
   >
     <Game
       :playGame="playGame"
-      :blockList="receivedBlocklist"
       :volume="volume"
+      :workspace="workspace"
     />
     <div class="flex flex-col justify-start">
       <RangeSlider v-model="volume.music" name="Music Volume" />
@@ -83,8 +66,8 @@ function showCode() {
       class="w-full max-w-[960px] xl:max-w-xl h-96 shrink grow-0"
       id="blockly"
       :options="options"
-      ref="foo"
-      @runCodePressed="blockListReceived"
+      ref="blockly"
+      @runCodePressed="runCodePressed"
     />
   </div>
 </template>
