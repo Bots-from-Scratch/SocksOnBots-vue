@@ -2,8 +2,8 @@
   <div class="game-container" ref="phaserGame" />
   <div class="flex flex-col">
     <div>volume: {{ volume }}</div>
-    <div>playGame: {{playGame}}</div>
-    <div>blockList: {{ state.directionSelf }}</div>
+    <div id="play-status">playGame: {{ playGame }}</div>
+    <div>Self Direction: {{ state.directionSelf }}</div>
   </div>
 </template>
 
@@ -61,7 +61,6 @@ export default defineComponent({
       deep: true,
     },
     playGame() {
-      console.log(this.blockList);
       runBlocks(this.blockList);
       this.game.scene.scenes[0].playBackgroundSound(this.volume.music / 200);
     },
@@ -119,10 +118,28 @@ let walkedBy;
 const runBlocks = (blockList) => {
   console.log("runBlocks wurde aufgerufen.");
   socket.emit("directionSelf", direction);
-  console.log(blockList);
-  const blockGenerator = eval(`(function* () {
-            ${blockList.join(";")}
-        })`);
+  console.log("runBlocks blocklist", blockList);
+  console.log(
+    "blocklist join",
+    blockList
+      .map(function (block) {
+        console.log(block.id)
+        console.log(document.querySelector(`[data-id="${block.id}"]`))
+      })
+
+  );
+  const blockGenerator = eval(`
+  (function* () {
+    ${blockList.map(function (block) {
+        return `
+yield;
+        document.querySelector("[data-id='${block.id}']").classList.add("highlighted");
+        ${block.code};
+        document.querySelector("[data-id='${block.id}']").classList.remove("highlighted");
+        `;
+      }).join(";")}
+  })`
+  );
   blockFunction = blockGenerator();
 };
 class GameScene extends Scene {
@@ -359,7 +376,7 @@ class GameScene extends Scene {
         walkedBy = false;
         if (!_player.body.blocked.none) {
           if (_player.body.blocked.up) {
-            console.log("frontBlocked");
+            // console.log("frontBlocked");
             // player.setY(player.y + 2);
             directionPlayer1.up.isClear = false;
             directionPlayer1.up.isMoving = false;
@@ -397,7 +414,7 @@ class GameScene extends Scene {
           }
 
           if (_player.body.blocked.up) {
-            console.log("frontBlocked");
+            // console.log("frontBlocked");
             // player.setY(player.y + 2);
             directionPlayer1.up.isClear = false;
             directionPlayer1.up.isMoving = false;
@@ -430,20 +447,20 @@ class GameScene extends Scene {
         start: 24,
         end: 29,
       }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: -1,
     });
 
     this.anims.create({
       key: "turnToFront",
       frames: this.anims.generateFrameNumbers("bot", { frames: [0] }),
-      frameRate: 5,
+      frameRate: 10,
     });
 
     this.anims.create({
       key: "turnToSide",
       frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 2 }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: 0,
     });
 
@@ -452,7 +469,7 @@ class GameScene extends Scene {
       frames: this.anims.generateFrameNumbers("bot", {
         frames: [6, 7, 0, 1, 2],
       }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: 0,
     });
 
@@ -462,7 +479,7 @@ class GameScene extends Scene {
         start: 24,
         end: 29,
       }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: -1,
     });
 
@@ -479,56 +496,56 @@ class GameScene extends Scene {
     this.anims.create({
       key: "down",
       frames: this.anims.generateFrameNumbers("bot", { start: 8, end: 13 }),
-      frameRate: 5,
+      frameRate: 2,
       repeat: -1,
     });
 
     this.anims.create({
       key: "leftToUp",
       frames: this.anims.generateFrameNumbers("bot", { start: 6, end: 4 }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: 0,
     });
 
     this.anims.create({
       key: "rightToUp",
       frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 4 }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: 0,
     });
 
     this.anims.create({
       key: "downToUp",
       frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 4 }),
-      frameRate: 5,
+      frameRate: 20,
       repeat: 0,
     });
 
     this.anims.create({
       key: "upToDown",
       frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 0 }),
-      frameRate: 5,
+      frameRate: 20,
       repeat: 0,
     });
 
     this.anims.create({
       key: "upToRight",
       frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 2 }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: 0,
     });
 
     this.anims.create({
       key: "leftToDown",
       frames: this.anims.generateFrameNumbers("bot", { frames: [6, 7, 0] }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: 0,
     });
 
     this.anims.create({
       key: "rightToDown",
       frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 0 }),
-      frameRate: 5,
+      frameRate: 10,
       repeat: 0,
     });
   }
@@ -566,7 +583,7 @@ class GameScene extends Scene {
       objectToScanFor = blueStar;
       if (this.scannedObject) {
         if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
-          console.log("not in view");
+          // console.log("not in view");
           this.scanLineGfx.setVisible(false);
         } else {
           this.scanLineGfx.setVisible(true);
@@ -680,8 +697,9 @@ class GameScene extends Scene {
   }
 
   update() {
-    Object.entries(directionPlayer1).length > 0 ?
-    socket.emit("directionSelf", directionPlayer1) : socket.emit("directionSelf", direction);
+    Object.entries(directionPlayer1).length > 0
+      ? socket.emit("directionSelf", directionPlayer1)
+      : socket.emit("directionSelf", direction);
     if (Object.entries(state.directionOpponent).length > 0) {
       directionPlayer2 = toRaw(state.directionOpponent);
     }
@@ -697,7 +715,7 @@ class GameScene extends Scene {
     socket.emit("playerXY", playerXY);
     if (this.scannedObject) {
       if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
-        console.log("not in view");
+        // console.log("not in view");
         this.scanLineGfx.setVisible(false);
         this.objectSighted = false;
         directionPlayer1.toObject.isClear = false;
@@ -792,7 +810,7 @@ class GameScene extends Scene {
           ),
           0
         );
-        console.log(distCheb);
+        // console.log(distCheb);
         distClosest = Phaser.Math.RoundTo(
           Phaser.Math.Distance.BetweenPoints(
             this.player,
@@ -808,7 +826,7 @@ class GameScene extends Scene {
         // console.log(distClosest);
         // if (distClosest < Phaser.Math.Distance.Between(closest.x, closest.y, (closest.body.position.x + 1), (closest.body.position.y + 1))) {
         if (distClosest > hypot) {
-          console.log("clear");
+          // console.log("clear");
           directionPlayer1.left.isClear = true;
           directionPlayer1.right.isClear = true;
           directionPlayer1.down.isClear = true;
@@ -967,5 +985,9 @@ class GameScene extends Scene {
 <style>
 .game-container > canvas {
   width: 100%;
+}
+
+.highlighted {
+  filter: drop-shadow(0 0 0.75rem crimson);
 }
 </style>

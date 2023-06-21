@@ -41,7 +41,7 @@ Blockly.common.defineBlocksWithJsonArray([
 ]);
 
 javascriptGenerator["custom_if_controls"] = function (block) {
-  var code = "yield;\n";
+  var code = "yield;\n console.log('if Block');";
   // Hole die Bedingungen aus dem Block
   var conditionIfCode = javascriptGenerator.valueToCode(
     block,

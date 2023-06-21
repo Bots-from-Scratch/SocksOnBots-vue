@@ -38,6 +38,22 @@ onMounted(() => {
   if (startBlocks) {
     Blockly.serialization.workspaces.load(startBlocks, workspace.value);
   }
+
+
+
+  workspace.value.addChangeListener(function(event) {
+    console.log("workspace.value.addChangeListener");
+    console.log(event)
+    if (event.type === Blockly.Events.BLOCKSPACE_CHANGE) {
+      if (event.element === 'blocklyBlockSpaceStart') {
+        var blockId = event.blockId;
+        console.log("blockID", blockId);
+        // Hier kannst du den blockId-Wert verwenden, der den gerade gestarteten Block identifiziert
+      } else if (event.element === 'blocklyBlockSpaceEnd') {
+        // Hier kannst du entsprechende Aktionen ausführen, wenn die Blockausführung beendet ist
+      }
+    }
+  });
 });
 
 // var playGame = ref();
@@ -74,10 +90,14 @@ function runCode() {
   blockList = [];
   javascriptGenerator.init(Blockly.common.getMainWorkspace());
 
-  blockListTmp = Blockly.common.getMainWorkspace().getAllBlocks(true);
 
+  blockListTmp = Blockly.common.getMainWorkspace().getAllBlocks(true);
+  var lastBlockId = workspace.value;
+  console.log("Zuletzt ausgeführter Block: ", lastBlockId);
   blockListTmp.forEach(function (block) {
-    blockList.push(javascriptGenerator.blockToCode(block, true));
+    // TODO push blockCode + blockId to blockList
+    let _block = {id: block.id, code: javascriptGenerator.blockToCode(block, true)}
+    blockList.push(_block);
   });
   console.log(blockList);
   emit("runCodePressed", blockList);
