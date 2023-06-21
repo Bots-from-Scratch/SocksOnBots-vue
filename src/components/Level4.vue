@@ -91,7 +91,10 @@ let walkedBy;
 
 const runBlocks = (blockList) => {
   console.log("runBlocks wurde aufgerufen.");
-  socket.emit("direction", direction);
+  console.log(direction);
+  console.log("NUR STATE", state);
+  console.log("ROOM IN runBlocks", state.roomID);
+  socket.emit("direction", {roomID: state.roomID, direction: direction})
   console.log(blockList);
   const blockGenerator = eval(`(function* () {
             ${blockList.join(";")}
@@ -635,7 +638,8 @@ class GameScene extends Scene {
   }
 
   update() {
-    socket.emit("direction", direction);
+    socket.emit("direction", {roomId: state.roomID, direction: direction});
+    
     if (Object.entries(state.direction).length > 0) {
       directionPlayer2 = toRaw(state.direction);
     }
