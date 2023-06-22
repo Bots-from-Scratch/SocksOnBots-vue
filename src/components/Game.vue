@@ -17,12 +17,12 @@ import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
 import bot_sock from "@/assets/Spritesheetohnesocke.png";
 import bot_with_sock from "@/assets/Spritesheet.png";
-import level_4 from "@/assets/SocksOnBots_lvl_4.json";
-import world from "@/assets/BotsonsocksBIG.json"
+import world from "@/assets/BotsonsocksBIG.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
 import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
+import movingSound from "@/assets/sounds/Fahrgeräusche_summen.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 
@@ -48,24 +48,25 @@ export default defineComponent({
     activeScene() {
       console.log("=>(Game.vue:49) this.game", this.game);
       console.log("=>(Game.vue:49) this.game.scene", this.game.scene);
-      console.log("=>(Game.vue:49) this.game.scene.getScenes", this.game.scene.getScenes(true)[0]);
+      console.log(
+        "=>(Game.vue:49) this.game.scene.getScenes",
+        this.game.scene.getScenes(true)[0]
+      );
       return this.game.scene.getScenes(true)[0];
     },
   },
   methods: {
     controlSounds(volumes) {
-      let scene = this.activeScene;
-      console.log("=>(Game.vue:54) scene", scene);
-      if (scene) {
-        console.log("=>(Game.vue:56) scene", scene);
-        if (!scene.backgroundSound.isPlaying && this.playGame) {
-          scene.backgroundSound.play();
-        }
+      const scene = this.activeScene;
 
-        scene.backgroundSound.setVolume(parseInt(volumes.music) / 200);
-        console.log("=>(Game.vue:60) volumes", volumes.music);
-        scene.collisionSound.setVolume(parseInt(volumes.sound) / 200);
+      if (!scene.backgroundSound.isPlaying && this.playGame) {
+        console.log("=>(Game.vue:63) playScene");
+        scene.backgroundSound.play();
       }
+
+      scene.backgroundSound.setVolume(parseInt(volumes.music) / 200);
+      console.log("=>(Game.vue:60) volumes", volumes.music);
+      scene.collisionSound.setVolume(parseInt(volumes.sound) / 200);
     },
   },
   watch: {
@@ -85,7 +86,7 @@ export default defineComponent({
   },
 
   mounted() {
-    const gameConfig = {
+    gameConfig = {
       type: Phaser.AUTO,
       parent: this.$refs.phaserGame,
       width: 960,
@@ -94,7 +95,6 @@ export default defineComponent({
       physics: {
         default: "arcade",
         arcade: {
-          // gravity: { y: 300 },
           debug: true,
         },
       },
@@ -104,6 +104,7 @@ export default defineComponent({
   },
 });
 
+let gameConfig;
 let playerXY = { x: 0, y: 0 };
 let player2XY;
 let blockFunction;
@@ -155,6 +156,72 @@ class GameScene extends Scene {
   ROTATION_DOWN = 90;
   SCAN_DISTANCE = 200;
 
+  levels = [
+    {
+      name: "level1",
+      x: 3,
+      y: 28,
+      isActive: false,
+      playerStart: { x: 10, y: 37 },
+    },
+    {
+      name: "level2",
+      x: 3,
+      y: 15,
+      isActive: false,
+      playerStart: { x: 10, y: 23 },
+    },
+    {
+      name: "level3",
+      x: 3,
+      y: 2,
+      isActive: false,
+      playerStart: { x: 3, y: 7 },
+    },
+    {
+      name: "level4",
+      x: 23,
+      y: 2,
+      isActive: false,
+      playerStart: { x: 25, y: 3 },
+    },
+    {
+      name: "level5",
+      x: 24,
+      y: 15,
+      isActive: false,
+      playerStart: { x: 300, y: 600 },
+    },
+    {
+      name: "level6",
+      x: 22,
+      y: 28,
+      isActive: false,
+      playerStart: { x: 350, y: 700 },
+    },
+    {
+      name: "level7",
+      x: 42,
+      y: 2,
+      isActive: false,
+      playerStart: { x: 400, y: 800 },
+    },
+    {
+      name: "level8",
+      x: 42,
+      y: 15,
+      isActive: false,
+      playerStart: { x: 450, y: 900 },
+    },
+    {
+      name: "level9",
+      x: 42,
+      y: 28,
+      isActive: false,
+      playerStart: { x: 500, y: 1000 },
+    },
+  ];
+
   constructor() {
     super("GameScene_Level_4");
   }
@@ -199,15 +266,45 @@ class GameScene extends Scene {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.load.tilemapTiledJSON("map", level_4);
+    this.load.tilemapTiledJSON("map", world);
     this.load.audio("collision", collisionSound);
     this.load.audio("backgroundSound", bgSound);
+    this.load.audio("movingSound", movingSound);
   }
 
   create() {
     // this.add.image(400, 300, 'sky');
 
     const map = this.make.tilemap({ key: "map" });
+
+    this.tileWidth = map.tileWidth;
+    this.tileHeight = map.tileHeight;
+
+    let x;
+    let y;
+
+    this.level = 1;
+    this.levels.map((level) => {
+      level.name === "level".concat(this.level) &&
+        (level.isActive = true) &&
+        (x = level.x) &&
+        (y = level.y);
+    });
+
+
+    this.cam = this.cameras.main;
+    this.cam.setBounds(
+      x * this.tileWidth,
+      y * this.tileHeight,
+      gameConfig.width,
+      gameConfig.height
+    );
+    this.physics.world.setBounds(
+      x * this.tileWidth,
+      y * this.tileHeight,
+      gameConfig.width,
+      gameConfig.height
+    );
 
     const tileset = map.addTilesetImage(
       "CosmicLilac_Tiles_64x64-cd3",
@@ -310,6 +407,7 @@ class GameScene extends Scene {
 
     this.collisionSound = this.sound.add("collision");
     this.backgroundSound = this.sound.add("backgroundSound");
+    this.movingSound = this.sound.add("movingSound");
     // this.backgroundSound.setVolume(0.3).play();
   }
 
@@ -317,27 +415,14 @@ class GameScene extends Scene {
   //-------CREATE FUNCTIONS
 
   createBlockingObjects(map) {
-    // this.platforms = this.physics.add.staticGroup();
     this.rectangles = this.physics.add.staticGroup();
     this.createTileFrames(this.wallLayer);
-
-    // this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-    // this.platforms.create(512, 128, 'ground').setScale(0.66, 8.1).setAlpha(0).refreshBody();
-    //
-    //
-    // this.platforms.create(864, 288, 'ground').setScale(0.5, 6).setAlpha(0).refreshBody();
-    // this.platforms.create(50, 250, 'ground');
-    // this.platforms.create(750, 220, 'ground');
-
-    // platforms.setSize(400, 50, true);
-
-    // this.platforms.setTint(0x000bbb);
   }
 
   createPlayer() {
-    this.player = this.physics.add.sprite(150, 150, "bot").setScale(1.4);
+    this.player = this.physics.add.sprite(1664, 320, "bot").setScale(1.4);
     this.player2 = this.physics.add
-      .sprite(150, 150, "bot")
+      .sprite(0, 0, "bot")
       .setScale(1.4)
       .setAlpha(0.1)
       .setTint(0x006db2);
@@ -354,12 +439,17 @@ class GameScene extends Scene {
 
     // particles.startFollow(this.player2,0,0,false);
     // particles.explode(10, this.player2.x, this.player2.y);
-
+// TODO set player mid to mid of tiles
     console.log(this.player);
-    if (this.level === 4) {
-      this.player.setX(160).setY(80);
-      this.player2.setX(160).setY(80);
-    }
+    this.levels.forEach(
+      (level) =>
+        level.isActive &&
+        this.player.setPosition(
+          level.playerStart.x * this.tileWidth + this.tileWidth/2,
+          level.playerStart.y * this.tileHeight + this.tileHeight/2
+        )
+    );
+    console.log("=>(Game.vue:453) this.player", this.player);
 
     // this.player.body.bounce.set(1);
     this.player.body.setMaxSpeed(160);
@@ -943,6 +1033,7 @@ class GameScene extends Scene {
         }
       }
       this.rotation = this.ROTATION_RIGHT;
+      // this.movingSound.setVolume(0.5).play();
       player.setVelocityX(160);
       player.setVelocityY(0);
       // this.resetDirection();

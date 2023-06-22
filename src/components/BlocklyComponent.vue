@@ -7,7 +7,7 @@ import { javascriptGenerator } from "blockly/javascript";
 import PixelButton from "@/components/PixelButton.vue";
 import { socket, state } from "@/socket";
 
-const emit = defineEmits(["runCodePressed"]);
+const emit = defineEmits(["runCodePressed","workspace"]);
 const props = defineProps(["options"]);
 const blocklyToolbox = ref();
 const blocklyDiv = ref();
@@ -15,6 +15,7 @@ const workspace = shallowRef();
 const store = useLocalStorage("userBlocks", null);
 let startBlocks;
 defineExpose({ workspace });
+
 
 onMounted(() => {
   const options = props.options || {};
