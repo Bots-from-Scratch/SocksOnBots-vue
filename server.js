@@ -12,6 +12,7 @@ const io = require("socket.io")(http, {
   },
 });
 const path = require("path");
+const {data} = require("autoprefixer");
 const roomList = [];
 
 app.get("/", (req, res) => {
@@ -32,7 +33,8 @@ io.on("connection", function (socket) {
     });
 
   socket.on("directionSelf", (data) => {
-    socket.emit("directionSelf.response", data);
+    socket.emit("directionSelf.response", data.directionSelf);
+    socket.to(data.roomId).emit("direction", data.directionSelf);
     // console.log("directionSelf", data);
   });
   socket.on("direction", (data) => {
@@ -43,15 +45,23 @@ io.on("connection", function (socket) {
   });
 
   socket.on("playerXY", (data) => {
-    socket.broadcast.emit("playerXY", data);
+    socket.to(data.roomId).emit("playerXY", data.playerXY);
     // console.log("playerXY method");
   });
 
   socket.on("playGame", (data) => {
     console.log("playGame", data)
-    socket.broadcast.emit("playGame.response", data);
+    // socket.broadcast.emit("playGame.response", data);
     socket.emit("playGame.response", data);
   });
+
+  socket.on("leaveRoom", (roomId) => {
+    socket.leave(roomId);
+    socket.to(roomId).emit("leaveRoom.info")
+    console.log("after leave Rooms:", socket.rooms);
+
+  });
+
   socket.on("connectRoom", (newRoom) => {
     //TODO Check, if room < 2, then join
     //TODO Check if room exist
@@ -80,7 +90,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("listRooms", () => {
-    console.log(roomList);
+    // console.log(roomList);
     socket.emit("listRooms.response", roomList);
   });
 });

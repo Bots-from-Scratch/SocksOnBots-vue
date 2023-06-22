@@ -112,10 +112,7 @@ let objectCollected;
 
 function runBlocks(workspace) {
   console.log("runBlocks wurde aufgerufen.");
-  socket.emit("directionSelf", {
-    roomId: state.roomID,
-    directionSelf: direction,
-  });
+  socket.emit("directionSelf", direction);
   javascriptGenerator.STATEMENT_PREFIX = "highlightBlock(%1);\n";
   javascriptGenerator.addReservedWords("highlightBlock");
   function highlightBlock(id) {
@@ -681,11 +678,11 @@ class GameScene extends Scene {
 
   update() {
     Object.entries(directionPlayer1).length > 0
-        ? socket.emit("directionSelf", {
+      ? socket.emit("directionSelf", {
           roomId: state.roomID,
           directionSelf: directionPlayer1,
         })
-        : socket.emit("directionSelf", {
+      : socket.emit("directionSelf", {
           roomId: state.roomID,
           directionSelf: direction,
         });
@@ -701,7 +698,10 @@ class GameScene extends Scene {
     this.player2.setY(player2XY.y);
     playerXY.x = this.player.x;
     playerXY.y = this.player.y;
-    socket.emit("playerXY", playerXY);
+    socket.emit("playerXY", {
+      roomId: state.roomID,
+      playerXY: playerXY,
+    });
     if (this.scannedObject) {
       if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
         // console.log("not in view");

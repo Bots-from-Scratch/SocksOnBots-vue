@@ -47,20 +47,22 @@ socket.on("joinedRoom", (data) => {
   state.roomID = data;
 });
 
+socket.on("leaveRoom.info", ()=>console.log("Player left the room"))
+
 socket.on("playGame.response", (data) => {
-  console.log("playGame.response", data);
+  // console.log("playGame.response", data);
   state.playGame = data;
 });
 socket.on("directionSelf.response", (data) => {
-  // console.log("direction");
+  // console.log("direction", data);
   state.directionSelf = data;
   // console.log("state.directionSelf", state.directionSelf)
 });
 socket.on("direction", (data) => {
-  console.log("direction", data);
+  // console.log("direction", data);
   state.direction = data;
 });
 
 socket.on("listRooms.response", (data) => {
-  console.log(data);
+  // console.log(data);
 });

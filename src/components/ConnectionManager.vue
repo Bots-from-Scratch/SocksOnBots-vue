@@ -5,8 +5,8 @@
     <button @click="disconnect()">Disconnect</button>
     <input type="text" name="lobby" id="lobby-id" v-model="roomID" />
     <button @click="connectRoom()">Connect</button>
-    <input type="text" name="chat" id="chat" v-model="chat" />
-    <button @click="sendMessage(chat)">Send</button>
+    <input type="text" name="chat" id="chat" v-model="message" />
+    <button @click="sendMessage(message)">Send</button>
   </div>
 </template>
 
@@ -25,7 +25,9 @@ export default {
   data() {
     return {
       test: "testString",
-      roomID: "",
+      roomID: "test",
+      message: "hey other player",
+      connectedToRoom: "",
     };
   },
 
@@ -42,13 +44,22 @@ export default {
       socket.emit("foo", this.test);
     },
     connectRoom() {
-      socket.emit("connectRoom", this.roomID);
-      console.log(this.roomID);
-      console.log("connect Room", this.roomID);
+      if (!this.connectedToRoom) {
+        this.connectedToRoom = this.roomID;
+        socket.emit("connectRoom", this.roomID);
+        console.log("connected to Room", this.connectedToRoom);
+      } else {
+        socket.emit("leaveRoom", this.connectedToRoom);
+        this.connectedToRoom = this.roomID;
+        socket.emit("connectRoom", this.roomID);
+
+      }
     },
     sendMessage(text) {
-      socket.emit("chat", { roomId: this.roomID, msg: text });
-      console.log("chat", this.roomID, text);
+      if (this.connectedToRoom) {
+        socket.emit("chat", { roomId: this.roomID, msg: text });
+      }
+      // console.log("chat", this.roomID, text);
     },
     startInterval() {
       setInterval(() => socket.emit("listRooms"), 1000);
