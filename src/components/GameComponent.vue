@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Game from "@/components/Game.vue";
 import BlocklyComponent from "@/components/BlocklyComponent.vue";
-import { computed, ref, watch, watchEffect } from "vue";
+import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { javascriptGenerator } from "blockly/javascript";
 import Blockly from "blockly";
 import { toolboxJson } from "@/toolbox_phaser.js";
@@ -9,6 +9,7 @@ import { state } from "@/socket";
 import RangeSlider from "@/components/RangeSlider.vue";
 import Level4 from "@/App.vue";
 import Test from "@/components/Test.vue";
+import { useLocalStorage } from "@vueuse/core";
 
 const blockly = ref(null);
 let workspace = ref();
@@ -17,6 +18,28 @@ const volume = ref({
   music: 5,
   sound: 5,
 });
+
+const store = useLocalStorage("volume", null);
+
+watch(
+  volume,
+  (newValue) => {
+    store.value = JSON.stringify(newValue);
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  const savedVolume = JSON.parse(store.value);
+  if (savedVolume) {
+    console.log(
+      "=>(GameComponent.vue:36) savedVolume",
+      savedVolume.music, savedVolume.sound
+    );
+    // volume.value = savedVolume;
+  }
+});
+
 const options = {
   toolbox: toolboxJson,
   collapse: true,
@@ -40,23 +63,17 @@ const options = {
   },
 };
 
-
 function runCodePressed() {
   playGame.value = state.playGame;
-  workspace = blockly.value.workspace
+  workspace = blockly.value.workspace;
 }
-
 </script>
 
 <template>
   <div
     class="flex xl:flex-row flex-col justify-start items-centerr xl:items-start my-24 mx-16"
   >
-    <Game
-      :playGame="playGame"
-      :volume="volume"
-      :workspace="workspace"
-    />
+    <Game :playGame="playGame" :volume="volume" :workspace="workspace" />
     <div class="flex flex-col justify-start">
       <RangeSlider v-model="volume.music" name="Music Volume" />
       <RangeSlider v-model="volume.sound" name="Sound Volume" />

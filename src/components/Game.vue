@@ -18,6 +18,7 @@ import star from "@/assets/socke.png";
 import bot_sock from "@/assets/Spritesheetohnesocke.png";
 import bot_with_sock from "@/assets/Spritesheet.png";
 import level_4 from "@/assets/SocksOnBots_lvl_4.json";
+import world from "@/assets/BotsonsocksBIG.json"
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
@@ -45,25 +46,41 @@ export default defineComponent({
       return state;
     },
     activeScene() {
+      console.log("=>(Game.vue:49) this.game", this.game);
+      console.log("=>(Game.vue:49) this.game.scene", this.game.scene);
+      console.log("=>(Game.vue:49) this.game.scene.getScenes", this.game.scene.getScenes(true)[0]);
       return this.game.scene.getScenes(true)[0];
     },
   },
+  methods: {
+    controlSounds(volumes) {
+      let scene = this.activeScene;
+      console.log("=>(Game.vue:54) scene", scene);
+      if (scene) {
+        console.log("=>(Game.vue:56) scene", scene);
+        if (!scene.backgroundSound.isPlaying && this.playGame) {
+          scene.backgroundSound.play();
+        }
 
+        scene.backgroundSound.setVolume(parseInt(volumes.music) / 200);
+        console.log("=>(Game.vue:60) volumes", volumes.music);
+        scene.collisionSound.setVolume(parseInt(volumes.sound) / 200);
+      }
+    },
+  },
   watch: {
     volume: {
       handler(newVolume) {
         if (this.game) {
-          let scene = this.activeScene;
-          scene.collisionSound.setVolume(newVolume.sound / 200);
-          scene.backgroundSound.setVolume(newVolume.music / 200);
+          this.controlSounds(newVolume);
         }
       },
-      immediate: true,
+      // immediate: true,
       deep: true,
     },
     playGame() {
       runBlocks(this.workspace);
-      this.game.scene.scenes[0].playBackgroundSound(this.volume.music / 200);
+      this.controlSounds(this.volume);
     },
   },
 
@@ -681,11 +698,11 @@ class GameScene extends Scene {
 
   update() {
     Object.entries(directionPlayer1).length > 0
-        ? socket.emit("directionSelf", {
+      ? socket.emit("directionSelf", {
           roomId: state.roomID,
           directionSelf: directionPlayer1,
         })
-        : socket.emit("directionSelf", {
+      : socket.emit("directionSelf", {
           roomId: state.roomID,
           directionSelf: direction,
         });
