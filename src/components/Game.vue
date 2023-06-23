@@ -157,6 +157,8 @@ export default defineComponent({
       deep: true,
     },
     playGame() {
+      console.log("=>(Game.vue:160) playGame runBlocks");
+
       runBlocks(this.workspace);
       this.controlSounds(this.volume);
     },

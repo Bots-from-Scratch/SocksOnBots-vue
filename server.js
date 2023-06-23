@@ -51,8 +51,8 @@ io.on("connection", function (socket) {
 
   socket.on("playGame", (data) => {
     console.log("playGame", data)
-    // socket.broadcast.emit("playGame.response", data);
-    socket.emit("playGame.response", data);
+    socket.to(data.roomId).emit("playGame.response", data.playGame);
+    socket.emit("playGame.response", data.playGame);
   });
 
   socket.on("leaveRoom", (roomId) => {

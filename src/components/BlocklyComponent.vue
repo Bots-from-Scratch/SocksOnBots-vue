@@ -89,13 +89,15 @@ watch(
   () => state.playGame,
   () => {
     console.log("watcher state.playGame blocklyComponent");
-    runCodeCounter === 0 && runCode();
+    // runCodeCounter === 0 && runCode();
+     runCode();
   }
 );
 
 console.log(startBlocks);
 function runCode() {
   runCodeCounter++;
+  console.log("=>(BlocklyComponent.vue:99) runCodeCounter", runCodeCounter);
   console.log("runCode");
 
   const savedBlocks = Blockly.serialization.workspaces.save(workspace.value);
@@ -131,7 +133,7 @@ function runCode() {
   javascriptGenerator.init(Blockly.common.getMainWorkspace());
 
   emit("runCodePressed");
-  socket.emit("playGame", true);
+  socket.emit("playGame", {playGame: true, roomId: state.roomID});
 }
 </script>
 
@@ -142,7 +144,7 @@ function runCode() {
       <slot></slot>
     </div>
     <div class="flex justify-start my-8">
-      <PixelButton text="Play" @click="runCode" />
+      <PixelButton text="Play" @click="state.playGame = true" />
       <p>{{ directionObj }}</p>
     </div>
   </div>

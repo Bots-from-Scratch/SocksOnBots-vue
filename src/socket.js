@@ -50,7 +50,7 @@ socket.on("joinedRoom", (data) => {
 socket.on("leaveRoom.info", ()=>console.log("Player left the room"))
 
 socket.on("playGame.response", (data) => {
-  // console.log("playGame.response", data);
+  console.log("playGame.response", data);
   state.playGame = data;
 });
 socket.on("directionSelf.response", (data) => {
