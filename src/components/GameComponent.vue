@@ -36,6 +36,7 @@ onMounted(() => {
       "=>(GameComponent.vue:36) savedVolume",
       savedVolume.music, savedVolume.sound
     );
+    // TODO fix volume loading from localstorage
     // volume.value = savedVolume;
   }
 });

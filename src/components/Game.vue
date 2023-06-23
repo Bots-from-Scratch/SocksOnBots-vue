@@ -4,6 +4,14 @@
     <div>volume: {{ volume }}</div>
     <div id="play-status">playGame: {{ playGame }}</div>
     <div>Self Direction: {{ state.directionSelf }}</div>
+    <!--    <div>Level: {{ playingLevel }}</div>-->
+    <div>Level: {{ selectedLevel }}</div>
+    <select v-model="selectedLevel">
+      <option disabled value="">Select level</option>
+      <option v-for="level in levels" class="capitalize">
+        {{ level.name }}
+      </option>
+    </select>
   </div>
 </template>
 
@@ -22,7 +30,7 @@ import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
 import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
-import movingSound from "@/assets/sounds/Fahrgeräusche_summen.mp3";
+import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 
@@ -38,6 +46,72 @@ export default defineComponent({
   data() {
     return {
       game: null,
+      selectedLevel: ref(""),
+      levels: [
+        {
+          name: "Level 1",
+          x: 3,
+          y: 28,
+          isActive: false,
+          playerStart: { x: 10, y: 37 },
+        },
+        {
+          name: "Level 2",
+          x: 3,
+          y: 15,
+          isActive: false,
+          playerStart: { x: 10, y: 23 },
+        },
+        {
+          name: "Level 3",
+          x: 3,
+          y: 2,
+          isActive: false,
+          playerStart: { x: 3, y: 7 },
+        },
+        {
+          name: "Level 4",
+          x: 23,
+          y: 2,
+          isActive: false,
+          playerStart: { x: 25, y: 3 },
+        },
+        {
+          name: "Level 5",
+          x: 24,
+          y: 15,
+          isActive: false,
+          playerStart: { x: 300, y: 600 },
+        },
+        {
+          name: "Level 6",
+          x: 22,
+          y: 28,
+          isActive: false,
+          playerStart: { x: 350, y: 700 },
+        },
+        {
+          name: "Level 7",
+          x: 42,
+          y: 2,
+          isActive: false,
+          playerStart: { x: 400, y: 800 },
+        },
+        {
+          name: "Level 8",
+          x: 42,
+          y: 15,
+          isActive: false,
+          playerStart: { x: 450, y: 900 },
+        },
+        {
+          name: "Level 9",
+          x: 42,
+          y: 28,
+          isActive: false,
+          playerStart: { x: 500, y: 1000 },
+        },
+      ],
     };
   },
 
@@ -83,6 +157,10 @@ export default defineComponent({
       runBlocks(this.workspace);
       this.controlSounds(this.volume);
     },
+    selectedLevel() {
+      selectedLevel = this.selectedLevel;
+      this.activeScene.scene.restart();
+    },
   },
 
   mounted() {
@@ -105,6 +183,7 @@ export default defineComponent({
 });
 
 let gameConfig;
+let selectedLevel;
 let playerXY = { x: 0, y: 0 };
 let player2XY;
 let blockFunction;
@@ -158,63 +237,63 @@ class GameScene extends Scene {
 
   levels = [
     {
-      name: "level1",
+      name: "Level 1",
       x: 3,
       y: 28,
       isActive: false,
       playerStart: { x: 10, y: 37 },
     },
     {
-      name: "level2",
+      name: "Level 2",
       x: 3,
       y: 15,
       isActive: false,
       playerStart: { x: 10, y: 23 },
     },
     {
-      name: "level3",
+      name: "Level 3",
       x: 3,
       y: 2,
       isActive: false,
       playerStart: { x: 3, y: 7 },
     },
     {
-      name: "level4",
+      name: "Level 4",
       x: 23,
       y: 2,
       isActive: false,
       playerStart: { x: 25, y: 3 },
     },
     {
-      name: "level5",
+      name: "Level 5",
       x: 24,
       y: 15,
       isActive: false,
       playerStart: { x: 300, y: 600 },
     },
     {
-      name: "level6",
+      name: "Level 6",
       x: 22,
       y: 28,
       isActive: false,
       playerStart: { x: 350, y: 700 },
     },
     {
-      name: "level7",
+      name: "Level 7",
       x: 42,
       y: 2,
       isActive: false,
       playerStart: { x: 400, y: 800 },
     },
     {
-      name: "level8",
+      name: "Level 8",
       x: 42,
       y: 15,
       isActive: false,
       playerStart: { x: 450, y: 900 },
     },
     {
-      name: "level9",
+      name: "Level 9",
       x: 42,
       y: 28,
       isActive: false,
@@ -229,7 +308,7 @@ class GameScene extends Scene {
   init() {
     this.resetDirection();
 
-    this.level = 4;
+    // playingLevel = 4;
 
     this.score = 0;
 
@@ -283,14 +362,14 @@ class GameScene extends Scene {
     let x;
     let y;
 
-    this.level = 1;
+    // playingLevel = 1;
     this.levels.map((level) => {
-      level.name === "level".concat(this.level) &&
+      console.log("=>(Game.vue:368) selectedLevel", selectedLevel);
+      level.name === selectedLevel &&
         (level.isActive = true) &&
         (x = level.x) &&
         (y = level.y);
     });
-
 
     this.cam = this.cameras.main;
     this.cam.setBounds(
@@ -439,14 +518,14 @@ class GameScene extends Scene {
 
     // particles.startFollow(this.player2,0,0,false);
     // particles.explode(10, this.player2.x, this.player2.y);
-// TODO set player mid to mid of tiles
+    // TODO set player mid to mid of tiles
     console.log(this.player);
     this.levels.forEach(
       (level) =>
         level.isActive &&
         this.player.setPosition(
-          level.playerStart.x * this.tileWidth + this.tileWidth/2,
-          level.playerStart.y * this.tileHeight + this.tileHeight/2
+          level.playerStart.x * this.tileWidth + this.tileWidth / 2,
+          level.playerStart.y * this.tileHeight + this.tileHeight / 2
         )
     );
     console.log("=>(Game.vue:453) this.player", this.player);
@@ -991,6 +1070,8 @@ class GameScene extends Scene {
     if (this.cursors.space.isDown) {
       this.physics.pause();
       this.objectCollidedWith = null;
+
+      console.log("=>(Game.vue:1077) this.scene", this.scene);
       this.scene.restart();
     }
     if (Object.keys(directionPlayer1).length > 0) {
@@ -1033,7 +1114,7 @@ class GameScene extends Scene {
         }
       }
       this.rotation = this.ROTATION_RIGHT;
-      // this.movingSound.setVolume(0.5).play();
+      this.movingSound.setVolume(0.2).play();
       player.setVelocityX(160);
       player.setVelocityY(0);
       // this.resetDirection();
