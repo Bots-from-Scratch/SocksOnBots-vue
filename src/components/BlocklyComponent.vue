@@ -14,6 +14,7 @@ const blocklyDiv = ref();
 const workspace = shallowRef();
 let store = useLocalStorage("userBlocks", null);
 let startBlocks;
+let runCodeCounter = 0;
 defineExpose({ workspace });
 
 onMounted(() => {
@@ -59,9 +60,9 @@ const directionObj = computed({
 watch(
   () => props.selectedLevel,
   (newLevel) => {
-    store = useLocalStorage("userBlocks".concat(newLevel), null);
+    // store = useLocalStorage("userBlocks".concat(newLevel), null);
 
-    if ( store.value !== null) {
+    if (store.value !== null) {
       console.log("=>(BlocklyComponent.vue:65) store.value", store.value);
       startBlocks = JSON.parse(store.value);
       console.log(startBlocks.blocks);
@@ -71,10 +72,15 @@ watch(
 
     console.log(workspace.value);
     if (startBlocks) {
-      Blockly.serialization.workspaces.load(
-        startBlocks.blocks,
-        workspace.value
+      startBlocks.forEach(
+        (level) =>
+          level.level === newLevel &&
+          Blockly.serialization.workspaces.load(level.blocks, workspace.value)
       );
+      // Blockly.serialization.workspaces.load(
+      //   startBlocks.blocks,
+      //   workspace.value
+      // );
     }
   }
 );
@@ -83,25 +89,40 @@ watch(
   () => state.playGame,
   () => {
     console.log("watcher state.playGame blocklyComponent");
-    runCode();
+    runCodeCounter === 0 && runCode();
   }
 );
 
 console.log(startBlocks);
 function runCode() {
+  runCodeCounter++;
   console.log("runCode");
 
   const savedBlocks = Blockly.serialization.workspaces.save(workspace.value);
   // TODO Blöcke für Level speichern
-  const dataToStore = { level: props.selectedLevel, blocks: savedBlocks };
+  // TODO level zu name oder levelName umbenennen
+  const dataToStore = [];
+  const storedData = JSON.parse(store.value);
+  storedData.forEach((level) => {
+    level.level !== props.selectedLevel && dataToStore.push(level);
+  });
+
+  console.log("=>(BlocklyComponent.vue:108) storedData", dataToStore);
+
+  dataToStore.push({ level: props.selectedLevel, blocks: savedBlocks });
   console.log(
-    "=>(BlocklyComponent.vue:82) this.selectedLevel",
-    props.selectedLevel
+    "=>(BlocklyComponent.vue:99) dataToStore after push",
+    dataToStore
   );
-  store = useLocalStorage(
-    "userBlocks".concat(props.selectedLevel),
-    JSON.stringify(dataToStore)
-  );
+
+  // console.log(
+  //   "=>(BlocklyComponent.vue:82) this.selectedLevel",
+  //   props.selectedLevel
+  // );
+  // store = useLocalStorage(
+  //   "userBlocks",
+  //   JSON.stringify(dataToStore)
+  // );
   store.value = JSON.stringify(dataToStore);
   // useLocalStorage(
   //   "userBlocks".concat(props.selectedLevel),

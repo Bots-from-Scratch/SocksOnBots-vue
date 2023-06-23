@@ -6,7 +6,7 @@
     <div>Self Direction: {{ state.directionSelf }}</div>
     <!--    <div>Level: {{ playingLevel }}</div>-->
     <div>Level: {{ selectedLevel }}</div>
-    <select v-model="selectedLevel">
+    <select class="bg-yellow-500" v-model="selectedLevel">
       <option disabled value="">Select level</option>
       <option v-for="level in levels" class="capitalize">
         {{ level.name }}
