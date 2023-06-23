@@ -31,7 +31,7 @@ socket.on("disconnect", () => {
 });
 
 socket.on("playerXY", (data) => {
-  // console.log("playerXY");
+  console.log("playerXY", data);
   state.playerXY = data;
   // state.fooEvents.push(args);
 });

@@ -45,7 +45,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("playerXY", (data) => {
-    socket.to(data.roomId).emit("playerXY", data.playerXY);
+    socket.to(data.roomId).emit("playerXY", data.playerPosition);
     // console.log("playerXY method");
   });
 

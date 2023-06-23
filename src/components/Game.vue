@@ -3,7 +3,7 @@
   <div class="flex flex-col">
     <div>volume: {{ volume }}</div>
     <div id="play-status">playGame: {{ playGame }}</div>
-    <div>Self Direction: {{ state.directionSelf }}</div>
+    <div>Self Direction: {{ state.playerXY }}</div>
     <!--    <div>Level: {{ playingLevel }}</div>-->
     <div>Level: {{ selectedLevel }}</div>
     <select class="bg-yellow-500" v-model="selectedLevel">
@@ -893,7 +893,7 @@ class GameScene extends Scene {
     this.player2.setY(player2XY.y);
     playerXY.x = this.player.x;
     playerXY.y = this.player.y;
-    socket.emit("playerXY", playerXY);
+    socket.emit("playerXY", {roomId: state.roomID, playerPosition: playerXY});
     if (this.scannedObject) {
       if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
         // console.log("not in view");
