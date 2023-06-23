@@ -12,7 +12,7 @@ const io = require("socket.io")(http, {
   },
 });
 const path = require("path");
-const {data} = require("autoprefixer");
+const { data } = require("autoprefixer");
 const roomList = [];
 
 app.get("/", (req, res) => {
@@ -26,11 +26,11 @@ io.on("connection", function (socket) {
     console.log("A user with ID: " + socket.id + " disconnected");
   });
 
-    socket.on("foo", (data) => {
-        socket.broadcast.emit("foo", data);
-        console.log("foo method");
-        console.log(data);
-    });
+  socket.on("foo", (data) => {
+    socket.broadcast.emit("foo", data);
+    console.log("foo method");
+    console.log(data);
+  });
 
   socket.on("directionSelf", (data) => {
     socket.emit("directionSelf.response", data.directionSelf);
@@ -46,20 +46,19 @@ io.on("connection", function (socket) {
 
   socket.on("playerXY", (data) => {
     socket.to(data.roomId).emit("playerXY", data.playerPosition);
-    // console.log("playerXY method");
+    // console.log("playerPosition method");
   });
 
   socket.on("playGame", (data) => {
-    console.log("playGame", data)
+    console.log("playGame", data);
     socket.to(data.roomId).emit("playGame.response", data.playGame);
     socket.emit("playGame.response", data.playGame);
   });
 
   socket.on("leaveRoom", (roomId) => {
     socket.leave(roomId);
-    socket.to(roomId).emit("leaveRoom.info")
+    socket.to(roomId).emit("leaveRoom.info");
     console.log("after leave Rooms:", socket.rooms);
-
   });
 
   socket.on("connectRoom", (newRoom) => {
@@ -76,7 +75,7 @@ io.on("connection", function (socket) {
     socket.emit("joinedRoom", newRoom);
     socket
       .to(newRoom)
-      .emit("chatMessage", "This is a message on " + printTime());
+      .emit("chatMessage", "User joined the room at " + printTime());
     console.log(newRoom);
     console.log("Rooms:", socket.rooms);
   });

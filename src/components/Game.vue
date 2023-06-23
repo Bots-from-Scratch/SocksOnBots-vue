@@ -3,7 +3,7 @@
   <div class="flex flex-col">
     <div>volume: {{ volume }}</div>
     <div id="play-status">playGame: {{ playGame }}</div>
-    <div>Self Direction: {{ state.playerXY }}</div>
+    <div>Self Direction: {{ state.playerPosition }}</div>
     <!--    <div>Level: {{ playingLevel }}</div>-->
     <div>Level: {{ selectedLevel }}</div>
     <select class="bg-yellow-500" v-model="selectedLevel">
@@ -18,7 +18,7 @@
 <script>
 import * as Phaser from "phaser";
 import { Scene } from "phaser";
-import { defineComponent, ref, toRaw, watch } from "vue";
+import { defineComponent, ref, toRaw } from "vue";
 import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
@@ -37,7 +37,7 @@ import { javascriptGenerator } from "blockly/javascript";
 export default defineComponent({
   name: "Game",
   emits: {
-    selectedLevel: null
+    selectedLevel: null,
   },
   props: {
     // directionPlayer1: String,
@@ -165,7 +165,8 @@ export default defineComponent({
     selectedLevel() {
       selectedLevel = this.selectedLevel;
       this.$emit("selectedLevel", selectedLevel);
-      this.activeScene.scene.restart();
+      // this.activeScene.scene.restart();
+      this.activeScene.prepareLevel();
     },
   },
 
@@ -190,7 +191,7 @@ export default defineComponent({
 
 let gameConfig;
 let selectedLevel;
-let playerXY = { x: 0, y: 0 };
+let playerPosition = { x: 0, y: 0 };
 let player2XY;
 let blockFunction;
 let direction = {
@@ -365,32 +366,6 @@ class GameScene extends Scene {
     this.tileWidth = map.tileWidth;
     this.tileHeight = map.tileHeight;
 
-    let x;
-    let y;
-
-    // playingLevel = 1;
-    this.levels.map((level) => {
-      console.log("=>(Game.vue:368) selectedLevel", selectedLevel);
-      level.name === selectedLevel &&
-        (level.isActive = true) &&
-        (x = level.x) &&
-        (y = level.y);
-    });
-
-    this.cam = this.cameras.main;
-    this.cam.setBounds(
-      x * this.tileWidth,
-      y * this.tileHeight,
-      gameConfig.width,
-      gameConfig.height
-    );
-    this.physics.world.setBounds(
-      x * this.tileWidth,
-      y * this.tileHeight,
-      gameConfig.width,
-      gameConfig.height
-    );
-
     const tileset = map.addTilesetImage(
       "CosmicLilac_Tiles_64x64-cd3",
       "tileset"
@@ -525,16 +500,6 @@ class GameScene extends Scene {
     // particles.startFollow(this.player2,0,0,false);
     // particles.explode(10, this.player2.x, this.player2.y);
     // TODO set player mid to mid of tiles
-    console.log(this.player);
-    this.levels.forEach(
-      (level) =>
-        level.isActive &&
-        this.player.setPosition(
-          level.playerStart.x * this.tileWidth + this.tileWidth / 2,
-          level.playerStart.y * this.tileHeight + this.tileHeight / 2
-        )
-    );
-    console.log("=>(Game.vue:453) this.player", this.player);
 
     // this.player.body.bounce.set(1);
     this.player.body.setMaxSpeed(160);
@@ -808,7 +773,7 @@ class GameScene extends Scene {
 
   processCallback(obj1, obj2) {
     //  This function can perform your own additional checks on the 2 objects that collided.
-    //  For example you could test for velocity, health, etc.
+    //  For example, you could test for velocity, health, etc.
     //  This function needs to return either true or false. If it returns true then collision carries on (separating the two objects).
     //  If it returns false the collision is assumed to have failed and aborts, no further checks or separation happen.
 
@@ -817,6 +782,51 @@ class GameScene extends Scene {
     } else {
       return false;
     }
+  }
+
+  prepareLevel() {
+    this.cameras.main.fadeOut(800, 0, 0, 0);
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => {
+        this.loadLevelCoordinates();
+        this.cameras.main.fadeIn(800);
+      }
+    );
+    console.log("=>(Game.vue:823) prepareLevel");
+  }
+
+  loadLevelCoordinates() {
+    console.log("=>(Game.vue:837) loadLevelCoordinates");
+    let x;
+    let y;
+    this.levels.map((level) => {
+      level.name === selectedLevel
+        ? (level.isActive = true) && (x = level.x) && (y = level.y)
+        : (level.isActive = false);
+    });
+    this.cam = this.cameras.main;
+    this.cam.setBounds(
+      x * this.tileWidth,
+      y * this.tileHeight,
+      gameConfig.width,
+      gameConfig.height
+    );
+    this.physics.world.setBounds(
+      x * this.tileWidth,
+      y * this.tileHeight,
+      gameConfig.width,
+      gameConfig.height
+    );
+    this.levels.forEach((level) => {
+      console.log("=>(Game.vue:825) level", level);
+
+      level.isActive &&
+        this.player.setPosition(
+          level.playerStart.x * this.tileWidth + this.tileWidth / 2,
+          level.playerStart.y * this.tileHeight + this.tileHeight / 2
+        );
+    });
   }
 
   collectStar(player, star) {
@@ -848,6 +858,8 @@ class GameScene extends Scene {
   //   directionPlayer1.down.isMoving = false;
   //   directionPlayer1.toObject.isMoving = false;
   // }
+
+  // TODO reset isClear when turning away
   resetDirection() {
     if (Object.keys(directionPlayer1).length > 0) {
       console.log(directionPlayer1);
@@ -888,12 +900,15 @@ class GameScene extends Scene {
       directionPlayer1 = toRaw(state.directionSelf);
     }
 
-    player2XY = toRaw(state.playerXY);
+    player2XY = toRaw(state.playerPosition);
     this.player2.setX(player2XY.x);
     this.player2.setY(player2XY.y);
-    playerXY.x = this.player.x;
-    playerXY.y = this.player.y;
-    socket.emit("playerXY", {roomId: state.roomID, playerPosition: playerXY});
+    playerPosition.x = this.player.x;
+    playerPosition.y = this.player.y;
+    socket.emit("playerXY", {
+      roomId: state.roomID,
+      playerPosition: playerPosition,
+    });
     if (this.scannedObject) {
       if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
         // console.log("not in view");

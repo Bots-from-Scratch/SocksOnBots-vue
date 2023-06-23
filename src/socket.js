@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 export const state = reactive({
   connected: false,
   playGame: false,
-  playerXY: {},
+  playerPosition: {},
   directionSelf: {},
   directionOpponent: {},
   direction: {},
@@ -31,12 +31,12 @@ socket.on("disconnect", () => {
 });
 
 socket.on("playerXY", (data) => {
-  console.log("playerXY", data);
-  state.playerXY = data;
+  // console.log("playerXY", data);
+  state.playerPosition = data;
   // state.fooEvents.push(args);
 });
 socket.on("chatMessage", (data) => {
-  console.log("Chat:", data);
+  console.log(data);
 });
 
 socket.on("joinRoom", (data) => {
@@ -47,7 +47,7 @@ socket.on("joinedRoom", (data) => {
   state.roomID = data;
 });
 
-socket.on("leaveRoom.info", ()=>console.log("Player left the room"))
+socket.on("leaveRoom.info", () => console.log("Player left the room"));
 
 socket.on("playGame.response", (data) => {
   console.log("playGame.response", data);
