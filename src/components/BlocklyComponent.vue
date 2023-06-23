@@ -7,15 +7,14 @@ import { javascriptGenerator } from "blockly/javascript";
 import PixelButton from "@/components/PixelButton.vue";
 import { socket, state } from "@/socket";
 
-const emit = defineEmits(["runCodePressed","workspace"]);
-const props = defineProps(["options"]);
+const emit = defineEmits(["runCodePressed", "workspace"]);
+const props = defineProps(["options", "selectedLevel"]);
 const blocklyToolbox = ref();
 const blocklyDiv = ref();
 const workspace = shallowRef();
-const store = useLocalStorage("userBlocks", null);
+let store = useLocalStorage("userBlocks", null);
 let startBlocks;
 defineExpose({ workspace });
-
 
 onMounted(() => {
   const options = props.options || {};
@@ -23,17 +22,10 @@ onMounted(() => {
     options.toolbox = blocklyToolbox.value;
   }
 
-  if (store.value !== "undefined") {
-    startBlocks = JSON.parse(store.value);
-    console.log(startBlocks);
-  } else {
-    console.log("localStorage ist nicht verfügbar.");
-  }
-
   workspace.value = Blockly.inject(blocklyDiv.value, options);
   console.log(workspace.value);
   if (startBlocks) {
-    Blockly.serialization.workspaces.load(startBlocks, workspace.value);
+    Blockly.serialization.workspaces.load(startBlocks.blocks, workspace.value);
   }
 
   emit("workspace", workspace);
@@ -65,6 +57,29 @@ const directionObj = computed({
 });
 
 watch(
+  () => props.selectedLevel,
+  (newLevel) => {
+    store = useLocalStorage("userBlocks".concat(newLevel), null);
+
+    if ( store.value !== null) {
+      console.log("=>(BlocklyComponent.vue:65) store.value", store.value);
+      startBlocks = JSON.parse(store.value);
+      console.log(startBlocks.blocks);
+    } else {
+      console.log("localStorage ist nicht verfügbar.");
+    }
+
+    console.log(workspace.value);
+    if (startBlocks) {
+      Blockly.serialization.workspaces.load(
+        startBlocks.blocks,
+        workspace.value
+      );
+    }
+  }
+);
+
+watch(
   () => state.playGame,
   () => {
     console.log("watcher state.playGame blocklyComponent");
@@ -77,8 +92,21 @@ function runCode() {
   console.log("runCode");
 
   const savedBlocks = Blockly.serialization.workspaces.save(workspace.value);
-  store.value = JSON.stringify(savedBlocks);
-
+  // TODO Blöcke für Level speichern
+  const dataToStore = { level: props.selectedLevel, blocks: savedBlocks };
+  console.log(
+    "=>(BlocklyComponent.vue:82) this.selectedLevel",
+    props.selectedLevel
+  );
+  store = useLocalStorage(
+    "userBlocks".concat(props.selectedLevel),
+    JSON.stringify(dataToStore)
+  );
+  store.value = JSON.stringify(dataToStore);
+  // useLocalStorage(
+  //   "userBlocks".concat(props.selectedLevel),
+  //   JSON.stringify(dataToStore)
+  // );
   javascriptGenerator.init(Blockly.common.getMainWorkspace());
 
   emit("runCodePressed");

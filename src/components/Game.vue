@@ -36,6 +36,9 @@ import { javascriptGenerator } from "blockly/javascript";
 
 export default defineComponent({
   name: "Game",
+  emits: {
+    selectedLevel: null
+  },
   props: {
     // directionPlayer1: String,
     playGame: Boolean,
@@ -159,6 +162,7 @@ export default defineComponent({
     },
     selectedLevel() {
       selectedLevel = this.selectedLevel;
+      this.$emit("selectedLevel", selectedLevel);
       this.activeScene.scene.restart();
     },
   },

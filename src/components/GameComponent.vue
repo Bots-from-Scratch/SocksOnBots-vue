@@ -14,6 +14,7 @@ import { useLocalStorage } from "@vueuse/core";
 const blockly = ref(null);
 let workspace = ref();
 const playGame = ref(state.playGame);
+const selectedLevel = ref("");
 const volume = ref({
   music: 5,
   sound: 5,
@@ -34,7 +35,8 @@ onMounted(() => {
   if (savedVolume) {
     console.log(
       "=>(GameComponent.vue:36) savedVolume",
-      savedVolume.music, savedVolume.sound
+      savedVolume.music,
+      savedVolume.sound
     );
     // TODO fix volume loading from localstorage
     // volume.value = savedVolume;
@@ -68,13 +70,22 @@ function runCodePressed() {
   playGame.value = state.playGame;
   workspace = blockly.value.workspace;
 }
+
+function levelSelected(data) {
+  selectedLevel.value = data;
+}
 </script>
 
 <template>
   <div
     class="flex xl:flex-row flex-col justify-start items-centerr xl:items-start my-24 mx-16"
   >
-    <Game :playGame="playGame" :volume="volume" :workspace="workspace" />
+    <Game
+      :playGame="playGame"
+      :volume="volume"
+      :workspace="workspace"
+      @selectedLevel="levelSelected"
+    />
     <div class="flex flex-col justify-start">
       <RangeSlider v-model="volume.music" name="Music Volume" />
       <RangeSlider v-model="volume.sound" name="Sound Volume" />
@@ -84,6 +95,7 @@ function runCodePressed() {
       class="w-full max-w-[960px] xl:max-w-xl h-96 shrink grow-0"
       id="blockly"
       :options="options"
+      :selectedLevel="selectedLevel"
       ref="blockly"
       @runCodePressed="runCodePressed"
     />
