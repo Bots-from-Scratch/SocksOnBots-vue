@@ -159,8 +159,10 @@ export default defineComponent({
     playGame() {
       console.log("=>(Game.vue:160) playGame runBlocks");
 
-      runBlocks(this.workspace);
-      this.controlSounds(this.volume);
+      if (this.playGame) {
+        runBlocks(this.workspace);
+        this.controlSounds(this.volume);
+      }
     },
     selectedLevel() {
       selectedLevel = this.selectedLevel;
@@ -819,7 +821,7 @@ class GameScene extends Scene {
       gameConfig.height
     );
     this.levels.forEach((level) => {
-      console.log("=>(Game.vue:825) level", level);
+      // console.log("=>(Game.vue:825) level", level);
 
       level.isActive &&
         this.player.setPosition(

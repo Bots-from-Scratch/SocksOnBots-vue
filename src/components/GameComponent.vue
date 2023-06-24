@@ -5,7 +5,7 @@ import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { javascriptGenerator } from "blockly/javascript";
 import Blockly from "blockly";
 import { toolboxJson } from "@/toolbox_phaser.js";
-import { state } from "@/socket";
+import {socket, state} from "@/socket";
 import RangeSlider from "@/components/RangeSlider.vue";
 import Level4 from "@/App.vue";
 import Test from "@/components/Test.vue";
@@ -66,8 +66,11 @@ const options = {
   },
 };
 
-function runCodePressed() {
+function playGamePressed() {
+  console.log("=>(GameComponent.vue:70) playGamePressed");
   playGame.value = state.playGame;
+
+  console.log("=>(GameComponent.vue:72) playGame", playGame.value);
   workspace = blockly.value.workspace;
 }
 
@@ -97,7 +100,7 @@ function levelSelected(data) {
       :options="options"
       :selectedLevel="selectedLevel"
       ref="blockly"
-      @runCodePressed="runCodePressed"
+      @playGamePressed="playGamePressed"
     />
   </div>
 </template>

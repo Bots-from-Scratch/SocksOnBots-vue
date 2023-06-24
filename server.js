@@ -49,10 +49,13 @@ io.on("connection", function (socket) {
     // console.log("playerPosition method");
   });
 
-  socket.on("playGame", (data) => {
+  socket.on("playGame", (data, callback) => {
     console.log("playGame", data);
     socket.to(data.roomId).emit("playGame.response", data.playGame);
     socket.emit("playGame.response", data.playGame);
+    callback({
+      status: "ok",
+    });
   });
 
   socket.on("leaveRoom", (roomId) => {
