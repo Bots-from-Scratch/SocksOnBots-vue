@@ -18,7 +18,7 @@
 <script>
 import * as Phaser from "phaser";
 import { Scene } from "phaser";
-import { defineComponent, ref, toRaw } from "vue";
+import { computed, defineComponent, ref, toRaw } from "vue";
 import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
@@ -43,12 +43,44 @@ export default defineComponent({
     // directionPlayer1: String,
     playGame: Boolean,
     volume: Object,
-    workspace: Object,
+    // workspace: Object,
+  },
+  setup() {
+    let game = ref(null);
+
+    const activeScene = computed(() => {
+      console.log("=>(Game.vue:49) this.game", game.value);
+      console.log("=>(Game.vue:49) this.game.scene", game.value.scene);
+      console.log(
+        "=>(Game.vue:49) this.game.scene.getScenes",
+        game.value.scene.getScenes(true)[0]
+      );
+      return game.value.scene.getScenes(true)[0];
+    });
+
+    const controlSounds = (volumes) => {
+      let scene = activeScene.value;
+
+      if (!scene.backgroundSound.isPlaying) {
+        console.log("=>(Game.vue:63) playScene");
+        scene.backgroundSound.play();
+      }
+
+      console.log("=>(Game.vue:60) volumes", volumes.value.music);
+      scene.backgroundSound.setVolume(parseInt(volumes.value.music) / 200);
+      scene.collisionSound.setVolume(parseInt(volumes.value.sound) / 200);
+    };
+
+    const run = (workspace, volumes) => {
+      runBlocks(workspace);
+      controlSounds(volumes);
+    };
+
+    return { game, run, controlSounds, activeScene };
   },
 
   data() {
     return {
-      game: null,
       selectedLevel: ref(""),
       levels: [
         {
@@ -122,48 +154,9 @@ export default defineComponent({
     state() {
       return state;
     },
-    activeScene() {
-      console.log("=>(Game.vue:49) this.game", this.game);
-      console.log("=>(Game.vue:49) this.game.scene", this.game.scene);
-      console.log(
-        "=>(Game.vue:49) this.game.scene.getScenes",
-        this.game.scene.getScenes(true)[0]
-      );
-      return this.game.scene.getScenes(true)[0];
-    },
   },
-  methods: {
-    controlSounds(volumes) {
-      const scene = this.activeScene;
 
-      if (!scene.backgroundSound.isPlaying && this.playGame) {
-        console.log("=>(Game.vue:63) playScene");
-        scene.backgroundSound.play();
-      }
-
-      scene.backgroundSound.setVolume(parseInt(volumes.music) / 200);
-      console.log("=>(Game.vue:60) volumes", volumes.music);
-      scene.collisionSound.setVolume(parseInt(volumes.sound) / 200);
-    },
-  },
   watch: {
-    volume: {
-      handler(newVolume) {
-        if (this.game) {
-          this.controlSounds(newVolume);
-        }
-      },
-      // immediate: true,
-      deep: true,
-    },
-    playGame() {
-      console.log("=>(Game.vue:160) playGame runBlocks");
-
-      if (this.playGame) {
-        runBlocks(this.workspace);
-        this.controlSounds(this.volume);
-      }
-    },
     selectedLevel() {
       selectedLevel = this.selectedLevel;
       this.$emit("selectedLevel", selectedLevel);
@@ -224,6 +217,8 @@ function runBlocks(workspace) {
   });
   javascriptGenerator.STATEMENT_PREFIX = "highlightBlock(%1);\n";
   javascriptGenerator.addReservedWords("highlightBlock");
+
+  // function highlightBlock is used by blockly
   function highlightBlock(id) {
     workspace.highlightBlock(id);
   }

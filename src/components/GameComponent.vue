@@ -5,7 +5,7 @@ import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { javascriptGenerator } from "blockly/javascript";
 import Blockly from "blockly";
 import { toolboxJson } from "@/toolbox_phaser.js";
-import {socket, state} from "@/socket";
+import { socket, state } from "@/socket";
 import RangeSlider from "@/components/RangeSlider.vue";
 import Level4 from "@/App.vue";
 import Test from "@/components/Test.vue";
@@ -14,6 +14,7 @@ import { useLocalStorage } from "@vueuse/core";
 const blockly = ref(null);
 let workspace = ref();
 const playGame = ref(state.playGame);
+const game = ref(null);
 const selectedLevel = ref("");
 const volume = ref({
   music: 5,
@@ -26,6 +27,7 @@ watch(
   volume,
   (newValue) => {
     store.value = JSON.stringify(newValue);
+    playGame.value && game.value.controlSounds(volume);
   },
   { deep: true }
 );
@@ -69,9 +71,9 @@ const options = {
 function playGamePressed() {
   console.log("=>(GameComponent.vue:70) playGamePressed");
   playGame.value = state.playGame;
-
   console.log("=>(GameComponent.vue:72) playGame", playGame.value);
   workspace = blockly.value.workspace;
+  game.value.run(blockly.value.workspace, volume);
 }
 
 function levelSelected(data) {
@@ -86,7 +88,7 @@ function levelSelected(data) {
     <Game
       :playGame="playGame"
       :volume="volume"
-      :workspace="workspace"
+      ref="game"
       @selectedLevel="levelSelected"
     />
     <div class="flex flex-col justify-start">
