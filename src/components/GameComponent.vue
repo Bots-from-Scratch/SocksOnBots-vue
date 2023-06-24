@@ -1,22 +1,50 @@
 <script setup lang="ts">
 import Game from "@/components/Game.vue";
 import BlocklyComponent from "@/components/BlocklyComponent.vue";
-import { computed, ref, watch, watchEffect } from "vue";
+import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { javascriptGenerator } from "blockly/javascript";
 import Blockly from "blockly";
 import { toolboxJson } from "@/toolbox_phaser.js";
-import { state } from "@/socket";
+import { socket, state } from "@/socket";
 import RangeSlider from "@/components/RangeSlider.vue";
 import Level4 from "@/App.vue";
 import Test from "@/components/Test.vue";
+import { useLocalStorage } from "@vueuse/core";
 
 const blockly = ref(null);
 let workspace = ref();
 const playGame = ref(state.playGame);
+const game = ref(null);
+const selectedLevel = ref("");
 const volume = ref({
   music: 5,
   sound: 5,
 });
+
+const store = useLocalStorage("volume", null);
+
+watch(
+  volume,
+  (newValue) => {
+    store.value = JSON.stringify(newValue);
+    playGame.value && game.value.controlSounds(volume);
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  const savedVolume = JSON.parse(store.value);
+  if (savedVolume) {
+    console.log(
+      "=>(GameComponent.vue:36) savedVolume",
+      savedVolume.music,
+      savedVolume.sound
+    );
+    // TODO fix volume loading from localstorage
+    // volume.value = savedVolume;
+  }
+});
+
 const options = {
   toolbox: toolboxJson,
   collapse: true,
@@ -40,12 +68,17 @@ const options = {
   },
 };
 
-
-function runCodePressed() {
+function playGamePressed() {
+  console.log("=>(GameComponent.vue:70) playGamePressed");
   playGame.value = state.playGame;
-  workspace = blockly.value.workspace
+  console.log("=>(GameComponent.vue:72) playGame", playGame.value);
+  workspace = blockly.value.workspace;
+  game.value.run(blockly.value.workspace, volume);
 }
 
+function levelSelected(data) {
+  selectedLevel.value = data;
+}
 </script>
 
 <template>
@@ -55,7 +88,8 @@ function runCodePressed() {
     <Game
       :playGame="playGame"
       :volume="volume"
-      :workspace="workspace"
+      ref="game"
+      @selectedLevel="levelSelected"
     />
     <div class="flex flex-col justify-start">
       <RangeSlider v-model="volume.music" name="Music Volume" />
@@ -66,8 +100,9 @@ function runCodePressed() {
       class="w-full max-w-[960px] xl:max-w-xl h-96 shrink grow-0"
       id="blockly"
       :options="options"
+      :selectedLevel="selectedLevel"
       ref="blockly"
-      @runCodePressed="runCodePressed"
+      @playGamePressed="playGamePressed"
     />
   </div>
 </template>

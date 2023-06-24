@@ -3,40 +3,150 @@
   <div class="flex flex-col">
     <div>volume: {{ volume }}</div>
     <div id="play-status">playGame: {{ playGame }}</div>
-    <div>Self Direction: {{ state.directionSelf }}</div>
+    <div>Self Direction: {{ state.playerPosition }}</div>
+    <!--    <div>Level: {{ playingLevel }}</div>-->
+    <div>Level: {{ selectedLevel }}</div>
+    <select class="bg-yellow-500" v-model="selectedLevel">
+      <option disabled value="">Select level</option>
+      <option v-for="level in levels" class="capitalize">
+        {{ level.name }}
+      </option>
+    </select>
   </div>
 </template>
 
 <script>
 import * as Phaser from "phaser";
 import { Scene } from "phaser";
-import { defineComponent, ref, toRaw, watch } from "vue";
+import { computed, defineComponent, ref, toRaw } from "vue";
 import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
 import bot_sock from "@/assets/Spritesheetohnesocke.png";
 import bot_with_sock from "@/assets/Spritesheet.png";
-import level_4 from "@/assets/SocksOnBots_lvl_4.json";
+import world from "@/assets/BotsonsocksBIG.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
 import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
+import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 
 export default defineComponent({
   name: "Game",
+  emits: {
+    selectedLevel: null,
+  },
   props: {
     // directionPlayer1: String,
     playGame: Boolean,
     volume: Object,
-    workspace: Object,
+    // workspace: Object,
+  },
+  setup() {
+    let game = ref(null);
+
+    const activeScene = computed(() => {
+      console.log("=>(Game.vue:49) this.game", game.value);
+      console.log("=>(Game.vue:49) this.game.scene", game.value.scene);
+      console.log(
+        "=>(Game.vue:49) this.game.scene.getScenes",
+        game.value.scene.getScenes(true)[0]
+      );
+      return game.value.scene.getScenes(true)[0];
+    });
+
+    const controlSounds = (volumes) => {
+      let scene = activeScene.value;
+
+      if (!scene.backgroundSound.isPlaying) {
+        console.log("=>(Game.vue:63) playScene");
+        scene.backgroundSound.play();
+      }
+
+      console.log("=>(Game.vue:60) volumes", volumes.value.music);
+      scene.backgroundSound.setVolume(parseInt(volumes.value.music) / 200);
+      scene.collisionSound.setVolume(parseInt(volumes.value.sound) / 200);
+    };
+
+    const run = (workspace, volumes) => {
+      runBlocks(workspace);
+      controlSounds(volumes);
+    };
+
+    return { game, run, controlSounds, activeScene };
   },
 
   data() {
     return {
-      game: null,
+      selectedLevel: ref(""),
+      levels: [
+        {
+          name: "Level 1",
+          x: 3,
+          y: 28,
+          isActive: false,
+          playerStart: { x: 10, y: 37 },
+        },
+        {
+          name: "Level 2",
+          x: 3,
+          y: 15,
+          isActive: false,
+          playerStart: { x: 10, y: 23 },
+        },
+        {
+          name: "Level 3",
+          x: 3,
+          y: 2,
+          isActive: false,
+          playerStart: { x: 3, y: 7 },
+        },
+        {
+          name: "Level 4",
+          x: 23,
+          y: 2,
+          isActive: false,
+          playerStart: { x: 25, y: 3 },
+        },
+        {
+          name: "Level 5",
+          x: 24,
+          y: 15,
+          isActive: false,
+          playerStart: { x: 300, y: 600 },
+        },
+        {
+          name: "Level 6",
+          x: 22,
+          y: 28,
+          isActive: false,
+          playerStart: { x: 350, y: 700 },
+        },
+        {
+          name: "Level 7",
+          x: 42,
+          y: 2,
+          isActive: false,
+          playerStart: { x: 400, y: 800 },
+        },
+        {
+          name: "Level 8",
+          x: 42,
+          y: 15,
+          isActive: false,
+          playerStart: { x: 450, y: 900 },
+        },
+        {
+          name: "Level 9",
+          x: 42,
+          y: 28,
+          isActive: false,
+          playerStart: { x: 500, y: 1000 },
+        },
+      ],
     };
   },
 
@@ -44,31 +154,19 @@ export default defineComponent({
     state() {
       return state;
     },
-    activeScene() {
-      return this.game.scene.getScenes(true)[0];
-    },
   },
 
   watch: {
-    volume: {
-      handler(newVolume) {
-        if (this.game) {
-          let scene = this.activeScene;
-          scene.collisionSound.setVolume(newVolume.sound / 200);
-          scene.backgroundSound.setVolume(newVolume.music / 200);
-        }
-      },
-      immediate: true,
-      deep: true,
-    },
-    playGame() {
-      runBlocks(this.workspace);
-      this.game.scene.scenes[0].playBackgroundSound(this.volume.music / 200);
+    selectedLevel() {
+      selectedLevel = this.selectedLevel;
+      this.$emit("selectedLevel", selectedLevel);
+      // this.activeScene.scene.restart();
+      this.activeScene.prepareLevel();
     },
   },
 
   mounted() {
-    const gameConfig = {
+    gameConfig = {
       type: Phaser.AUTO,
       parent: this.$refs.phaserGame,
       width: 960,
@@ -77,7 +175,6 @@ export default defineComponent({
       physics: {
         default: "arcade",
         arcade: {
-          // gravity: { y: 300 },
           debug: true,
         },
       },
@@ -87,7 +184,9 @@ export default defineComponent({
   },
 });
 
-let playerXY = { x: 0, y: 0 };
+let gameConfig;
+let selectedLevel;
+let playerPosition = { x: 0, y: 0 };
 let player2XY;
 let blockFunction;
 let direction = {
@@ -118,6 +217,8 @@ function runBlocks(workspace) {
   });
   javascriptGenerator.STATEMENT_PREFIX = "highlightBlock(%1);\n";
   javascriptGenerator.addReservedWords("highlightBlock");
+
+  // function highlightBlock is used by blockly
   function highlightBlock(id) {
     workspace.highlightBlock(id);
   }
@@ -138,6 +239,72 @@ class GameScene extends Scene {
   ROTATION_DOWN = 90;
   SCAN_DISTANCE = 200;
 
+  levels = [
+    {
+      name: "Level 1",
+      x: 3,
+      y: 28,
+      isActive: false,
+      playerStart: { x: 10, y: 37 },
+    },
+    {
+      name: "Level 2",
+      x: 3,
+      y: 15,
+      isActive: false,
+      playerStart: { x: 10, y: 23 },
+    },
+    {
+      name: "Level 3",
+      x: 3,
+      y: 2,
+      isActive: false,
+      playerStart: { x: 3, y: 7 },
+    },
+    {
+      name: "Level 4",
+      x: 23,
+      y: 2,
+      isActive: false,
+      playerStart: { x: 25, y: 3 },
+    },
+    {
+      name: "Level 5",
+      x: 24,
+      y: 15,
+      isActive: false,
+      playerStart: { x: 300, y: 600 },
+    },
+    {
+      name: "Level 6",
+      x: 22,
+      y: 28,
+      isActive: false,
+      playerStart: { x: 350, y: 700 },
+    },
+    {
+      name: "Level 7",
+      x: 42,
+      y: 2,
+      isActive: false,
+      playerStart: { x: 400, y: 800 },
+    },
+    {
+      name: "Level 8",
+      x: 42,
+      y: 15,
+      isActive: false,
+      playerStart: { x: 450, y: 900 },
+    },
+    {
+      name: "Level 9",
+      x: 42,
+      y: 28,
+      isActive: false,
+      playerStart: { x: 500, y: 1000 },
+    },
+  ];
+
   constructor() {
     super("GameScene_Level_4");
   }
@@ -145,7 +312,7 @@ class GameScene extends Scene {
   init() {
     this.resetDirection();
 
-    this.level = 4;
+    // playingLevel = 4;
 
     this.score = 0;
 
@@ -182,15 +349,19 @@ class GameScene extends Scene {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.load.tilemapTiledJSON("map", level_4);
+    this.load.tilemapTiledJSON("map", world);
     this.load.audio("collision", collisionSound);
     this.load.audio("backgroundSound", bgSound);
+    this.load.audio("movingSound", movingSound);
   }
 
   create() {
     // this.add.image(400, 300, 'sky');
 
     const map = this.make.tilemap({ key: "map" });
+
+    this.tileWidth = map.tileWidth;
+    this.tileHeight = map.tileHeight;
 
     const tileset = map.addTilesetImage(
       "CosmicLilac_Tiles_64x64-cd3",
@@ -293,6 +464,7 @@ class GameScene extends Scene {
 
     this.collisionSound = this.sound.add("collision");
     this.backgroundSound = this.sound.add("backgroundSound");
+    this.movingSound = this.sound.add("movingSound");
     // this.backgroundSound.setVolume(0.3).play();
   }
 
@@ -300,27 +472,14 @@ class GameScene extends Scene {
   //-------CREATE FUNCTIONS
 
   createBlockingObjects(map) {
-    // this.platforms = this.physics.add.staticGroup();
     this.rectangles = this.physics.add.staticGroup();
     this.createTileFrames(this.wallLayer);
-
-    // this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-    // this.platforms.create(512, 128, 'ground').setScale(0.66, 8.1).setAlpha(0).refreshBody();
-    //
-    //
-    // this.platforms.create(864, 288, 'ground').setScale(0.5, 6).setAlpha(0).refreshBody();
-    // this.platforms.create(50, 250, 'ground');
-    // this.platforms.create(750, 220, 'ground');
-
-    // platforms.setSize(400, 50, true);
-
-    // this.platforms.setTint(0x000bbb);
   }
 
   createPlayer() {
-    this.player = this.physics.add.sprite(150, 150, "bot").setScale(1.4);
+    this.player = this.physics.add.sprite(1664, 320, "bot").setScale(1.4);
     this.player2 = this.physics.add
-      .sprite(150, 150, "bot")
+      .sprite(0, 0, "bot")
       .setScale(1.4)
       .setAlpha(0.1)
       .setTint(0x006db2);
@@ -337,12 +496,7 @@ class GameScene extends Scene {
 
     // particles.startFollow(this.player2,0,0,false);
     // particles.explode(10, this.player2.x, this.player2.y);
-
-    console.log(this.player);
-    if (this.level === 4) {
-      this.player.setX(160).setY(80);
-      this.player2.setX(160).setY(80);
-    }
+    // TODO set player mid to mid of tiles
 
     // this.player.body.bounce.set(1);
     this.player.body.setMaxSpeed(160);
@@ -616,7 +770,7 @@ class GameScene extends Scene {
 
   processCallback(obj1, obj2) {
     //  This function can perform your own additional checks on the 2 objects that collided.
-    //  For example you could test for velocity, health, etc.
+    //  For example, you could test for velocity, health, etc.
     //  This function needs to return either true or false. If it returns true then collision carries on (separating the two objects).
     //  If it returns false the collision is assumed to have failed and aborts, no further checks or separation happen.
 
@@ -625,6 +779,51 @@ class GameScene extends Scene {
     } else {
       return false;
     }
+  }
+
+  prepareLevel() {
+    this.cameras.main.fadeOut(800, 0, 0, 0);
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => {
+        this.loadLevelCoordinates();
+        this.cameras.main.fadeIn(800);
+      }
+    );
+    console.log("=>(Game.vue:823) prepareLevel");
+  }
+
+  loadLevelCoordinates() {
+    console.log("=>(Game.vue:837) loadLevelCoordinates");
+    let x;
+    let y;
+    this.levels.map((level) => {
+      level.name === selectedLevel
+        ? (level.isActive = true) && (x = level.x) && (y = level.y)
+        : (level.isActive = false);
+    });
+    this.cam = this.cameras.main;
+    this.cam.setBounds(
+      x * this.tileWidth,
+      y * this.tileHeight,
+      gameConfig.width,
+      gameConfig.height
+    );
+    this.physics.world.setBounds(
+      x * this.tileWidth,
+      y * this.tileHeight,
+      gameConfig.width,
+      gameConfig.height
+    );
+    this.levels.forEach((level) => {
+      // console.log("=>(Game.vue:825) level", level);
+
+      level.isActive &&
+        this.player.setPosition(
+          level.playerStart.x * this.tileWidth + this.tileWidth / 2,
+          level.playerStart.y * this.tileHeight + this.tileHeight / 2
+        );
+    });
   }
 
   collectStar(player, star) {
@@ -656,6 +855,8 @@ class GameScene extends Scene {
   //   directionPlayer1.down.isMoving = false;
   //   directionPlayer1.toObject.isMoving = false;
   // }
+
+  // TODO reset isClear when turning away
   resetDirection() {
     if (Object.keys(directionPlayer1).length > 0) {
       console.log(directionPlayer1);
@@ -681,11 +882,11 @@ class GameScene extends Scene {
 
   update() {
     Object.entries(directionPlayer1).length > 0
-        ? socket.emit("directionSelf", {
+      ? socket.emit("directionSelf", {
           roomId: state.roomID,
           directionSelf: directionPlayer1,
         })
-        : socket.emit("directionSelf", {
+      : socket.emit("directionSelf", {
           roomId: state.roomID,
           directionSelf: direction,
         });
@@ -696,12 +897,15 @@ class GameScene extends Scene {
       directionPlayer1 = toRaw(state.directionSelf);
     }
 
-    player2XY = toRaw(state.playerXY);
+    player2XY = toRaw(state.playerPosition);
     this.player2.setX(player2XY.x);
     this.player2.setY(player2XY.y);
-    playerXY.x = this.player.x;
-    playerXY.y = this.player.y;
-    socket.emit("playerXY", playerXY);
+    playerPosition.x = this.player.x;
+    playerPosition.y = this.player.y;
+    socket.emit("playerXY", {
+      roomId: state.roomID,
+      playerPosition: playerPosition,
+    });
     if (this.scannedObject) {
       if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
         // console.log("not in view");
@@ -884,6 +1088,8 @@ class GameScene extends Scene {
     if (this.cursors.space.isDown) {
       this.physics.pause();
       this.objectCollidedWith = null;
+
+      console.log("=>(Game.vue:1077) this.scene", this.scene);
       this.scene.restart();
     }
     if (Object.keys(directionPlayer1).length > 0) {
@@ -926,6 +1132,7 @@ class GameScene extends Scene {
         }
       }
       this.rotation = this.ROTATION_RIGHT;
+      this.movingSound.setVolume(0.2).play();
       player.setVelocityX(160);
       player.setVelocityY(0);
       // this.resetDirection();

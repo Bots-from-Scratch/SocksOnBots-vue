@@ -7,13 +7,13 @@ import { javascriptGenerator } from "blockly/javascript";
 import PixelButton from "@/components/PixelButton.vue";
 import { socket, state } from "@/socket";
 
-const emit = defineEmits(["runCodePressed"]);
-const props = defineProps(["options"]);
+const emit = defineEmits(["playGamePressed", "workspace"]);
+const props = defineProps(["options", "selectedLevel"]);
 const blocklyToolbox = ref();
 const blocklyDiv = ref();
 const workspace = shallowRef();
-const store = useLocalStorage("userBlocks", null);
-let startBlocks;
+let playGameCounter = 0;
+let store = useLocalStorage("userBlocks", null);
 defineExpose({ workspace });
 
 onMounted(() => {
@@ -22,35 +22,21 @@ onMounted(() => {
     options.toolbox = blocklyToolbox.value;
   }
 
-  if (store.value !== "undefined") {
-    startBlocks = JSON.parse(store.value);
-    console.log(startBlocks);
-  } else {
-    console.log("localStorage ist nicht verfügbar.");
-  }
-
   workspace.value = Blockly.inject(blocklyDiv.value, options);
-  console.log(workspace.value);
-  if (startBlocks) {
-    Blockly.serialization.workspaces.load(startBlocks, workspace.value);
-  }
 
   emit("workspace", workspace);
 
   workspace.value.addChangeListener(function (event) {
-    console.log("workspace.value.addChangeListener");
-    console.log(event);
-    if (event.type === Blockly.Events.BLOCKSPACE_CHANGE) {
-      if (event.element === "blocklyBlockSpaceStart") {
-        var blockId = event.blockId;
-        console.log("blockID", blockId);
-      } else if (event.element === "blocklyBlockSpaceEnd") {
-      }
+    if (
+      event.type === Blockly.Events.BLOCK_DRAG ||
+      event.type === Blockly.Events.BLOCK_CHANGE
+    ) {
+      console.log("=>(BlocklyComponent.vue:39) drag");
+      saveBlocksToStorage();
     }
   });
 });
 
-// var playGame = ref();
 let playGame = computed({
   get() {
     return state.playGame;
@@ -64,24 +50,56 @@ const directionObj = computed({
 });
 
 watch(
-  () => state.playGame,
-  () => {
-    console.log("watcher state.playGame blocklyComponent");
-    runCode();
+  () => props.selectedLevel,
+  (newLevel) => {
+    loadBlocksFromStorage(newLevel);
   }
 );
 
-console.log(startBlocks);
-function runCode() {
-  console.log("runCode");
+watch(
+  () => state.playGame,
+  () => {
+    console.log("watcher state.playGame blocklyComponent");
+    playGameCounter === 0 && emit("playGamePressed");
+  }
+);
 
-  const savedBlocks = Blockly.serialization.workspaces.save(workspace.value);
-  store.value = JSON.stringify(savedBlocks);
+function playGameClicked() {
+  playGameCounter++;
+  socket.emit("playGame", { playGame: true, roomId: state.roomID }, () => {
+    emit("playGamePressed");
+  });
 
-  javascriptGenerator.init(Blockly.common.getMainWorkspace());
+  // TODO check if init is important
+  // javascriptGenerator.init(Blockly.common.getMainWorkspace());
+}
 
-  emit("runCodePressed");
-  socket.emit("playGame", true);
+function loadBlocksFromStorage(newLevel) {
+  Blockly.serialization.workspaces.load([], workspace.value);
+  if (store.value !== null) {
+    const startBlocks = JSON.parse(store.value);
+    startBlocks.forEach((level) => {
+      level.level === newLevel &&
+        Blockly.serialization.workspaces.load(level.blocks, workspace.value);
+    });
+  } else {
+    console.log("localStorage ist nicht verfügbar.");
+  }
+}
+
+function saveBlocksToStorage() {
+  const blocksToSave = Blockly.serialization.workspaces.save(workspace.value);
+  // TODO level zu name oder levelName umbenennen
+  const dataToStore = [];
+  if (store.value !== null) {
+    const storedData = JSON.parse(store.value);
+    storedData.forEach((level) => {
+      level.level !== props.selectedLevel && dataToStore.push(level);
+    });
+  }
+  dataToStore.push({ level: props.selectedLevel, blocks: blocksToSave });
+
+  store.value = JSON.stringify(dataToStore);
 }
 </script>
 
@@ -92,7 +110,7 @@ function runCode() {
       <slot></slot>
     </div>
     <div class="flex justify-start my-8">
-      <PixelButton text="Play" @click="runCode" />
+      <PixelButton text="Play" @click="playGameClicked" />
       <p>{{ directionObj }}</p>
     </div>
   </div>
