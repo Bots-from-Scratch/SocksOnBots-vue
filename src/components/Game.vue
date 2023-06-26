@@ -33,6 +33,7 @@ import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
+import LobbyScene from "@/game/scenes/LobbyScene";
 
 export default defineComponent({
   name: "Game",
@@ -171,7 +172,7 @@ export default defineComponent({
       parent: this.$refs.phaserGame,
       width: 960,
       height: 640,
-      scene: [GameScene, PreloadScene, CutSceneFirstSock],
+      scene: [LobbyScene, GameScene, PreloadScene, CutSceneFirstSock],
       physics: {
         default: "arcade",
         arcade: {
@@ -306,7 +307,7 @@ class GameScene extends Scene {
   ];
 
   constructor() {
-    super("GameScene_Level_4");
+    super("GameScene");
   }
 
   init() {
@@ -1177,7 +1178,7 @@ class GameScene extends Scene {
   }
 }
 
-// export { GameScene, runBlocks };
+export { GameScene };
 </script>
 
 <style>

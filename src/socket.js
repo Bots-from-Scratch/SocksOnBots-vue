@@ -9,6 +9,7 @@ export const state = reactive({
   directionOpponent: {},
   direction: {},
   roomID: "",
+  rooms: [],
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -64,5 +65,6 @@ socket.on("direction", (data) => {
 });
 
 socket.on("listRooms.response", (data) => {
-  // console.log(data);
+  console.log(state.rooms);
+  state.rooms = data;
 });
