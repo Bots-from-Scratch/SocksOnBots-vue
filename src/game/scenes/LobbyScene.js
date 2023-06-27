@@ -1,6 +1,5 @@
 import { Scene } from "phaser";
-import { state } from "@/socket"
-import { GameScene } from "@/components/Game.vue";
+import { state, socket } from "@/socket"
 
 
 class LobbyScene extends Scene {
@@ -18,8 +17,25 @@ class LobbyScene extends Scene {
         this.titleLobby = this.add.text(100, 20, 'LOBBY AUSWÄHLEN');
 
         localRooms.map((room, i) => {
-            let roomButtonEntry = this.add.text(100, 100 + (i * 30), room).setInteractive().on('pointerover', () => roomButtonEntry.setStyle({ fill: '#006db2' })).on('pointerout', () => roomButtonEntry.setStyle({ fill: '#fff' })).on('pointerdown', () => {
-                this.scene.start('GameScene')
+            let roomButtonEntry = this.add.text(100, 100 + (i * 30), room).setInteractive().on('pointerover', () => { 
+                roomButtonEntry.setStyle({ fill: '#006db2' }) 
+                console.log(room);
+            }).on('pointerout', () => roomButtonEntry.setStyle({ fill: '#fff' })).on('pointerdown', () => {
+                state.roomID = room;
+                
+                // AUS ConnectionManager - Textzwecke - evtl. auslagern
+                if (!state.connectedToRoom) {
+                    state.connectedToRoom = state.roomID;
+                    socket.emit("connectRoom", state.roomID);
+                    console.log("connected to Room", state.connectedToRoom);
+                  } else {
+                    socket.emit("leaveRoom", state.connectedToRoom);
+                    state.connectedToRoom = state.roomID;
+                    socket.emit("connectRoom", state.roomID);
+                  }
+
+
+                this.scene.start('GameScene');
             });
             // this.playButton_lvl_1.setInteractive()
             // this.playButton_lvl_1.on('pointerover', () => this.playButton_lvl_1.setStyle({ fill: '#006db2' })).on('pointerout', () => this.playButton_lvl_1.setStyle({ fill: '#fff' })).on('pointerdown', () => this.scene.start('GameScene_Level_1'));

@@ -65,6 +65,6 @@ socket.on("direction", (data) => {
 });
 
 socket.on("listRooms.response", (data) => {
-  console.log(state.rooms);
+  // console.log(state.rooms);
   state.rooms = data;
 });
