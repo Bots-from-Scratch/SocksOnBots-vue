@@ -23,7 +23,8 @@ import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
-import bot_sock from "@/assets/Spritesheetohnesocke.png";
+import botSpritesheet from "@/assets/Spritesheetnew.png";
+import botAnimationJson from "@/assets/Spritesheetnew.json"
 import bot_with_sock from "@/assets/Spritesheet.png";
 import world from "@/assets/BotsonsocksBIG.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
@@ -34,6 +35,9 @@ import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 
+// TODO licht/Strom anschalten
+// TODO schieben
+// TODO
 export default defineComponent({
   name: "Game",
   emits: {
@@ -157,12 +161,23 @@ export default defineComponent({
   },
 
   watch: {
+    /**
+     * Beschreibung von selectedLevel
+     */
     selectedLevel() {
-      selectedLevel = this.selectedLevel;
-      this.$emit("selectedLevel", selectedLevel);
+
+      socket.emit("selectedLevel", {
+        roomId: state.roomID,
+        level: this.selectedLevel,
+      });
       // this.activeScene.scene.restart();
-      this.activeScene.prepareLevel();
+
     },
+    "state.selectedLevel"(newValue) {
+      selectedGameLevel = newValue;
+      this.$emit("selectedLevel", selectedGameLevel);
+      this.activeScene.prepareLevel();
+    }
   },
 
   mounted() {
@@ -185,7 +200,7 @@ export default defineComponent({
 });
 
 let gameConfig;
-let selectedLevel;
+let selectedGameLevel;
 let playerPosition = { x: 0, y: 0 };
 let player2XY;
 let blockFunction;
@@ -306,7 +321,7 @@ class GameScene extends Scene {
   ];
 
   constructor() {
-    super("GameScene_Level_4");
+    super("GameScene");
   }
 
   init() {
@@ -341,10 +356,13 @@ class GameScene extends Scene {
     this.load.image("ground", platform);
     this.load.image("star", star);
     this.load.image("bomb", bomb);
-    this.load.spritesheet("bot", bot_sock, {
+    this.load.spritesheet("bot", botSpritesheet, {
       frameWidth: 64,
       frameHeight: 64,
     });
+    // TODO load player from aseprite
+    // this.load.aseprite("bot", botSpritesheet, botAnimationJson);
+
     this.load.spritesheet("bot_with_sock", bot_with_sock, {
       frameWidth: 64,
       frameHeight: 64,
@@ -409,7 +427,7 @@ class GameScene extends Scene {
         fill: "#fff",
       }
     );
-    this.statusText.setVisible(true);
+    this.statusText.setVisible(false).setScrollFactor(0);
 
     this.gfx = this.add.graphics();
     // this.bombs = this.physics.add.group();
@@ -477,7 +495,8 @@ class GameScene extends Scene {
   }
 
   createPlayer() {
-    this.player = this.physics.add.sprite(1664, 320, "bot").setScale(1.4);
+    // this.player = this.physics.add.sprite(1664, 320, "bot").setScale(1.4);
+    this.player = this.physics.add.sprite(1664, 320, "bot");
     this.player2 = this.physics.add
       .sprite(0, 0, "bot")
       .setScale(1.4)
@@ -578,113 +597,117 @@ class GameScene extends Scene {
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
 
-    this.anims.create({
-      key: "left",
-      frames: this.anims.generateFrameNumbers("bot", {
-        start: 24,
-        end: 29,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
+    // function createPlayerAnimation() {
+    //   this.anims.create({
+    //     key: "left",
+    //     frames: this.anims.generateFrameNumbers("bot", {
+    //       start: 24,
+    //       end: 29,
+    //     }),
+    //     frameRate: 10,
+    //     repeat: -1,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "turnToFront",
+    //     frames: this.anims.generateFrameNumbers("bot", {frames: [0]}),
+    //     frameRate: 10,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "turnToSide",
+    //     frames: this.anims.generateFrameNumbers("bot", {start: 0, end: 2}),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "leftToRight",
+    //     frames: this.anims.generateFrameNumbers("bot", {
+    //       frames: [6, 7, 0, 1, 2],
+    //     }),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "right",
+    //     frames: this.anims.generateFrameNumbers("bot", {
+    //       start: 24,
+    //       end: 29,
+    //     }),
+    //     frameRate: 10,
+    //     repeat: -1,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "up",
+    //     frames: this.anims.generateFrameNumbers("bot", {
+    //       start: 32,
+    //       end: 37,
+    //     }),
+    //     frameRate: 5,
+    //     repeat: -1,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "down",
+    //     frames: this.anims.generateFrameNumbers("bot", {start: 8, end: 13}),
+    //     frameRate: 2,
+    //     repeat: -1,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "leftToUp",
+    //     frames: this.anims.generateFrameNumbers("bot", {start: 6, end: 4}),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "rightToUp",
+    //     frames: this.anims.generateFrameNumbers("bot", {start: 2, end: 4}),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "downToUp",
+    //     frames: this.anims.generateFrameNumbers("bot", {start: 0, end: 4}),
+    //     frameRate: 20,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "upToDown",
+    //     frames: this.anims.generateFrameNumbers("bot", {start: 4, end: 0}),
+    //     frameRate: 20,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "upToRight",
+    //     frames: this.anims.generateFrameNumbers("bot", {start: 4, end: 2}),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "leftToDown",
+    //     frames: this.anims.generateFrameNumbers("bot", {frames: [6, 7, 0]}),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "rightToDown",
+    //     frames: this.anims.generateFrameNumbers("bot", {start: 2, end: 0}),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    // }
 
-    this.anims.create({
-      key: "turnToFront",
-      frames: this.anims.generateFrameNumbers("bot", { frames: [0] }),
-      frameRate: 10,
-    });
-
-    this.anims.create({
-      key: "turnToSide",
-      frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 2 }),
-      frameRate: 10,
-      repeat: 0,
-    });
-
-    this.anims.create({
-      key: "leftToRight",
-      frames: this.anims.generateFrameNumbers("bot", {
-        frames: [6, 7, 0, 1, 2],
-      }),
-      frameRate: 10,
-      repeat: 0,
-    });
-
-    this.anims.create({
-      key: "right",
-      frames: this.anims.generateFrameNumbers("bot", {
-        start: 24,
-        end: 29,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "up",
-      frames: this.anims.generateFrameNumbers("bot", {
-        start: 32,
-        end: 37,
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "down",
-      frames: this.anims.generateFrameNumbers("bot", { start: 8, end: 13 }),
-      frameRate: 2,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "leftToUp",
-      frames: this.anims.generateFrameNumbers("bot", { start: 6, end: 4 }),
-      frameRate: 10,
-      repeat: 0,
-    });
-
-    this.anims.create({
-      key: "rightToUp",
-      frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 4 }),
-      frameRate: 10,
-      repeat: 0,
-    });
-
-    this.anims.create({
-      key: "downToUp",
-      frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 4 }),
-      frameRate: 20,
-      repeat: 0,
-    });
-
-    this.anims.create({
-      key: "upToDown",
-      frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 0 }),
-      frameRate: 20,
-      repeat: 0,
-    });
-
-    this.anims.create({
-      key: "upToRight",
-      frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 2 }),
-      frameRate: 10,
-      repeat: 0,
-    });
-
-    this.anims.create({
-      key: "leftToDown",
-      frames: this.anims.generateFrameNumbers("bot", { frames: [6, 7, 0] }),
-      frameRate: 10,
-      repeat: 0,
-    });
-
-    this.anims.create({
-      key: "rightToDown",
-      frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 0 }),
-      frameRate: 10,
-      repeat: 0,
-    });
+    // createPlayerAnimation.call(this);
   }
 
   createCursor() {
@@ -798,7 +821,7 @@ class GameScene extends Scene {
     let x;
     let y;
     this.levels.map((level) => {
-      level.name === selectedLevel
+      level.name === selectedGameLevel
         ? (level.isActive = true) && (x = level.x) && (y = level.y)
         : (level.isActive = false);
     });
@@ -1177,7 +1200,7 @@ class GameScene extends Scene {
   }
 }
 
-// export { GameScene, runBlocks };
+// export { GameScene };
 </script>
 
 <style>

@@ -11,7 +11,7 @@ constructor() {
     create() {
         this.playButton_lvl_1 = this.add.text(100, 100, 'Start Level 1');
         this.playButton_lvl_1.setInteractive();
-        this.playButton_lvl_1.on('pointerover', () => this.playButton_lvl_1.setStyle({fill: '#006db2'})).on('pointerout', () => this.playButton_lvl_1.setStyle({fill: '#fff'})).on('pointerdown', () => this.scene.start('GameScene_Level_1'));
+        this.playButton_lvl_1.on('pointerover', () => this.playButton_lvl_1.setStyle({fill: '#006db2'})).on('pointerout', () => this.playButton_lvl_1.setStyle({fill: '#fff'})).on('pointerdown', () => this.scene.start('GameScene'));
 
         this.playButton_lvl_2 = this.add.text(100, 150, 'Start Level 2');
         this.playButton_lvl_2.setInteractive();
