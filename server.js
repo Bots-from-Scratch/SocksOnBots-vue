@@ -49,6 +49,11 @@ io.on("connection", function (socket) {
     // console.log("playerPosition method");
   });
 
+  socket.on("selectedLevel", (data)=>{
+    socket.to(data.roomId).emit("selectedLevel.response", data.level);
+    socket.emit("selectedLevel.response", data.level);
+  });
+
   socket.on("playGame", (data, callback) => {
     console.log("playGame", data);
     socket.to(data.roomId).emit("playGame.response", data.playGame);
