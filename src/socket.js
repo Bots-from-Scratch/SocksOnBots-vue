@@ -68,3 +68,23 @@ socket.on("listRooms.response", (data) => {
   // console.log(state.rooms);
   state.rooms = data;
 });
+
+export function connect() {
+  socket.connect();
+}
+
+export function disconnect() {
+  socket.disconnect();
+}
+
+export function connectRoom(roomName) {
+  // if (!this.connectedToRoom) {
+    state.roomID = roomName;
+    socket.emit("connectRoom", state.roomID);
+    // console.log("connected to Room", this.connectedToRoom);
+  // } else {
+  //   socket.emit("leaveRoom", this.connectedToRoom);
+  //   this.connectedToRoom = this.roomID;
+  //   socket.emit("connectRoom", this.roomID);
+  // }
+}

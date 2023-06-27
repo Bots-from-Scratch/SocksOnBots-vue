@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
 import { state, socket } from "@/socket"
+import { connectRoom } from "../../socket";
 
 
 class LobbyScene extends Scene {
@@ -24,15 +25,7 @@ class LobbyScene extends Scene {
                 state.roomID = room;
                 
                 // AUS ConnectionManager - Textzwecke - evtl. auslagern
-                if (!state.connectedToRoom) {
-                    state.connectedToRoom = state.roomID;
-                    socket.emit("connectRoom", state.roomID);
-                    console.log("connected to Room", state.connectedToRoom);
-                  } else {
-                    socket.emit("leaveRoom", state.connectedToRoom);
-                    state.connectedToRoom = state.roomID;
-                    socket.emit("connectRoom", state.roomID);
-                  }
+                connectRoom(room);
 
 
                 this.scene.start('GameScene');
