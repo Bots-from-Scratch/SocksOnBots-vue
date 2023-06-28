@@ -17,7 +17,7 @@ const cards = [
 
     <div class="container mx-auto flex justify-center gap-20 my-32 flex-wrap">
       <div v-for="card in cards">
-        <PixelCard :text="card.text" /><PixelCard><
+        <PixelCard :text="card.text" /><PixelCard>
       </div>
     </div>
   <div class="container mx-auto">
@@ -60,7 +60,7 @@ const cards = [
       <PixelButton class="mx-auto" text="Donate" />
     </div>
   </div>
-</template> 
+</template>
 
 <style scoped>
 .block-container {
