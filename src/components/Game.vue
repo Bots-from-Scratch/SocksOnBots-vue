@@ -24,7 +24,7 @@ import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
 import botSpritesheet from "@/assets/Spritesheetnew.png";
-import botAnimationJson from "@/assets/Spritesheetnew.json"
+import botAnimationJson from "@/assets/Spritesheetnew.json";
 import bot_with_sock from "@/assets/Spritesheet.png";
 import world from "@/assets/BotsonsocksBIG.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
@@ -165,19 +165,17 @@ export default defineComponent({
      * Beschreibung von selectedLevel
      */
     selectedLevel() {
-
       socket.emit("selectedLevel", {
         roomId: state.roomID,
         level: this.selectedLevel,
       });
       // this.activeScene.scene.restart();
-
     },
     "state.selectedLevel"(newValue) {
       selectedGameLevel = newValue;
       this.$emit("selectedLevel", selectedGameLevel);
       this.activeScene.prepareLevel();
-    }
+    },
   },
 
   mounted() {
@@ -385,12 +383,15 @@ class GameScene extends Scene {
       "CosmicLilac_Tiles_64x64-cd3",
       "tileset"
     );
-    const backgroundLayer = map.createLayer("background", tileset, 0, 0);
+    this.backgroundLayer = map.createLayer("background", tileset, 0, 0);
     const groundLayer = map.createLayer("floor", tileset, 0, 0);
     this.wallLayer = map.createLayer("walls", tileset, 0, 0);
-    const objectLayer = map.createLayer("objects", tileset, 0, 0);
+    this.objectLayer = map.createLayer("objects", tileset, 0, 0);
 
+    this.backgroundLayer.setCollisionByProperty({ noFloor: true });
     this.wallLayer.setCollisionByProperty({ collision: true });
+    this.objectLayer.setCollisionByProperty({ collision: true });
+    this.objectLayer.depth = 1;
     // this.wallLayer.setCollisionFromCollisionGroup(true, true);
     // this.wallLayer.renderDebug(this.add.graphics());
 
@@ -416,7 +417,36 @@ class GameScene extends Scene {
     });
     this.scoreText.setVisible(false);
 
+    this.physics.add.overlap(
+      this.player,
+      this.backgroundLayer,
+      fallingDown,
+      null,
+      this
+    );
+    let tween;
+    function fallingDown(sprite, tile) {
+      if (tile.properties && tile.properties.noFloor && tween === undefined) {
+        const scene = this.scene;
+        tween = this.tweens.addCounter({
+          from: 100,
+          to: 0,
+          duration: 800,
+          onUpdate: function (from, target) {
+            sprite.setScale(target.value / 100);
+            sprite.setMaxVelocity(target.value);
+          },
+          onComplete: () => {
+            scene.restart();
+          },
+        });
+      } else {
+        return null;
+      }
+    }
+
     this.physics.add.collider(this.player, this.wallLayer);
+    this.physics.add.collider(this.player, this.objectLayer);
 
     this.statusText = this.add.text(
       16,
@@ -427,7 +457,7 @@ class GameScene extends Scene {
         fill: "#fff",
       }
     );
-    this.statusText.setVisible(false).setScrollFactor(0);
+    this.statusText.setVisible(true).setScrollFactor(0);
 
     this.gfx = this.add.graphics();
     // this.bombs = this.physics.add.group();
@@ -484,6 +514,8 @@ class GameScene extends Scene {
     this.backgroundSound = this.sound.add("backgroundSound");
     this.movingSound = this.sound.add("movingSound");
     // this.backgroundSound.setVolume(0.3).play();
+
+    this.prepareLevel();
   }
 
   //------------------------------------------------------------------------------------------------------------
@@ -496,7 +528,11 @@ class GameScene extends Scene {
 
   createPlayer() {
     // this.player = this.physics.add.sprite(1664, 320, "bot").setScale(1.4);
-    this.player = this.physics.add.sprite(1664, 320, "bot");
+    this.player = this.physics.add.sprite(
+      gameConfig.width,
+      gameConfig.height,
+      "bot"
+    );
     this.player2 = this.physics.add
       .sprite(0, 0, "bot")
       .setScale(1.4)
@@ -559,9 +595,13 @@ class GameScene extends Scene {
 
     this.physics.add.collider(
       this.player,
-      this.rectangles,
+      this.wallLayer,
       (_player, _rectangles) => {
         this.objectCollidedWith = _rectangles;
+        console.log(
+          "=>(Game.vue:569) this.objectCollidedWith",
+          this.objectCollidedWith
+        );
         this.collided = true;
         walkedBy = false;
         if (!_player.body.blocked.none) {
@@ -597,117 +637,117 @@ class GameScene extends Scene {
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
 
-    // function createPlayerAnimation() {
-    //   this.anims.create({
-    //     key: "left",
-    //     frames: this.anims.generateFrameNumbers("bot", {
-    //       start: 24,
-    //       end: 29,
-    //     }),
-    //     frameRate: 10,
-    //     repeat: -1,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "turnToFront",
-    //     frames: this.anims.generateFrameNumbers("bot", {frames: [0]}),
-    //     frameRate: 10,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "turnToSide",
-    //     frames: this.anims.generateFrameNumbers("bot", {start: 0, end: 2}),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "leftToRight",
-    //     frames: this.anims.generateFrameNumbers("bot", {
-    //       frames: [6, 7, 0, 1, 2],
-    //     }),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "right",
-    //     frames: this.anims.generateFrameNumbers("bot", {
-    //       start: 24,
-    //       end: 29,
-    //     }),
-    //     frameRate: 10,
-    //     repeat: -1,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "up",
-    //     frames: this.anims.generateFrameNumbers("bot", {
-    //       start: 32,
-    //       end: 37,
-    //     }),
-    //     frameRate: 5,
-    //     repeat: -1,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "down",
-    //     frames: this.anims.generateFrameNumbers("bot", {start: 8, end: 13}),
-    //     frameRate: 2,
-    //     repeat: -1,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "leftToUp",
-    //     frames: this.anims.generateFrameNumbers("bot", {start: 6, end: 4}),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "rightToUp",
-    //     frames: this.anims.generateFrameNumbers("bot", {start: 2, end: 4}),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "downToUp",
-    //     frames: this.anims.generateFrameNumbers("bot", {start: 0, end: 4}),
-    //     frameRate: 20,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "upToDown",
-    //     frames: this.anims.generateFrameNumbers("bot", {start: 4, end: 0}),
-    //     frameRate: 20,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "upToRight",
-    //     frames: this.anims.generateFrameNumbers("bot", {start: 4, end: 2}),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "leftToDown",
-    //     frames: this.anims.generateFrameNumbers("bot", {frames: [6, 7, 0]}),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "rightToDown",
-    //     frames: this.anims.generateFrameNumbers("bot", {start: 2, end: 0}),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    // }
+    function createPlayerAnimation() {
+      this.anims.create({
+        key: "left",
+        frames: this.anims.generateFrameNumbers("bot", {
+          start: 24,
+          end: 29,
+        }),
+        frameRate: 10,
+        repeat: -1,
+      });
 
-    // createPlayerAnimation.call(this);
+      this.anims.create({
+        key: "turnToFront",
+        frames: this.anims.generateFrameNumbers("bot", { frames: [0] }),
+        frameRate: 10,
+      });
+
+      this.anims.create({
+        key: "turnToSide",
+        frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 2 }),
+        frameRate: 10,
+        repeat: 0,
+      });
+
+      this.anims.create({
+        key: "leftToRight",
+        frames: this.anims.generateFrameNumbers("bot", {
+          frames: [6, 7, 0, 1, 2],
+        }),
+        frameRate: 10,
+        repeat: 0,
+      });
+
+      this.anims.create({
+        key: "right",
+        frames: this.anims.generateFrameNumbers("bot", {
+          start: 24,
+          end: 29,
+        }),
+        frameRate: 10,
+        repeat: -1,
+      });
+
+      this.anims.create({
+        key: "up",
+        frames: this.anims.generateFrameNumbers("bot", {
+          start: 32,
+          end: 37,
+        }),
+        frameRate: 5,
+        repeat: -1,
+      });
+
+      this.anims.create({
+        key: "down",
+        frames: this.anims.generateFrameNumbers("bot", { start: 8, end: 13 }),
+        frameRate: 2,
+        repeat: -1,
+      });
+
+      this.anims.create({
+        key: "leftToUp",
+        frames: this.anims.generateFrameNumbers("bot", { start: 6, end: 4 }),
+        frameRate: 10,
+        repeat: 0,
+      });
+
+      this.anims.create({
+        key: "rightToUp",
+        frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 4 }),
+        frameRate: 10,
+        repeat: 0,
+      });
+
+      this.anims.create({
+        key: "downToUp",
+        frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 4 }),
+        frameRate: 20,
+        repeat: 0,
+      });
+
+      this.anims.create({
+        key: "upToDown",
+        frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 0 }),
+        frameRate: 20,
+        repeat: 0,
+      });
+
+      this.anims.create({
+        key: "upToRight",
+        frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 2 }),
+        frameRate: 10,
+        repeat: 0,
+      });
+
+      this.anims.create({
+        key: "leftToDown",
+        frames: this.anims.generateFrameNumbers("bot", { frames: [6, 7, 0] }),
+        frameRate: 10,
+        repeat: 0,
+      });
+
+      this.anims.create({
+        key: "rightToDown",
+        frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 0 }),
+        frameRate: 10,
+        repeat: 0,
+      });
+    }
+
+    createPlayerAnimation.call(this);
   }
 
   createCursor() {
@@ -810,6 +850,7 @@ class GameScene extends Scene {
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       () => {
         this.loadLevelCoordinates();
+        this.player.setScale(1);
         this.cameras.main.fadeIn(800);
       }
     );
@@ -867,6 +908,7 @@ class GameScene extends Scene {
 
   checkForWin() {
     if (objectCollected) {
+      console.log("=>(Game.vue:871) win");
       return true;
     }
   }
@@ -904,6 +946,24 @@ class GameScene extends Scene {
   }
 
   update() {
+    if (selectedGameLevel === "Level 1") {
+      this.checkForWin();
+      // console.log(this.player.x + '  ' + this.player.y);
+    }
+
+    var tile = this.wallLayer.getTileAtWorldXY(
+      this.player.x,
+      this.player.y,
+      true
+    );
+    if (tile && tile.properties.slowingDown) {
+      // slow down the player
+      // this.player.setVelocity(this.player.body.velocity.x * 0.5, this.player.body.velocity.y * 0.5);
+      this.player.setMaxVelocity(80);
+    } else {
+      this.player.setMaxVelocity(160);
+    }
+
     Object.entries(directionPlayer1).length > 0
       ? socket.emit("directionSelf", {
           roomId: state.roomID,
@@ -1103,7 +1163,13 @@ class GameScene extends Scene {
             "\nobjectSighted: " +
             directionPlayer1.toObject.isClear +
             "\nmoveToObject: " +
-            directionPlayer1.toObject.isMoving
+            directionPlayer1.toObject.isMoving +
+            "\nplayerVelocity Y: " +
+            this.player.body.velocity.y +
+            "\nplayerVelocity x: " +
+            this.player.body.velocity.x +
+            "\ntile property: " +
+            JSON.stringify(tile?.properties)
         );
       }
     }
