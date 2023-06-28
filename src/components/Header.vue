@@ -19,5 +19,8 @@
 </template>
 
 <style scoped>
-
+.router-link:hover {
+  background-color: gray; /* Hintergrundfarbe beim Hovern über den Link */
+  cursor: pointer; /* Zeiger ändern, um anzuzeigen, dass der Link interaktiv ist */
+}
 </style>
