@@ -73,6 +73,7 @@ function playGamePressed() {
 }
 
 function levelSelected(data) {
+  console.log("=>(GameComponent.vue:76) data", data);
   selectedLevel.value = data;
 }
 </script>

@@ -207,9 +207,59 @@
          "width":60,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":9,
+         "name":"WinningPointLayer",
+         "objects":[
+                {
+                 "height":64,
+                 "id":5,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":577.044713748433,
+                 "y":137.402423735896
+                }, 
+                {
+                 "height":64,
+                 "id":7,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":640,
+                 "y":1754.39030505641
+                }, 
+                {
+                 "height":64,
+                 "id":11,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":1135.01211867948,
+                 "y":1278.95528625157
+                }],
+         "opacity":1,
+         "properties":[
+                {
+                 "name":"winLevel",
+                 "type":"bool",
+                 "value":true
+                }],
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":9,
- "nextobjectid":1,
+ "nextlayerid":10,
+ "nextobjectid":12,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",
