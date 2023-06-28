@@ -1,4 +1,6 @@
-const app = require("express")();
+const express = require("express");
+const app = express();
+const bodyParser = require("body-parser");
 const http = require("http").Server(app);
 const io = require("socket.io")(http, {
   cors: {
@@ -15,8 +17,14 @@ const path = require("path");
 const { data } = require("autoprefixer");
 const roomList = [];
 
+const vuePath = __dirname + "/dist/";
+
+app.use(express.static(vuePath));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.get("/", (req, res) => {
-  res.send("<h1>Server running</h1>");
+  res.sendFile(path + "index.html");
 });
 
 io.on("connection", function (socket) {
@@ -49,7 +57,7 @@ io.on("connection", function (socket) {
     // console.log("playerPosition method");
   });
 
-  socket.on("selectedLevel", (data)=>{
+  socket.on("selectedLevel", (data) => {
     socket.to(data.roomId).emit("selectedLevel.response", data.level);
     socket.emit("selectedLevel.response", data.level);
   });
