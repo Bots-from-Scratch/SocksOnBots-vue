@@ -35,7 +35,7 @@ io.on("connection", function (socket) {
   socket.on("directionSelf", (data) => {
     socket.emit("directionSelf.response", data.directionSelf);
     socket.to(data.roomId).emit("direction", data.directionSelf);
-    console.log("directionSelf", data.directionSelf.up);
+    // console.log("directionSelf", data.directionSelf.up);
   });
   socket.on("direction", (data) => {
     console.log(data.roomId);

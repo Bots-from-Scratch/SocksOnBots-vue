@@ -44,7 +44,7 @@ Blockly.common.defineBlocksWithJsonArray([
 javascriptGenerator['move_player'] = function (block) {
     let blockValue = block.getFieldValue('VALUE');
     let code = "yield;";
-    code += "directionPlayer1." + blockValue + ".isMoving = true;\n";
+    code += "directionPlayer1." + blockValue + ".isMoving = true;\nconsole.log('isMoving: "+ blockValue+"');";
 
     return code;
 };

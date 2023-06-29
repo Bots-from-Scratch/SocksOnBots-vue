@@ -3,7 +3,7 @@
   <div class="flex flex-col">
     <div>volume: {{ volume }}</div>
     <div id="play-status">playGame: {{ playGame }}</div>
-    <div>Self Direction: {{ state.playerPosition }}</div>
+    <div>Self Direction: {{ state.directionSelf }}</div>
     <!--    <div>Level: {{ playingLevel }}</div>-->
     <div>Level: {{ selectedLevel }}</div>
     <select v-model="selectedLevel" class="bg-yellow-500">
@@ -51,7 +51,7 @@ export default defineComponent({
   },
   setup() {
     let game = ref(null);
-    let selectedLevel = ref(0);
+    let selectedLevel = ref(2);
     const activeScene = computed(() => {
       console.log(
         "=>(Game.vue:49) this.game.scene.getScenes",
@@ -179,6 +179,12 @@ export default defineComponent({
     /**
      * Beschreibung von selectedLevel
      */
+    directionPlayer1: {
+      handler(newValue) {
+        console.log("=>(Game.vue:184) directionPlayer1 changed", newValue);
+      },deep:true,
+      immediate: true,
+    },
     selectedLevel() {
       socket.emit("selectedLevel", {
         roomId: state.roomID,
@@ -230,14 +236,14 @@ let selectedGameLevel;
 let playerPosition = { x: 0, y: 0 };
 let player2XY;
 let blockFunction;
-let direction = {
+
+let directionPlayer1 = {
   right: { isClear: true, isMoving: false },
   left: { isClear: true, isMoving: false },
   up: { isClear: true, isMoving: false },
   down: { isClear: true, isMoving: false },
   toObject: { isClear: false, isMoving: false },
 };
-let directionPlayer1 = {};
 let directionPlayer2 = {
   right: { isClear: true, isMoving: false },
   left: { isClear: true, isMoving: false },
@@ -245,18 +251,17 @@ let directionPlayer2 = {
   down: { isClear: true, isMoving: false },
   toObject: { isClear: false, isMoving: false },
 };
+
 let objectToScanFor;
 let itemSock;
 let itemKey;
 let walkedBy;
 let objectCollected;
 let collectedItems = [];
+
 function runBlocks(workspace) {
   console.log("runBlocks wurde aufgerufen.");
-  socket.emit("directionSelf", {
-    roomId: state.roomID,
-    directionSelf: direction,
-  });
+  sendDirectionToSocket();
   javascriptGenerator.STATEMENT_PREFIX = "highlightBlock(%1);\n";
   javascriptGenerator.addReservedWords("highlightBlock");
 
@@ -267,12 +272,22 @@ function runBlocks(workspace) {
 
   const code = javascriptGenerator.workspaceToCode(workspace);
 
-  const blockGenerator = eval(`
+  createGeneratorFunction();
+  function createGeneratorFunction() {
+    const blockGenerator = eval(`
     (function* () {console.log("eval.new");
       ${code};console.log("eval.new.finished");
     })`);
 
-  blockFunction = blockGenerator();
+    blockFunction = blockGenerator();
+  }
+}
+
+function sendDirectionToSocket() {
+  socket.emit("directionSelf", {
+    roomId: state.roomID,
+    directionSelf: directionPlayer1,
+  });
 }
 
 class GameScene extends Scene {
@@ -618,8 +633,8 @@ class GameScene extends Scene {
   createPlayer() {
     // this.player = this.physics.add.sprite(1664, 320, "bot").setScale(1.4);
     this.player = this.physics.add.sprite(
-      gameConfig.width/2,
-      gameConfig.height/2,
+      gameConfig.width / 2,
+      gameConfig.height / 2,
       "bot"
     );
     this.player2 = this.physics.add
@@ -1018,6 +1033,10 @@ class GameScene extends Scene {
   collectKey(player, key) {
     key.disableBody(true, true);
     objectCollected = true;
+    this.resetDirection();
+    this.player.setVelocity(0);
+    this.player.setAcceleration(0);
+    console.log("=>(Game.vue:1025) collectKey objectToScan");
     collectedItems.push(key);
   }
 
@@ -1065,6 +1084,7 @@ class GameScene extends Scene {
       directionPlayer1.down.isMoving = false;
       directionPlayer1.toObject.isClear = false;
       directionPlayer1.toObject.isMoving = false;
+      // socket.emit("directionSelf", directionPlayer1)
     }
   }
 
@@ -1093,15 +1113,7 @@ class GameScene extends Scene {
       this.player.setMaxVelocity(160);
     }
     if (!this.isPreparingLevel) {
-      Object.entries(directionPlayer1).length > 0
-        ? socket.emit("directionSelf", {
-            roomId: state.roomID,
-            directionSelf: directionPlayer1,
-          })
-        : socket.emit("directionSelf", {
-            roomId: state.roomID,
-            directionSelf: direction,
-          });
+      sendDirectionToSocket();
     }
 
     if (Object.entries(state.directionOpponent).length > 0) {
@@ -1289,8 +1301,8 @@ class GameScene extends Scene {
             directionPlayer1.right.isClear +
             "\n moving right: " +
             directionPlayer1.right.isMoving +
-            " hypot: " +
-            hypot +
+            "\nobject collected: " +
+            objectCollected +
             " body.angle: " +
             this.player.body.angle +
             "\nwalkedBy: " +
@@ -1316,9 +1328,9 @@ class GameScene extends Scene {
     if (this.cursors.space.isDown) {
       this.physics.pause();
       this.objectCollidedWith = null;
-
       this.scene.restart();
     }
+
     if (Object.keys(directionPlayer1).length > 0) {
       this.movePlayer(this.player, directionPlayer1);
       this.movePlayer(this.player2, directionPlayer2);
@@ -1398,9 +1410,10 @@ class GameScene extends Scene {
     if (dir.toObject.isClear && dir.toObject.isMoving) {
       // TODO check if it could bug
       this.resetDirection();
-      console.log("=>(Game.vue:1388) objectToScanFor", objectToScanFor);
-      this.physics.accelerateToObject(player, objectToScanFor, 4000, 100, 100);
-      // player.setVelocityY(0);
+      console.log("=>(Game.vue:1388) objectToScanFor");
+      // this.physics.accelerateToObject(player, objectToScanFor, 4000, 100, 100);
+      // this.physics.accelerateToObject(player, objectToScanFor);
+      player.setVelocityX(160);
     }
   }
 }
