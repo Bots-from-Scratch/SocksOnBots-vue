@@ -45,6 +45,7 @@
             92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92],
          "height":40,
          "id":1,
+         "locked":true,
          "name":"background",
          "opacity":1,
          "type":"tilelayer",
@@ -200,6 +201,7 @@
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
          "height":40,
          "id":8,
+         "locked":true,
          "name":"objects",
          "opacity":1,
          "type":"tilelayer",
@@ -211,6 +213,7 @@
         {
          "draworder":"topdown",
          "id":9,
+         "locked":true,
          "name":"WinningPointLayer",
          "objects":[
                 {
@@ -221,8 +224,8 @@
                  "type":"",
                  "visible":true,
                  "width":64,
-                 "x":577.044713748433,
-                 "y":137.402423735896
+                 "x":577.045,
+                 "y":137.402
                 }, 
                 {
                  "height":64,
@@ -233,7 +236,7 @@
                  "visible":true,
                  "width":64,
                  "x":640,
-                 "y":1754.39030505641
+                 "y":1754.39
                 }, 
                 {
                  "height":64,
@@ -243,8 +246,8 @@
                  "type":"",
                  "visible":true,
                  "width":64,
-                 "x":1135.01211867948,
-                 "y":1278.95528625157
+                 "x":1135.01,
+                 "y":1278.96
                 }],
          "opacity":1,
          "properties":[
@@ -257,9 +260,44 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":10,
+         "name":"KeyLayer",
+         "objects":[
+                {
+                 "gid":78,
+                 "height":64,
+                 "id":23,
+                 "name":"",
+                 "rotation":-90,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":638.37037037037,
+                 "y":509.777777777778
+                }, 
+                {
+                 "gid":78,
+                 "height":64,
+                 "id":24,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":633.740740740741,
+                 "y":2271.81481481481
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":10,
- "nextobjectid":12,
+ "nextlayerid":11,
+ "nextobjectid":25,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",
@@ -545,6 +583,11 @@
                          "name":"collision",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"key",
+                         "type":"string",
+                         "value":"monitor"
                         }]
                 }, 
                 {

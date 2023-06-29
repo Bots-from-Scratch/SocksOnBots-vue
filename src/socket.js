@@ -61,7 +61,7 @@ socket.on("selectedLevel.response", (data)=> {
   state.selectedLevel = data;
 })
 socket.on("directionSelf.response", (data) => {
-  // console.log("direction", data);
+  console.log("directionSelf.response.new", data);
   state.directionSelf = data;
   // console.log("state.directionSelf", state.directionSelf)
 });

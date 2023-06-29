@@ -196,9 +196,8 @@ export default defineComponent({
         console.log("=>(Game.vue:194) newValue", newValue);
         selectedGameLevel = newValue;
         this.$emit("selectedLevel", selectedGameLevel);
-        if(this.game){
-        this.activeScene.prepareLevel();
-
+        if (this.game) {
+          this.activeScene.prepareLevel();
         }
       },
       immediate: true,
@@ -256,7 +255,7 @@ let objectToScanFor;
 let blueStar;
 let walkedBy;
 let objectCollected;
-
+let collectedItems = [];
 function runBlocks(workspace) {
   console.log("runBlocks wurde aufgerufen.");
   socket.emit("directionSelf", {
@@ -274,8 +273,8 @@ function runBlocks(workspace) {
   const code = javascriptGenerator.workspaceToCode(workspace);
 
   const blockGenerator = eval(`
-    (function* () {
-      ${code}
+    (function* () {console.log("eval.new");
+      ${code};console.log("eval.new.finished");
     })`);
 
   blockFunction = blockGenerator();
@@ -387,11 +386,15 @@ class GameScene extends Scene {
     this.scanAngle = 0;
     this.itemCollected = false;
     this.levelWon = false;
+    this.isPreparingLevel = false;
   }
 
   preload() {
     // this.load.image('sky', sky);
-    this.load.image("tileset", tileset);
+    this.load.spritesheet("tileset", tileset, {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
     this.load.image("ground", platform);
     this.load.image("star", star);
     this.load.image("bomb", bomb);
@@ -424,11 +427,29 @@ class GameScene extends Scene {
       "CosmicLilac_Tiles_64x64-cd3",
       "tileset"
     );
+
+    console.log("=>(Game.vue:429) tileset.firstgid.Layer", tileset.firstgid);
     this.backgroundLayer = map.createLayer("background", tileset, 0, 0);
     const groundLayer = map.createLayer("floor", tileset, 0, 0);
     this.wallLayer = map.createLayer("walls", tileset, 0, 0);
     this.objectLayer = map.createLayer("objects", tileset, 0, 0);
     this.winningPointLayer = map.getObjectLayer("WinningPointLayer")["objects"];
+
+    // this.keyLayer = map.getObjectLayer("KeyLayer")["objects"];
+    // console.log("=>(Game.vue:436) this.key.Layer", this.keyLayer);
+
+    // this.keys = map.createFromObjects("KeyLayer", [{gid: 25},{id: 16}])
+
+    this.keys = map.createFromObjects("KeyLayer", {classType: Phaser.Physics.Arcade.Sprite});
+    console.log("=>(Game.vue:441) this.keys.layer", this.keys);
+
+    this.keyGroup = this.physics.add.group();
+    console.log("=>(Game.vue:444) this.keyGroup", this.keyGroup);
+    this.keys.forEach((key)=>this.keyGroup.add(key));
+    console.log("=>(Game.vue:444) this.keyGroup", this.keyGroup);
+
+
+    console.log("=>(Game.vue:433) this.key.Layer", this.keyLayer);
 
     this.backgroundLayer.setCollisionByProperty({ noFloor: true });
     this.wallLayer.setCollisionByProperty({ collision: true });
@@ -447,12 +468,15 @@ class GameScene extends Scene {
 
     map.setBaseTileSize(64, 64);
 
+
     this.createWinningZones();
     this.createBlockingObjects(map);
     this.createPlayer();
     this.createCursor();
     this.createSock();
     this.createButtons();
+
+    this.physics.add.overlap(this.player, this.keyGroup, this.collectKey, null, this);
 
     this.scoreText = this.add.text(192, 256, "Level Completed", {
       fontSize: "64px",
@@ -463,14 +487,6 @@ class GameScene extends Scene {
     // TODO overlap winning points
 
     console.log(this.winningPointLayer);
-
-    this.physics.add.collider(
-      this.player,
-      this.winningPoints,
-      this.checkForWin,
-      null,
-      this
-    );
 
     this.physics.add.overlap(
       this.player,
@@ -513,7 +529,7 @@ class GameScene extends Scene {
         fill: "#fff",
       }
     );
-    this.statusText.setVisible(true).setScrollFactor(0);
+    this.statusText.setVisible(true).setScrollFactor(0).setDepth(2);
 
     this.gfx = this.add.graphics();
     // this.bombs = this.physics.add.group();
@@ -632,76 +648,53 @@ class GameScene extends Scene {
 
     this.player2.setCircle(20, 12, 28);
 
-    function detectCollisionDirection(_player, _platform) {
-      return function (_player, _platform) {
-        this.objectCollidedWith = _platform;
-        this.collided = true;
-        walkedBy = false;
-        if (!_player.body.blocked.none) {
-          if (_player.body.blocked.up) {
-            // console.log("frontBlocked");
-            // player.setY(player.y + 2);
-            directionPlayer1.up.isClear = false;
-            directionPlayer1.up.isMoving = false;
-          } else if (_player.body.blocked.down) {
-            // player.setY(player.y - 2);
-            directionPlayer1.down.isClear = false;
-            directionPlayer1.down.isMoving = false;
-          } else if (_player.body.blocked.right) {
-            // player.setX(player.x - 2);
-            directionPlayer1.right.isClear = false;
-            directionPlayer1.right.isMoving = false;
-          } else {
-            // player.setX(player.x + 2);
-            directionPlayer1.left.isClear = false;
-            directionPlayer1.left.isMoving = false;
-          }
-          // this.player.setVelocityX(0);
-          // this.player.setVelocityY(0);
-        }
-      };
-    }
+    // function detectCollisionDirection(_player, _platform) {
+    //   return function (_player, _platform) {
+    //     this.objectCollidedWith = _platform;
+    //     this.collided = true;
+    //     walkedBy = false;
+    //     if (!_player.body.blocked.none) {
+    //       if (_player.body.blocked.up) {
+    //         // console.log("frontBlocked");
+    //         // player.setY(player.y + 2);
+    //         directionPlayer1.up.isClear = false;
+    //         directionPlayer1.up.isMoving = false;
+    //       } else if (_player.body.blocked.down) {
+    //         // player.setY(player.y - 2);
+    //         directionPlayer1.down.isClear = false;
+    //         directionPlayer1.down.isMoving = false;
+    //       } else if (_player.body.blocked.right) {
+    //         // player.setX(player.x - 2);
+    //         directionPlayer1.right.isClear = false;
+    //         directionPlayer1.right.isMoving = false;
+    //       } else {
+    //         // player.setX(player.x + 2);
+    //         directionPlayer1.left.isClear = false;
+    //         directionPlayer1.left.isMoving = false;
+    //       }
+    //       // this.player.setVelocityX(0);
+    //       // this.player.setVelocityY(0);
+    //     }
+    //   };
+    // }
 
     this.physics.add.collider(this.player2, this.rectangles);
 
     this.physics.add.collider(
       this.player,
-      this.wallLayer,
-      (_player, _rectangles) => {
-        this.objectCollidedWith = _rectangles;
-        console.log(
-          "=>(Game.vue:569) this.objectCollidedWith",
-          this.objectCollidedWith
-        );
-        this.collided = true;
-        walkedBy = false;
-        if (!_player.body.blocked.none) {
-          if (!this.collisionSound.isPlaying) {
-            this.collisionSound.play();
-          }
-
-          if (_player.body.blocked.up) {
-            // console.log("frontBlocked");
-            // player.setY(player.y + 2);
-            directionPlayer1.up.isClear = false;
-            directionPlayer1.up.isMoving = false;
-          } else if (_player.body.blocked.down) {
-            // player.setY(player.y - 2);
-            directionPlayer1.down.isClear = false;
-            directionPlayer1.down.isMoving = false;
-          } else if (_player.body.blocked.right) {
-            // player.setX(player.x - 2);
-            directionPlayer1.right.isClear = false;
-            directionPlayer1.right.isMoving = false;
-          } else {
-            // player.setX(player.x + 2);
-            directionPlayer1.left.isClear = false;
-            directionPlayer1.left.isMoving = false;
-          }
-          // this.player.setVelocityX(0);
-          // this.player.setVelocityY(0);
-        }
+      this.winningPoints,
+      (sprite, rect) => {
+        this.detectCollisionDirection(sprite, rect);
+        this.checkForWin();
       },
+      null,
+      this
+    );
+
+    this.physics.add.collider(
+      this.player,
+      this.rectangles,
+      this.detectCollisionDirection(),
       this.processCallback
     );
 
@@ -821,12 +814,52 @@ class GameScene extends Scene {
     createPlayerAnimation.call(this);
   }
 
+  detectCollisionDirection() {
+    return (_player, _rectangles) => {
+      console.log("=>(Game.vue:794) _rectangles", _rectangles);
+      console.log("=>(Game.vue:794) _player", _player);
+      this.objectCollidedWith = _rectangles;
+      console.log(
+        "=>(Game.vue:569) this.objectCollidedWith",
+        this.objectCollidedWith
+      );
+      this.collided = true;
+      walkedBy = false;
+      if (!_player.body.blocked.none) {
+        if (!this.collisionSound.isPlaying) {
+          this.collisionSound.play();
+        }
+
+        if (_player.body.blocked.up) {
+          console.log("=>(Game.vue:808) frontBlocked");
+          // player.setY(player.y + 2);
+          directionPlayer1.up.isClear = false;
+          directionPlayer1.up.isMoving = false;
+        } else if (_player.body.blocked.down) {
+          // player.setY(player.y - 2);
+          directionPlayer1.down.isClear = false;
+          directionPlayer1.down.isMoving = false;
+        } else if (_player.body.blocked.right) {
+          // player.setX(player.x - 2);
+          directionPlayer1.right.isClear = false;
+          directionPlayer1.right.isMoving = false;
+        } else {
+          // player.setX(player.x + 2);
+          directionPlayer1.left.isClear = false;
+          directionPlayer1.left.isMoving = false;
+        }
+        // this.player.setVelocityX(0);
+        // this.player.setVelocityY(0);
+      }
+    };
+  }
+
   createCursor() {
     this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   createSock() {
-    blueStar = this.physics.add.sprite(750, 120, "star");
+    blueStar = this.physics.add.sprite(500, 2250, "star");
     // blueStar.setTint(0x006db2);
     blueStar.setScale(0.4);
 
@@ -917,14 +950,22 @@ class GameScene extends Scene {
   }
 
   prepareLevel() {
+    this.isPreparingLevel = true;
+    // this.player.setVelocity(0);
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       () => {
         this.loadLevelCoordinates();
         this.player.setScale(1);
+        this.resetDirection();
+
         this.cameras.main.fadeIn(800);
       }
+    );
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
+      () => (this.isPreparingLevel = false)
     );
     console.log("=>(Game.vue:823) prepareLevel");
   }
@@ -964,6 +1005,13 @@ class GameScene extends Scene {
           level.playerStart.y * this.tileHeight + this.tileHeight / 2
         );
     });
+  }
+
+  collectKey(player, key) {
+    key.disableBody(true,true);
+    collectedItems.push(key);
+    console.log("=>(Game.vue:1013) collectedItems", collectedItems);
+
   }
 
   collectStar(player, star) {
@@ -1019,7 +1067,7 @@ class GameScene extends Scene {
     }
     this.backgroundSound.setVolume(volume);
   }
-
+ // TODO Levelcheck for socket packages
   update() {
     if (selectedGameLevel === "Level 1") {
       // console.log(this.player.x + '  ' + this.player.y);
@@ -1037,21 +1085,29 @@ class GameScene extends Scene {
     } else {
       this.player.setMaxVelocity(160);
     }
+    console.log(
+      "=>(Game.vue:1058) directionPlayer1",
+      directionPlayer1?.up?.isMoving
+    );
+    if (!this.isPreparingLevel) {
+      Object.entries(directionPlayer1).length > 0
+        ? socket.emit("directionSelf", {
+            roomId: state.roomID,
+            directionSelf: directionPlayer1,
+          })
+        : socket.emit("directionSelf", {
+            roomId: state.roomID,
+            directionSelf: direction,
+          });
+    }
 
-    Object.entries(directionPlayer1).length > 0
-      ? socket.emit("directionSelf", {
-          roomId: state.roomID,
-          directionSelf: directionPlayer1,
-        })
-      : socket.emit("directionSelf", {
-          roomId: state.roomID,
-          directionSelf: direction,
-        });
     if (Object.entries(state.directionOpponent).length > 0) {
       directionPlayer2 = toRaw(state.directionOpponent);
     }
     if (Object.entries(state.directionSelf).length > 0) {
+      console.log("=>(Game.vue:1071) directionPlayer1.new", directionPlayer1);
       directionPlayer1 = toRaw(state.directionSelf);
+      console.log("=>(Game.vue:1073) directionPlayer1", directionPlayer1);
     }
 
     player2XY = toRaw(state.playerPosition);
@@ -1087,13 +1143,14 @@ class GameScene extends Scene {
     // console.log(this.directionPlayer1 + playGame);
     if (blockFunction !== undefined) {
       var blockResult = blockFunction.next();
-      // console.log("next");
+      console.log("=>(Game.vue:1107) next");
       if (blockResult.value !== undefined) {
         console.log(blockResult.value);
         blockResult.value;
       }
-      if (blockResult.done) {
+      if (blockResult.done || this.isPreparingLevel) {
         //...
+        console.log("=>(Game.vue:1114) stop Block evaluation");
         blockFunction = undefined;
         this.resetDirection();
       }
@@ -1220,7 +1277,7 @@ class GameScene extends Scene {
 
       if (Object.keys(directionPlayer1).length > 0) {
         this.statusText.setText(
-          "  right clear: " +
+          "right clear: " +
             directionPlayer1.right.isClear +
             "\n moving right: " +
             directionPlayer1.right.isMoving +
@@ -1295,7 +1352,7 @@ class GameScene extends Scene {
         }
       }
       this.rotation = this.ROTATION_RIGHT;
-      this.movingSound.setVolume(0.2).play();
+      this.movingSound.setVolume(0).play();
       player.setVelocityX(160);
       player.setVelocityY(0);
       // this.resetDirection();
