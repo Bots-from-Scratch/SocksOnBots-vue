@@ -53,7 +53,6 @@ const directionObj = computed({
 watch(
   () => props.selectedLevel,
   (newLevel) => {
-    console.log("=>(BlocklyComponent.vue:54) newLevel", newLevel);
     Blockly.getMainWorkspace() && loadBlocksFromStorage(newLevel);
   }
 );
@@ -81,7 +80,6 @@ function loadBlocksFromStorage(newLevel) {
   if (store.value !== null) {
     const startBlocks = JSON.parse(store.value);
     startBlocks.forEach((level) => {
-      console.log("=>(BlocklyComponent.vue:82) level", level);
       parseInt(level.level) === parseInt(newLevel) &&
         Blockly.serialization.workspaces.load(level.blocks, workspace.value);
     });

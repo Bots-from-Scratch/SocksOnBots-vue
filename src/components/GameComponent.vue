@@ -67,13 +67,11 @@ const options = {
 function playGamePressed() {
   console.log("=>(GameComponent.vue:70) playGamePressed");
   playGame.value = state.playGame;
-  console.log("=>(GameComponent.vue:72) playGame", playGame.value);
   workspace = blockly.value.workspace;
   game.value.run(blockly.value.workspace, volume);
 }
 
 function levelSelected(data) {
-  console.log("=>(GameComponent.vue:76) data", data);
   selectedLevel.value = data;
 }
 </script>

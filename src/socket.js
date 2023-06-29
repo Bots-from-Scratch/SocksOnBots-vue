@@ -56,12 +56,10 @@ socket.on("playGame.response", (data) => {
 });
 
 socket.on("selectedLevel.response", (data)=> {
-  console.log("=>(socket.js:59) selectedLevel.response", data);
 
   state.selectedLevel = data;
 })
 socket.on("directionSelf.response", (data) => {
-  console.log("directionSelf.response.new", data);
   state.directionSelf = data;
   // console.log("state.directionSelf", state.directionSelf)
 });
