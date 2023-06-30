@@ -12,23 +12,23 @@ Blockly.common.defineBlocksWithJsonArray([
                 "options": [
                     [
                         "left",
-                        "left"
+                        "Left"
                     ],
                     [
                         "right",
-                        "right"
+                        "Right"
                     ],
                     [
                         "up",
-                        "up"
+                        "Up"
                     ],
                     [
                         "down",
-                        "down"
+                        "Down"
                     ],
                     [
                         "to object",
-                        "toObject"
+                        "ToObject"
                     ]
                 ]
             }
@@ -44,7 +44,8 @@ Blockly.common.defineBlocksWithJsonArray([
 javascriptGenerator['move_player'] = function (block) {
     let blockValue = block.getFieldValue('VALUE');
     let code = "yield;";
-    code += "directionPlayer1." + blockValue + ".isMoving = true;\nconsole.log('isMoving: "+ blockValue+"');";
-
+    // code += "directionPlayer1." + blockValue + ".isMoving = true;\nconsole.log('isMoving: "+ blockValue+"');";
+code += "movePlayer" + blockValue +"();"
+    console.log("=>(move_player.js:50) code", code);
     return code;
 };

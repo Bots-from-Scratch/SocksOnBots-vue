@@ -262,7 +262,6 @@
         {
          "draworder":"topdown",
          "id":10,
-         "locked":true,
          "name":"KeyLayer",
          "objects":[
                 {
@@ -282,24 +281,6 @@
                  "width":64,
                  "x":638.37,
                  "y":509.778
-                }, 
-                {
-                 "gid":78,
-                 "height":64,
-                 "id":24,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"keyForLevel",
-                         "type":"int",
-                         "value":0
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":633.741,
-                 "y":2271.81
                 }],
          "opacity":1,
          "type":"objectgroup",

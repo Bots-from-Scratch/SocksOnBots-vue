@@ -14,7 +14,7 @@ const game = ref(null);
 const selectedLevel = ref("");
 const volume = ref({
   music: 5,
-  sound: 5,
+  sound: 80,
 });
 
 const store = useLocalStorage("volume", null);

@@ -38,6 +38,8 @@ import { javascriptGenerator } from "blockly/javascript";
 // TODO licht/Strom anschalten
 // TODO schieben
 // TODO
+
+let activeScene = null;
 export default defineComponent({
   name: "Game",
   emits: {
@@ -52,7 +54,7 @@ export default defineComponent({
   setup() {
     let game = ref(null);
     let selectedLevel = ref(2);
-    const activeScene = computed(() => {
+    activeScene = computed(() => {
       console.log(
         "=>(Game.vue:49) this.game.scene.getScenes",
         game.value.scene.getScenes(true)[0]
@@ -179,12 +181,6 @@ export default defineComponent({
     /**
      * Beschreibung von selectedLevel
      */
-    directionPlayer1: {
-      handler(newValue) {
-        console.log("=>(Game.vue:184) directionPlayer1 changed", newValue);
-      },deep:true,
-      immediate: true,
-    },
     selectedLevel() {
       socket.emit("selectedLevel", {
         roomId: state.roomID,
@@ -258,6 +254,36 @@ let itemKey;
 let walkedBy;
 let objectCollected;
 let collectedItems = [];
+let intervalId;
+
+function movePlayerRight() {
+  activeScene.value.movePlayerRight();
+  console.log("movePLayerRight");
+}
+function movePlayerLeft() {
+  activeScene.value.movePlayerLeft();
+  console.log("movePlayerLeft");
+}
+
+function movePlayerUp() {
+  activeScene.value.movePlayerUp();
+  console.log("movePlayerUp");
+}
+
+function movePlayerDown() {
+  activeScene.value.movePlayerDown();
+  console.log("movePlayerDown");
+}
+
+function movePlayerToObject() {
+  console.log("=>(Game.vue:279) movePlayerToObject");
+  activeScene.value.movePlayerToObject();
+}
+
+function stopPlayer() {
+  console.log("=>(Game.vue:279) stopPlayer");
+  activeScene.value.stopPlayer();
+}
 
 function runBlocks(workspace) {
   console.log("runBlocks wurde aufgerufen.");
@@ -280,6 +306,8 @@ function runBlocks(workspace) {
     })`);
 
     blockFunction = blockGenerator();
+
+    activeScene.value.startDelayedBlockEvaluation();
   }
 }
 
@@ -607,6 +635,75 @@ class GameScene extends Scene {
 
     this.prepareLevel();
   }
+
+  startDelayedBlockEvaluation() {
+    intervalId = setInterval(
+      () =>
+        this.timerCallback("setInterval", this.player, this.isPreparingLevel),
+      400
+    );
+  }
+
+  timerCallback(from, player, isPreparingLevel) {
+    console.log("=>(Game.vue:1110643) isPreparingLevel", isPreparingLevel);
+    let blockResult;
+    if (blockFunction !== undefined) {
+      if (blockResult?.done || isPreparingLevel === true) {
+        console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
+        //...
+        console.log(
+          "=>(Game.vue:11164656) clearInterval nIntervId",
+          intervalId
+        );
+        clearInterval(intervalId);
+        intervalId = null;
+        setTimeout(() => {
+          console.log("=>(Game.vue:1114) stop Block evaluation");
+          player.setVelocity(0);
+          blockFunction = undefined;
+        }, 400);
+        // release our intervalID from the variable
+        this.resetDirection();
+      } else {
+        console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
+        if (isPreparingLevel === false) {
+          blockResult = blockFunction.next();
+          console.log("=>(Game.vue:1107) ");
+          if (blockResult.value !== undefined) {
+            console.log(blockResult.value);
+            blockResult.value;
+          }
+        }
+      }
+    }
+  }
+  // timerCallback(from, player, isPreparingLevel) {
+  //     console.log("=>(Game.vue:1110643) isPreparingLevel", isPreparingLevel);
+  //     if (blockFunction !== undefined) {
+  //       console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
+  //       if (isPreparingLevel === false) {
+  //       var blockResult = blockFunction.next();
+  //       console.log("=>(Game.vue:1107) ");
+  //       if (blockResult.value !== undefined) {
+  //         console.log(blockResult.value);
+  //         blockResult.value;
+  //       }}
+  //       if (blockResult.done || isPreparingLevel === true) {
+  //         console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
+  //         //...
+  //         console.log("=>(Game.vue:11164656) clearInterval nIntervId", intervalId);
+  //         clearInterval(intervalId);
+  //         intervalId = null;
+  //         setTimeout(() => {
+  //           console.log("=>(Game.vue:1114) stop Block evaluation");
+  //           player.setVelocity(0);
+  //           blockFunction = undefined;
+  //         }, 400);
+  //         // release our intervalID from the variable
+  //         this.resetDirection();
+  //       }
+  //     }
+  //   }
 
   createWinningZones() {
     this.winningPoints = this.physics.add.staticGroup();
@@ -1031,13 +1128,15 @@ class GameScene extends Scene {
   }
 
   collectKey(player, key) {
-    key.disableBody(true, true);
-    objectCollected = true;
-    this.resetDirection();
-    this.player.setVelocity(0);
-    this.player.setAcceleration(0);
-    console.log("=>(Game.vue:1025) collectKey objectToScan");
-    collectedItems.push(key);
+    if (Math.abs(player.x - key.x) < 2 || Math.abs(player.y - key.y)<2) {
+      key.disableBody(true, true);
+      objectCollected = true;
+      this.player.setVelocity(0);
+      collectedItems.push(key);
+    }
+    // this.resetDirection();
+    // this.player.setAcceleration(0);
+    // console.log("=>(Game.vue:1025) collectKey objectToScan");
   }
 
   collectStar(player, star) {
@@ -1094,6 +1193,93 @@ class GameScene extends Scene {
     }
     this.backgroundSound.setVolume(volume);
   }
+
+  movePlayerRight() {
+    console.log("=>(Game.vue:1139) movePlayerRight");
+
+    if (this.player.body.velocity.x <= 0) {
+      this.player.setVelocity(0);
+      this.player.setVelocityX(160);
+
+      // this.time.delayedCall(
+      //   400,
+      //   function () {
+      //     // Delay of 400 by a velocity of 160 means a movement of 64 pixels (our tile size)
+      //     this.player.setVelocityX(0);
+      //     console.log("Bewegung abgeschlossen!");
+      //   },
+      //   [],
+      //   this
+      // );
+    }
+  }
+  movePlayerLeft() {
+    if (this.player.body.velocity.x >= 0) {
+      this.player.setVelocity(0);
+      this.player.setVelocityX(-160);
+
+      // this.time.delayedCall(
+      //     400,
+      //     function () {
+      //       this.player.setVelocityX(0);
+      //       console.log("Bewegung abgeschlossen!");
+      //     },
+      //     [],
+      //     this
+      // );
+    }
+  }
+
+  movePlayerUp() {
+    console.log("=>(Game.vue:111473) movePlayerUp");
+    if (this.player.body.velocity.y >= 0) {
+      this.player.setVelocity(0);
+      this.player.setVelocityY(-160);
+
+      // this.time.delayedCall(
+      //     400,
+      //     function () {
+      //       this.player.setVelocityY(0);
+      //       console.log("Bewegung abgeschlossen!");
+      //     },
+      //     [],
+      //     this
+      // );
+    }
+  }
+
+  movePlayerDown() {
+    if (this.player.body.velocity.y <= 0) {
+      this.player.setVelocity(0);
+      this.player.setVelocityY(160);
+
+      // this.time.delayedCall(
+      //     400,
+      //     function () {
+      //       this.player.setVelocityY(0);
+      //       console.log("Bewegung abgeschlossen!");
+      //     },
+      //     [],
+      //     this
+      // );
+    }
+  }
+
+  movePlayerToObject() {
+    if (directionPlayer1.toObject.isClear) {
+      // TODO check if it could bug
+      this.resetDirection();
+      console.log("=>(Game.vue:1388) objectToScanFor");
+      // this.physics.accelerateToObject(player, objectToScanFor, 4000, 100, 100);
+      // this.physics.accelerateToObject(player, objectToScanFor);
+      this.player.setVelocityX(160);
+    }
+  }
+
+  stopPlayer() {
+    this.player.setVelocity(0);
+  }
+
   // TODO Levelcheck for socket packages
   update() {
     if (selectedGameLevel === "Level 1") {
@@ -1154,20 +1340,22 @@ class GameScene extends Scene {
     // }
     // directionPlayer1 = lastBlock;
     // console.log(this.directionPlayer1 + playGame);
-    if (blockFunction !== undefined) {
-      var blockResult = blockFunction.next();
-      console.log("=>(Game.vue:1107) next");
-      if (blockResult.value !== undefined) {
-        console.log(blockResult.value);
-        blockResult.value;
-      }
-      if (blockResult.done || this.isPreparingLevel) {
-        //...
-        console.log("=>(Game.vue:1114) stop Block evaluation");
-        blockFunction = undefined;
-        this.resetDirection();
-      }
-    }
+
+    // TODO test if the delayed version works
+    // if (blockFunction !== undefined) {
+    //   var blockResult = blockFunction.next();
+    //   console.log("=>(Game.vue:1107) next");
+    //   if (blockResult.value !== undefined) {
+    //     console.log(blockResult.value);
+    //     blockResult.value;
+    //   }
+    //   if (blockResult.done || this.isPreparingLevel) {
+    //     //...
+    //     console.log("=>(Game.vue:1114) stop Block evaluation");
+    //     blockFunction = undefined;
+    //     this.resetDirection();
+    //   }
+    // }
 
     // var tile = wallLayer.getTileAtWorldXY(this.player.x, this.player.y, true);
     // // console.log(this.player.x + '  ' + this.player.y);
@@ -1319,8 +1507,8 @@ class GameScene extends Scene {
             this.player.body.velocity.y +
             "\nplayerVelocity x: " +
             this.player.body.velocity.x +
-            "\ntile property: " +
-            JSON.stringify(tile?.properties)
+            "\nisPreparingLevel: " +
+            this.isPreparingLevel
         );
       }
     }
@@ -1357,8 +1545,9 @@ class GameScene extends Scene {
         player.anims.play("turnToSide", true);
       }
       this.rotation = this.ROTATION_LEFT;
-      player.setVelocityX(-160);
-      player.setVelocityY(0);
+      this.movePlayerLeft();
+      // player.setVelocityX(-160);
+      // player.setVelocityY(0);
       // this.resetDirection();
     } else if (this.cursors.right.isDown || dir.right.isMoving) {
       if (this.rotation !== this.ROTATION_RIGHT) {
@@ -1372,8 +1561,9 @@ class GameScene extends Scene {
       }
       this.rotation = this.ROTATION_RIGHT;
       this.movingSound.setVolume(0).play();
-      player.setVelocityX(160);
-      player.setVelocityY(0);
+      this.movePlayerRight();
+      // player.setVelocityX(160);
+      // player.setVelocityY(0);
       // this.resetDirection();
     } else if (this.cursors.up.isDown || dir.up.isMoving) {
       if (this.rotation !== this.ROTATION_UP) {
@@ -1386,8 +1576,7 @@ class GameScene extends Scene {
         }
       }
       this.rotation = this.ROTATION_UP;
-      player.setVelocityX(0);
-      player.setVelocityY(-160);
+      this.movePlayerUp()
       // this.resetDirection();
     } else if (this.cursors.down.isDown || dir.down.isMoving) {
       if (this.rotation !== this.ROTATION_DOWN) {
@@ -1400,8 +1589,7 @@ class GameScene extends Scene {
         }
       }
       this.rotation = this.ROTATION_DOWN;
-      player.setVelocityX(0);
-      player.setVelocityY(160);
+      this.movePlayerDown()
       // this.resetDirection();
     } else {
       // player.setVelocityY(0);
