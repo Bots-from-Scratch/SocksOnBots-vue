@@ -53,7 +53,7 @@ export default defineComponent({
   },
   setup() {
     let game = ref(null);
-    let selectedLevel = ref(2);
+    let selectedLevel = ref(0);
     activeScene = computed(() => {
       console.log(
         "=>(Game.vue:49) this.game.scene.getScenes",
@@ -141,7 +141,7 @@ export default defineComponent({
           x: 22,
           y: 28,
           isActive: false,
-          playerStart: { x: 350, y: 700 },
+          playerStart: { x: 25, y: 29 },
         },
         {
           number: 6,
@@ -232,6 +232,7 @@ let selectedGameLevel;
 let playerPosition = { x: 0, y: 0 };
 let player2XY;
 let blockFunction;
+let pushObject = true;
 
 let directionPlayer1 = {
   right: { isClear: true, isMoving: false },
@@ -255,6 +256,7 @@ let walkedBy;
 let objectCollected;
 let collectedItems = [];
 let intervalId;
+let itemConnected;
 
 function movePlayerRight() {
   activeScene.value.movePlayerRight();
@@ -471,17 +473,45 @@ class GameScene extends Scene {
     this.objectLayer = map.createLayer("objects", tileset, 0, 0);
     this.winningPointLayer = map.getObjectLayer("WinningPointLayer")["objects"];
 
-    // this.keyLayer = map.getObjectLayer("KeyLayer")["objects"];
+    // this.cutSceneTriggers = map.createFromObjects("TriggerCutScenesLayer", {
+    //   classType: Phaser.Physics.Arcade.Sprite,
+    // });
+    // this.cutSceneTriggerGroup = this.physics.add.staticGroup();
+    // this.cutSceneTriggers.forEach((el) => this.cutSceneTriggerGroup.add(el));
+    //
+    // this.pushableObjects = map.createFromObjects("PushableObjectsLayer", {
+    //   classType: Phaser.Physics.Arcade.Sprite,
+    // });
+    // this.pushableObjectsGroup = this.physics.add.group();
+    // this.pushableObjects.forEach((el)=>this.pushableObjectsGroup.add(el));
+    //
+    // this.keys = map.createFromObjects("KeyLayer", {
+    //   classType: Phaser.Physics.Arcade.Sprite,
+    // });
+    // console.log("=>(Game.vue:436) this.keys", this.keys);
+    //
+    // this.keyGroup = this.physics.add.group();
+    // this.keys.forEach((key) => this.keyGroup.add(key));
 
-    // this.keys = map.createFromObjects("KeyLayer", [{gid: 25},{id: 16}])
+    function createObjectsFromMapObjects(layerName, _this) {
+      const objects = map.createFromObjects(layerName, {
+        classType: Phaser.Physics.Arcade.Sprite,
+      });
+      const objectGroup = _this.physics.add.group();
+      objects.forEach((el) => objectGroup.add(el));
+      return objectGroup;
+    }
 
-    this.keys = map.createFromObjects("KeyLayer", {
-      classType: Phaser.Physics.Arcade.Sprite,
-    });
-    console.log("=>(Game.vue:436) this.keys", this.keys);
-
-    this.keyGroup = this.physics.add.group();
-    this.keys.forEach((key) => this.keyGroup.add(key));
+    this.cutSceneTriggerGroup = createObjectsFromMapObjects(
+      "TriggerCutScenesLayer",
+      this
+    );
+    this.pushableObjectsGroup = createObjectsFromMapObjects(
+      "PushableObjectsLayer",
+      this
+    );
+    this.keyGroup = createObjectsFromMapObjects("KeyLayer", this);
+    this.doorGroup = createObjectsFromMapObjects("DoorLayer", this);
 
     this.backgroundLayer.setCollisionByProperty({ noFloor: true });
     this.wallLayer.setCollisionByProperty({ collision: true });
@@ -507,10 +537,41 @@ class GameScene extends Scene {
     this.createSock();
     this.createButtons();
 
+    this.physics.add.collider(this.player, this.pushableObjectsGroup);
+    this.physics.add.collider(
+      this.pushableObjectsGroup,
+      this.objectLayer,
+      (pushableObject, object) => {
+        this.player.setVelocity(0);
+        itemConnected = true;
+        pushableObject.tint = 0xeddc32;
+        pushableObject.setPushable(false);
+        console.log("=>(Game.vue:523) object", object);
+        object.tint = 0xeddc32;
+
+        this.doorGroup.children.entries.forEach(
+          (entry) =>
+            entry.data?.list?.removeEvent === this.getActiveLevel().number &&
+            entry.disableBody(true, true)
+        );
+        this.getActiveLevel();
+      },
+      null,
+      this
+    );
+
     this.physics.add.overlap(
       this.player,
       this.keyGroup,
       this.collectKey,
+      null,
+      this
+    );
+
+    this.physics.add.collider(
+      this.player,
+      this.cutSceneTriggerGroup,
+      this.triggerCutscene,
       null,
       this
     );
@@ -644,11 +705,55 @@ class GameScene extends Scene {
     );
   }
 
+  // timerCallback(from, player, isPreparingLevel) {
+  //   console.log("=>(Game.vue:1110643) isPreparingLevel", isPreparingLevel);
+  //   let blockResult;
+  //   if (blockFunction !== undefined) {
+  //     if (blockResult?.done || isPreparingLevel === true) {
+  //       console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
+  //       //...
+  //       console.log(
+  //         "=>(Game.vue:11164656) clearInterval nIntervId",
+  //         intervalId
+  //       );
+  //       clearInterval(intervalId);
+  //       intervalId = null;
+  //       setTimeout(() => {
+  //         console.log("=>(Game.vue:1114) stop Block evaluation");
+  //         player.setVelocityX(0);
+  //         console.log("=>(Game.vue:1114) player", player);
+  //         player.setVelocityY(0);
+  //         blockFunction = undefined;
+  //       }, 400);
+  //       // release our intervalID from the variable
+  //       this.resetDirection();
+  //     } else {
+  //       console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
+  //       if (isPreparingLevel === false) {
+  //         blockResult = blockFunction.next();
+  //         console.log("=>(Game.vue:1107) ");
+  //         if (blockResult.value !== undefined) {
+  //           console.log(blockResult.value);
+  //           blockResult.value;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
   timerCallback(from, player, isPreparingLevel) {
     console.log("=>(Game.vue:1110643) isPreparingLevel", isPreparingLevel);
-    let blockResult;
+    let blockResult = { done: false, value: undefined };
     if (blockFunction !== undefined) {
-      if (blockResult?.done || isPreparingLevel === true) {
+      console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
+      if (!blockResult?.done && !isPreparingLevel) {
+        blockResult = blockFunction.next();
+        console.log("=>(Game.vue:1107) ");
+          console.log("=>(Game.vue:752) blockResult", blockResult.value);
+        if (blockResult.value !== undefined) {
+          blockResult.value;
+        }
+      }
+      if (blockResult?.done || isPreparingLevel) {
         console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
         //...
         console.log(
@@ -658,52 +763,20 @@ class GameScene extends Scene {
         clearInterval(intervalId);
         intervalId = null;
         setTimeout(() => {
-          console.log("=>(Game.vue:1114) stop Block evaluation");
           player.setVelocity(0);
+          console.log("=>(Game.vue:1114) stop Block evaluation");
           blockFunction = undefined;
-        }, 400);
-        // release our intervalID from the variable
-        this.resetDirection();
-      } else {
-        console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
-        if (isPreparingLevel === false) {
-          blockResult = blockFunction.next();
-          console.log("=>(Game.vue:1107) ");
-          if (blockResult.value !== undefined) {
-            console.log(blockResult.value);
-            blockResult.value;
-          }
-        }
+        }, 390); //390 um delay auszugleichen
+        // this.resetDirection();
       }
     }
   }
-  // timerCallback(from, player, isPreparingLevel) {
-  //     console.log("=>(Game.vue:1110643) isPreparingLevel", isPreparingLevel);
-  //     if (blockFunction !== undefined) {
-  //       console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
-  //       if (isPreparingLevel === false) {
-  //       var blockResult = blockFunction.next();
-  //       console.log("=>(Game.vue:1107) ");
-  //       if (blockResult.value !== undefined) {
-  //         console.log(blockResult.value);
-  //         blockResult.value;
-  //       }}
-  //       if (blockResult.done || isPreparingLevel === true) {
-  //         console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
-  //         //...
-  //         console.log("=>(Game.vue:11164656) clearInterval nIntervId", intervalId);
-  //         clearInterval(intervalId);
-  //         intervalId = null;
-  //         setTimeout(() => {
-  //           console.log("=>(Game.vue:1114) stop Block evaluation");
-  //           player.setVelocity(0);
-  //           blockFunction = undefined;
-  //         }, 400);
-  //         // release our intervalID from the variable
-  //         this.resetDirection();
-  //       }
-  //     }
-  //   }
+
+  triggerCutscene(player, triggerPoint) {
+    directionPlayer1.up.isClear = false;
+    // this.scene.isPaused();
+    this.scene.start(triggerPoint.data.list.cutSceneName);
+  }
 
   createWinningZones() {
     this.winningPoints = this.physics.add.staticGroup();
@@ -1086,10 +1159,12 @@ class GameScene extends Scene {
   }
 
   getItemKeyForActiveLevel() {
-    itemKey = this.keys.find(
+    console.log("=>(Game.vue:1142) this.keyGroup", this.keyGroup);
+    itemKey = this.keyGroup.children.entries.find(
       (keyItem) =>
         keyItem.data?.list?.keyForLevel === this.getActiveLevel().number
     );
+    console.log("=>(Game.vue:1143) itemKey", itemKey);
   }
 
   getActiveLevel() {
@@ -1127,8 +1202,17 @@ class GameScene extends Scene {
     });
   }
 
+  pushObject(player, object) {
+    console.log("=>(Game.vue:1143) player", player);
+    // if (itemConnected) {
+    //   object.setVelocity(0);
+    // } else {
+    // object.body.velocity = player.body.velocity;
+    // }
+  }
+
   collectKey(player, key) {
-    if (Math.abs(player.x - key.x) < 2 || Math.abs(player.y - key.y)<2) {
+    if (Math.abs(player.x - key.x) < 5 && Math.abs(player.y - key.y) < 5) {
       key.disableBody(true, true);
       objectCollected = true;
       this.player.setVelocity(0);
@@ -1267,9 +1351,10 @@ class GameScene extends Scene {
 
   movePlayerToObject() {
     if (directionPlayer1.toObject.isClear) {
-      // TODO check if it could bug
-      this.resetDirection();
-      console.log("=>(Game.vue:1388) objectToScanFor");
+      // TODO calculate angle for velocityX,Y to move to object
+
+      // this.resetDirection();
+      console.log("=>(Game.vue:1388) movePlayerToObject");
       // this.physics.accelerateToObject(player, objectToScanFor, 4000, 100, 100);
       // this.physics.accelerateToObject(player, objectToScanFor);
       this.player.setVelocityX(160);
@@ -1576,7 +1661,7 @@ class GameScene extends Scene {
         }
       }
       this.rotation = this.ROTATION_UP;
-      this.movePlayerUp()
+      this.movePlayerUp();
       // this.resetDirection();
     } else if (this.cursors.down.isDown || dir.down.isMoving) {
       if (this.rotation !== this.ROTATION_DOWN) {
@@ -1589,7 +1674,7 @@ class GameScene extends Scene {
         }
       }
       this.rotation = this.ROTATION_DOWN;
-      this.movePlayerDown()
+      this.movePlayerDown();
       // this.resetDirection();
     } else {
       // player.setVelocityY(0);

@@ -20,6 +20,7 @@ import "@/blocks/custom_if_controls";
 import "@/blocks/object_collected";
 import "@/blocks/break";
 import "@/blocks/repeat_x_times";
+import "@/blocks/bool_connected";
 
 export var toolboxJson = {
   contents: [
@@ -30,7 +31,7 @@ export var toolboxJson = {
       contents: [
         {
           kind: "BLOCK",
-          type: "controls_if",
+          type: "custom_if_controls",
         },
         {
           kind: "BLOCK",
@@ -47,7 +48,10 @@ export var toolboxJson = {
         {
           kind: "BLOCK",
           type: "logic_boolean",
-        },
+        }, {
+        kind: "BLOCK",
+          type: "bool_connected"
+        }
       ],
     },
     {
@@ -181,10 +185,6 @@ export var toolboxJson = {
       name: "Phaser",
       colour: "%{BKY_LOOPS_HUE}",
       contents: [
-        {
-          kind: "BLOCK",
-          type: "custom_if_controls",
-        },
         {
           kind: "BLOCK",
           type: "direction_blocked",

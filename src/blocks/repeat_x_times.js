@@ -76,8 +76,8 @@ javascriptGenerator['repeat_x_times'] = function(block) {
   var times = javascriptGenerator.valueToCode(block, 'TIMES', javascriptGenerator.ORDER_ATOMIC);
   var statements_do = javascriptGenerator.statementToCode(block, 'DO');
 
-  var code = 'yield;\n';
-  // var code = '';
+  // var code = 'yield;\n';
+  var code = '';
   code += 'for (let i = 0; i < ' + times + '; i++) {\n';
   code += statements_do + '\n';
   code += '}\n';
