@@ -9,7 +9,7 @@ export const state = reactive({
   directionOpponent: {},
   direction: {},
   roomID: "",
-  selectedLevel: 0
+  selectedLevel: 3
 });
 
 // "undefined" means the URL will be computed from the `window.location` object

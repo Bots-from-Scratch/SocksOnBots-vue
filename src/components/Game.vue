@@ -500,8 +500,6 @@ class GameScene extends Scene {
     this.createSock();
     this.createButtons();
 
-
-
     this.physics.add.overlap(
       this.player,
       this.keyGroup,
@@ -509,7 +507,6 @@ class GameScene extends Scene {
       null,
       this
     );
-
 
     this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
       fontSize: "32px",
@@ -550,8 +547,6 @@ class GameScene extends Scene {
         return null;
       }
     }
-
-
 
     this.statusText = this.add.text(
       16,
@@ -717,11 +712,9 @@ class GameScene extends Scene {
     this.player.body.setMaxSpeed(this.MAX_SPEED);
     this.player.body.setCircle(20, 12, 28);
     // this.player.body.setSize(32, 30, 100, 20);
-    this.player.setOffset(16, 32);
+    // this.player.setOffset(16, 32);
 
     this.player2.setCircle(20, 12, 28);
-
-
 
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
@@ -845,33 +838,33 @@ class GameScene extends Scene {
     this.physics.add.collider(this.player, this.pushableObjectsGroup);
 
     this.physics.add.collider(
-        this.pushableObjectsGroup,
-        this.objectLayer,
-        (pushableObject, object) => {
-          this.player.setVelocity(0);
-          itemConnected = true;
-          pushableObject.tint = 0xeddc32;
-          pushableObject.setPushable(false);
-          console.log("=>(Game.vue:523) object", object);
-          object.tint = 0xeddc32;
+      this.pushableObjectsGroup,
+      this.objectLayer,
+      (pushableObject, object) => {
+        this.player.setVelocity(0);
+        itemConnected = true;
+        pushableObject.tint = 0xeddc32;
+        pushableObject.setPushable(false);
+        console.log("=>(Game.vue:523) object", object);
+        object.tint = 0xeddc32;
 
-          this.doorGroup.children.entries.forEach(
-              (entry) =>
-                  entry.data?.list?.removeEvent === this.getActiveLevel().number &&
-                  entry.disableBody(true, true)
-          );
-          this.getActiveLevel();
-        },
-        null,
-        this
+        this.doorGroup.children.entries.forEach(
+          (entry) =>
+            entry.data?.list?.removeEvent === this.getActiveLevel().number &&
+            entry.disableBody(true, true)
+        );
+        this.getActiveLevel();
+      },
+      null,
+      this
     );
 
     this.physics.add.collider(
-        this.player,
-        this.cutSceneTriggerGroup,
-        this.triggerCutscene,
-        null,
-        this
+      this.player,
+      this.cutSceneTriggerGroup,
+      this.triggerCutscene,
+      null,
+      this
     );
 
     this.physics.add.collider(this.player, this.wallLayer);
@@ -881,24 +874,23 @@ class GameScene extends Scene {
     this.physics.add.collider(this.player2, this.rectangles);
 
     this.physics.add.collider(
-        this.player,
-        this.winningPoints,
-        (sprite, rect) => {
-          this.detectCollisionDirection(sprite, rect);
-          this.checkForWin();
-        },
-        null,
-        this
+      this.player,
+      this.winningPoints,
+      (sprite, rect) => {
+        this.detectCollisionDirection(sprite, rect);
+        this.checkForWin();
+      },
+      null,
+      this
     );
 
     this.physics.add.collider(
-        this.player,
-        this.rectangles,
-        this.detectCollisionDirection(),
-        this.processCallback
+      this.player,
+      this.rectangles,
+      this.detectCollisionDirection(),
+      this.processCallback
     );
-
-  };
+  }
 
   detectCollisionDirection() {
     return (_player, _rectangles) => {
@@ -917,21 +909,24 @@ class GameScene extends Scene {
 
         if (_player.body.blocked.up) {
           console.log("=>(Game.vue:808) frontBlocked");
-          // player.setY(player.y + 2);
-          _player.setVelocity(0);
+          // _player.setY(_player.y + 2);
+          // _player.setVelocity(0);
           directionPlayer1.up.isClear = false;
           directionPlayer1.up.isMoving = false;
         } else if (_player.body.blocked.down) {
           // TODO check setCoordinates for other directions
-          _player.setY(_player.y - 1);
+          // _player.setY(_player.y - 2);
+          // _player.setVelocity(0);
           directionPlayer1.down.isClear = false;
           directionPlayer1.down.isMoving = false;
         } else if (_player.body.blocked.right) {
-          // player.setX(player.x - 2);
+          // _player.setX(_player.x - 2);
+          // _player.setVelocity(0);
           directionPlayer1.right.isClear = false;
           directionPlayer1.right.isMoving = false;
         } else {
-          // player.setX(player.x + 2);
+          // _player.setX(_player.x + 2);
+          // _player.setVelocity(0);
           directionPlayer1.left.isClear = false;
           directionPlayer1.left.isMoving = false;
         }
@@ -1203,12 +1198,12 @@ class GameScene extends Scene {
     if (this.player.body.velocity.x >= 0) {
       this.player.setVelocity(-160, 0);
       this.rotation = this.ROTATION_LEFT;
-
+      console.log("=>(Game.vue:1210) movePlayerLeft");
       this.time.delayedCall(
         400,
         function () {
           this.player.setVelocityX(0);
-          console.log("Bewegung abgeschlossen!");
+          console.log("1210Bewegung abgeschlossen!");
         },
         [],
         this
@@ -1277,13 +1272,13 @@ class GameScene extends Scene {
   }
   checkIfTileIsSlowingDown() {
     var tile = this.wallLayer.getTileAtWorldXY(
-        this.player.x,
-        this.player.y,
-        true
+      this.player.x,
+      this.player.y,
+      true
     );
     if (tile && tile.properties.slowingDown) {
       // slow down the player
-      this.player.setMaxVelocity(this.MAX_SPEED/2);
+      this.player.setMaxVelocity(this.MAX_SPEED / 2);
     } else {
       this.player.setMaxVelocity(this.MAX_SPEED);
     }
@@ -1292,7 +1287,7 @@ class GameScene extends Scene {
   // TODO Levelcheck for socket packages
   update() {
     // this.player.body.setMaxSpeed(160);
-this.checkIfTileIsSlowingDown();
+    this.checkIfTileIsSlowingDown();
 
     if (!this.isPreparingLevel) {
       sendDirectionToSocket();
@@ -1314,20 +1309,8 @@ this.checkIfTileIsSlowingDown();
       roomId: state.roomID,
       playerPosition: playerPosition,
     });
-    if (this.scannedObject) {
-      if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
-        // console.log("not in view");
-        this.scanLineGfx.setVisible(false);
-        this.objectSighted = false;
-        directionPlayer1.toObject.isClear = false;
-      } else {
-        this.scanLineGfx.setVisible(true);
-        this.objectSighted = true;
-        directionPlayer1.toObject.isClear = true;
-      }
-    } else {
-      this.objectSighted = false;
-    }
+
+    this.checkForScannedObject();
 
     // let lastBlock;
     // for (const block of gen) {
@@ -1414,8 +1397,8 @@ this.checkIfTileIsSlowingDown();
       if (this.objectCollidedWith?.active) {
         distCheb = Phaser.Math.RoundTo(
           Phaser.Math.Distance.Chebyshev(
-            this.player.x,
-            this.player.y,
+            this.player.body.position.x + this.player.body.halfWidth,
+            this.player.body.position.y + this.player.body.halfHeight,
             this.objectCollidedWith.x,
             this.objectCollidedWith.y
           ),
@@ -1424,12 +1407,16 @@ this.checkIfTileIsSlowingDown();
         // console.log(distCheb);
 
         distClosest = Phaser.Math.RoundTo(
-          Phaser.Math.Distance.BetweenPoints(
-            this.player,
-            this.objectCollidedWith
+          Phaser.Math.Distance.Between(
+            this.objectCollidedWith?.x,
+            this.objectCollidedWith?.y,
+            this.player.body.position.x + this.player.body.halfWidth,
+            this.player.body.position.y + this.player.body.halfHeight
           ),
           0
         );
+
+
         hypot = Math.hypot(
           this.player.body.halfHeight + this.objectCollidedWith.body.halfHeight,
           this.player.body.halfWidth + this.objectCollidedWith.body.halfWidth
@@ -1474,18 +1461,19 @@ this.checkIfTileIsSlowingDown();
             2 * distCheb
           );
 
+        console.log("=>(Game.vue:1462) this.player", this.player);
         this.gfx
           .clear()
           .lineStyle(2, 0xff3300)
           .lineBetween(
             this.objectCollidedWith?.x,
             this.objectCollidedWith?.y,
-            this.player.x,
-            this.player.y
+              this.player.body.position.x + this.player.body.halfWidth,
+              this.player.body.position.y + this.player.body.halfHeight
           );
       }
 
-      this.updateTexts();
+      this.updateTexts(distClosest);
     }
 
     if (this.cursors.space.isDown) {
@@ -1500,7 +1488,24 @@ this.checkIfTileIsSlowingDown();
     }
   }
 
-  updateTexts() {
+  checkForScannedObject() {
+    if (this.scannedObject) {
+      if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
+        // console.log("not in view");
+        this.scanLineGfx.setVisible(false);
+        this.objectSighted = false;
+        directionPlayer1.toObject.isClear = false;
+      } else {
+        this.scanLineGfx.setVisible(true);
+        this.objectSighted = true;
+        directionPlayer1.toObject.isClear = true;
+      }
+    } else {
+      this.objectSighted = false;
+    }
+  }
+
+  updateTexts(distClosest) {
     this.scoreText.setText("Score: " + score);
 
     if (Object.keys(directionPlayer1).length > 0) {
@@ -1528,7 +1533,9 @@ this.checkIfTileIsSlowingDown();
           "\nplayerVelocity x: " +
           this.player.body.velocity.x +
           "\nisPreparingLevel: " +
-          this.isPreparingLevel
+          this.isPreparingLevel +
+          "\ndistClosest: " +
+          distClosest
       );
     }
   }
