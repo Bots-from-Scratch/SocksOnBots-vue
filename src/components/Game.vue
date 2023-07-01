@@ -53,7 +53,7 @@ export default defineComponent({
   },
   setup() {
     let game = ref(null);
-    let selectedLevel = ref(0);
+    let selectedLevel = ref(2);
     activeScene = computed(() => {
       console.log(
         "=>(Game.vue:49) this.game.scene.getScenes",
@@ -257,6 +257,7 @@ let objectCollected;
 let collectedItems = [];
 let intervalId;
 let itemConnected;
+let score;
 
 function movePlayerRight() {
   activeScene.value.movePlayerRight();
@@ -405,7 +406,7 @@ class GameScene extends Scene {
 
     // playingLevel = 4;
 
-    this.score = 0;
+    score = 0;
 
     walkedBy = false;
     objectCollected = false;
@@ -576,11 +577,11 @@ class GameScene extends Scene {
       this
     );
 
-    this.scoreText = this.add.text(192, 256, "Level Completed", {
-      fontSize: "64px",
+    this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
+      fontSize: "32px",
       fill: "#fff",
     });
-    this.scoreText.setVisible(false);
+    this.scoreText.setVisible(true).setScrollFactor(0);
 
     // TODO overlap winning points
 
@@ -617,6 +618,7 @@ class GameScene extends Scene {
     }
 
     this.physics.add.collider(this.player, this.wallLayer);
+
     // this.physics.add.overlap(
     //   this.player,
     //   this.wallLayer,
@@ -700,12 +702,12 @@ class GameScene extends Scene {
   startDelayedBlockEvaluation() {
     intervalId = setInterval(
       () =>
-        this.timerCallback("setInterval", this.player, this.isPreparingLevel),
+        this.executeCodeWithGenerator( this.player, this.isPreparingLevel),
       400
     );
   }
 
-  // timerCallback(from, player, isPreparingLevel) {
+  // executeCodeWithGenerator(from, player, isPreparingLevel) {
   //   console.log("=>(Game.vue:1110643) isPreparingLevel", isPreparingLevel);
   //   let blockResult;
   //   if (blockFunction !== undefined) {
@@ -740,31 +742,23 @@ class GameScene extends Scene {
   //     }
   //   }
   // }
-  timerCallback(from, player, isPreparingLevel) {
-    console.log("=>(Game.vue:1110643) isPreparingLevel", isPreparingLevel);
+  executeCodeWithGenerator(player, isPreparingLevel) {
     let blockResult = { done: false, value: undefined };
+
     if (blockFunction !== undefined) {
-      console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
       if (!blockResult?.done && !isPreparingLevel) {
         blockResult = blockFunction.next();
-        console.log("=>(Game.vue:1107) ");
-          console.log("=>(Game.vue:752) blockResult", blockResult.value);
-        if (blockResult.value !== undefined) {
-          blockResult.value;
-        }
+        score++;
       }
       if (blockResult?.done || isPreparingLevel) {
-        console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
-        //...
-        console.log(
-          "=>(Game.vue:11164656) clearInterval nIntervId",
-          intervalId
-        );
         clearInterval(intervalId);
+        console.log("=>(Game.vue:755) intervalId", intervalId);
+
         intervalId = null;
+        console.log("=>(Game.vue:755) intervalId", intervalId);
+
         setTimeout(() => {
           player.setVelocity(0);
-          console.log("=>(Game.vue:1114) stop Block evaluation");
           blockFunction = undefined;
         }, 390); //390 um delay auszugleichen
         // this.resetDirection();
@@ -1012,6 +1006,7 @@ class GameScene extends Scene {
       walkedBy = false;
       if (!_player.body.blocked.none) {
         if (!this.collisionSound.isPlaying) {
+          console.log("=>(Game.vue:620) movePl" );
           this.collisionSound.play();
         }
 
@@ -1083,7 +1078,7 @@ class GameScene extends Scene {
 
     this.buttonUp.on("pointerdown", () => {
       this.score += 10;
-      this.scoreText.setText("Score: " + this.score);
+      this.scoreText.setText("Score: " + score);
       console.log(this.player);
     });
   }
@@ -1567,6 +1562,8 @@ class GameScene extends Scene {
           );
       }
       // this.statusText.setText('  right clear: ' + directionPlayer1.right.isClear + ' Object sighted: ' + this.objectSighted + '\n distClosest: ' + distClosest + ' hypot: ' + hypot + ' body.angle: ' + this.player.body.angle + '\nwalkedBy: ' + walkedBy + '\nx: ' + this.player.body.prev.x + ' collided:' + this.collided);
+
+      this.scoreText.setText("Score: " + score);
 
       if (Object.keys(directionPlayer1).length > 0) {
         this.statusText.setText(
