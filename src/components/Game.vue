@@ -227,13 +227,6 @@ export default defineComponent({
   },
 });
 
-let gameConfig;
-let selectedGameLevel;
-let playerPosition = { x: 0, y: 0 };
-let player2XY;
-let blockFunction;
-let pushObject = true;
-
 let directionPlayer1 = {
   right: { isClear: true, isMoving: false },
   left: { isClear: true, isMoving: false },
@@ -258,60 +251,28 @@ let collectedItems = [];
 let intervalId;
 let itemConnected;
 let score;
-
-function movePlayerRight() {
-  activeScene.value.movePlayerRight();
-  console.log("movePLayerRight");
-}
-function movePlayerLeft() {
-  activeScene.value.movePlayerLeft();
-  console.log("movePlayerLeft");
-}
-
-function movePlayerUp() {
-  activeScene.value.movePlayerUp();
-  console.log("movePlayerUp");
-}
-
-function movePlayerDown() {
-  activeScene.value.movePlayerDown();
-  console.log("movePlayerDown");
-}
-
-function movePlayerToObject() {
-  console.log("=>(Game.vue:279) movePlayerToObject");
-  activeScene.value.movePlayerToObject();
-}
-
-function stopPlayer() {
-  console.log("=>(Game.vue:279) stopPlayer");
-  activeScene.value.stopPlayer();
-}
+let gameConfig;
+let selectedGameLevel;
+let playerPosition = { x: 0, y: 0 };
+let player2XY;
+let blockFunction;
+let pushObject = true;
+let slowDownTimer;
 
 function runBlocks(workspace) {
   console.log("runBlocks wurde aufgerufen.");
   sendDirectionToSocket();
   javascriptGenerator.STATEMENT_PREFIX = "highlightBlock(%1);\n";
   javascriptGenerator.addReservedWords("highlightBlock");
-
-  // function highlightBlock is used by blockly
-  function highlightBlock(id) {
+  const highlightBlock = (id) => {
     workspace.highlightBlock(id);
-  }
-
+  };
   const code = javascriptGenerator.workspaceToCode(workspace);
-
-  createGeneratorFunction();
-  function createGeneratorFunction() {
-    const blockGenerator = eval(`
-    (function* () {console.log("eval.new");
-      ${code};console.log("eval.new.finished");
-    })`);
-
-    blockFunction = blockGenerator();
-
-    activeScene.value.startDelayedBlockEvaluation();
-  }
+  activeScene.value.createGeneratorFunction(
+    code,
+    highlightBlock,
+    activeScene.value
+  );
 }
 
 function sendDirectionToSocket() {
@@ -334,6 +295,7 @@ class GameScene extends Scene {
   ROTATION_UP = -90;
   ROTATION_DOWN = 90;
   SCAN_DISTANCE = 200;
+  MAX_SPEED = 160;
 
   // levels = [
   //   {
@@ -538,7 +500,6 @@ class GameScene extends Scene {
     this.createSock();
     this.createButtons();
 
-    this.physics.add.collider(this.player, this.pushableObjectsGroup);
     this.physics.add.collider(
       this.pushableObjectsGroup,
       this.objectLayer,
@@ -619,14 +580,6 @@ class GameScene extends Scene {
 
     this.physics.add.collider(this.player, this.wallLayer);
 
-    // this.physics.add.overlap(
-    //   this.player,
-    //   this.wallLayer,
-    //   fallingDown,
-    //   null,
-    //   this
-    // );
-
     this.physics.add.collider(this.player, this.objectLayer);
 
     this.statusText = this.add.text(
@@ -641,16 +594,10 @@ class GameScene extends Scene {
     this.statusText.setVisible(true).setScrollFactor(0).setDepth(2);
 
     this.gfx = this.add.graphics();
-    // this.bombs = this.physics.add.group();
 
-    // this.physics.add.collider(this.bombs, this.platforms);
-    // this.physics.add.collider(this.player, this.bombs);
-
-    // this.physics.add.collider(stars, platforms);
-
-    this.physics.world.on("worldbounds", (body) => {
-      this.collided = true;
-    });
+    // this.physics.world.on("worldbounds", (body) => {
+    //   this.collided = true;
+    // });
 
     this.graphic = this.add.graphics({ lineStyle: { color: 0x00ffff } });
     this.graphic.setVisible(false);
@@ -684,19 +631,26 @@ class GameScene extends Scene {
     });
     this.scanLineGfx.setVisible(false);
 
-    // this.testBlockRect = new Phaser.Geom.Rectangle(200, 50, 100, 200);
     this.scanCircle = new Phaser.Geom.Circle(300, 400, this.SCAN_DISTANCE);
 
-    this.frameGraphics = this.add.graphics();
-    this.frameColor = 0x00ff00; // Rahmenfarbe (Grün)
     this.blockingObjects = this.rectangles;
 
     this.collisionSound = this.sound.add("collision");
     this.backgroundSound = this.sound.add("backgroundSound");
     this.movingSound = this.sound.add("movingSound");
-    // this.backgroundSound.setVolume(0.3).play();
 
     this.prepareLevel();
+  }
+
+  createGeneratorFunction(code, highlightBlock, _this) {
+    const blockGenerator = eval(`
+    (function* () {console.log("eval.new");
+      ${code};console.log("eval.new.finished");
+    })`);
+
+    blockFunction = blockGenerator();
+
+    this.startDelayedBlockEvaluation();
   }
 
   startDelayedBlockEvaluation() {
@@ -706,50 +660,15 @@ class GameScene extends Scene {
     );
   }
 
-  // executeCodeWithGenerator(from, player, isPreparingLevel) {
-  //   console.log("=>(Game.vue:1110643) isPreparingLevel", isPreparingLevel);
-  //   let blockResult;
-  //   if (blockFunction !== undefined) {
-  //     if (blockResult?.done || isPreparingLevel === true) {
-  //       console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
-  //       //...
-  //       console.log(
-  //         "=>(Game.vue:11164656) clearInterval nIntervId",
-  //         intervalId
-  //       );
-  //       clearInterval(intervalId);
-  //       intervalId = null;
-  //       setTimeout(() => {
-  //         console.log("=>(Game.vue:1114) stop Block evaluation");
-  //         player.setVelocityX(0);
-  //         console.log("=>(Game.vue:1114) player", player);
-  //         player.setVelocityY(0);
-  //         blockFunction = undefined;
-  //       }, 400);
-  //       // release our intervalID from the variable
-  //       this.resetDirection();
-  //     } else {
-  //       console.log("=>(Game.vue:111646) isPreparingLevel", isPreparingLevel);
-  //       if (isPreparingLevel === false) {
-  //         blockResult = blockFunction.next();
-  //         console.log("=>(Game.vue:1107) ");
-  //         if (blockResult.value !== undefined) {
-  //           console.log(blockResult.value);
-  //           blockResult.value;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
   executeCodeWithGenerator(player, isPreparingLevel) {
     let blockResult = { done: false, value: undefined };
 
     if (blockFunction !== undefined) {
       if (!blockResult?.done && !isPreparingLevel) {
         if (player.body.velocity.x === 0 && player.body.velocity.y === 0) {
-        console.log("=>(Game.vue:751) next");
+          console.log("=>(Game.vue:751) next");
           blockResult = blockFunction.next();
-        score++;
+          score++;
         }
       }
       if (blockResult?.done || isPreparingLevel) {
@@ -824,42 +743,12 @@ class GameScene extends Scene {
     // TODO set player mid to mid of tiles
 
     // this.player.body.bounce.set(1);
-    this.player.body.setMaxSpeed(160);
+    this.player.body.setMaxSpeed(this.MAX_SPEED);
     this.player.body.setCircle(20, 12, 28);
     // this.player.body.setSize(32, 30, 100, 20);
     this.player.setOffset(16, 32);
 
     this.player2.setCircle(20, 12, 28);
-
-    // function detectCollisionDirection(_player, _platform) {
-    //   return function (_player, _platform) {
-    //     this.objectCollidedWith = _platform;
-    //     this.collided = true;
-    //     walkedBy = false;
-    //     if (!_player.body.blocked.none) {
-    //       if (_player.body.blocked.up) {
-    //         // console.log("frontBlocked");
-    //         // player.setY(player.y + 2);
-    //         directionPlayer1.up.isClear = false;
-    //         directionPlayer1.up.isMoving = false;
-    //       } else if (_player.body.blocked.down) {
-    //         // player.setY(player.y - 2);
-    //         directionPlayer1.down.isClear = false;
-    //         directionPlayer1.down.isMoving = false;
-    //       } else if (_player.body.blocked.right) {
-    //         // player.setX(player.x - 2);
-    //         directionPlayer1.right.isClear = false;
-    //         directionPlayer1.right.isMoving = false;
-    //       } else {
-    //         // player.setX(player.x + 2);
-    //         directionPlayer1.left.isClear = false;
-    //         directionPlayer1.left.isMoving = false;
-    //       }
-    //       // this.player.setVelocityX(0);
-    //       // this.player.setVelocityY(0);
-    //     }
-    //   };
-    // }
 
     this.physics.add.collider(this.player2, this.rectangles);
 
@@ -994,8 +883,14 @@ class GameScene extends Scene {
       });
     }
 
+    this.createCollider();
+
     createPlayerAnimation.call(this);
   }
+
+  createCollider() {
+
+  };
 
   detectCollisionDirection() {
     return (_player, _rectangles) => {
@@ -1173,7 +1068,7 @@ class GameScene extends Scene {
     console.log("=>(Game.vue:837) loadLevelCoordinates");
     let x;
     let y;
-    this.levels.map((level) => {
+    this.levels.forEach((level) => {
       // TODO selectedGameLevel is a string not number
       level.number === parseInt(selectedGameLevel)
         ? (level.isActive = true) && (x = level.x) && (y = level.y)
@@ -1281,7 +1176,7 @@ class GameScene extends Scene {
     console.log("=>(Game.vue:1553) movePlayerRight");
 
     if (this.player.body.velocity.x <= 0) {
-      this.player.setVelocity(160,0);
+      this.player.setVelocity(160, 0);
       this.rotation = this.ROTATION_RIGHT;
 
       this.time.delayedCall(
@@ -1298,17 +1193,17 @@ class GameScene extends Scene {
   }
   movePlayerLeft() {
     if (this.player.body.velocity.x >= 0) {
-      this.player.setVelocity(-160,0);
+      this.player.setVelocity(-160, 0);
       this.rotation = this.ROTATION_LEFT;
 
       this.time.delayedCall(
-          400,
-          function () {
-            this.player.setVelocityX(0);
-            console.log("Bewegung abgeschlossen!");
-          },
-          [],
-          this
+        400,
+        function () {
+          this.player.setVelocityX(0);
+          console.log("Bewegung abgeschlossen!");
+        },
+        [],
+        this
       );
     }
   }
@@ -1316,17 +1211,17 @@ class GameScene extends Scene {
   movePlayerUp() {
     console.log("=>(Game.vue:1553) movePlayerUp");
     if (this.player.body.velocity.y >= 0) {
-      this.player.setVelocity(0,-160);
+      this.player.setVelocity(0, -160);
       this.rotation = this.ROTATION_UP;
 
       this.time.delayedCall(
-          400,
-          function () {
-            this.player.setVelocityY(0);
-            console.log("Bewegung abgeschlossen!");
-          },
-          [],
-          this
+        400,
+        function () {
+          this.player.setVelocityY(0);
+          console.log("Bewegung abgeschlossen!");
+        },
+        [],
+        this
       );
     }
   }
@@ -1337,13 +1232,13 @@ class GameScene extends Scene {
       this.rotation = this.ROTATION_DOWN;
 
       this.time.delayedCall(
-          400,
-          function () {
-            this.player.setVelocityY(0);
-            console.log("Bewegung abgeschlossen!");
-          },
-          [],
-          this
+        400,
+        function () {
+          this.player.setVelocityY(0);
+          console.log("Bewegung abgeschlossen!");
+        },
+        [],
+        this
       );
     }
   }
@@ -1358,13 +1253,13 @@ class GameScene extends Scene {
       // this.physics.accelerateToObject(player, objectToScanFor);
       this.player.setVelocityX(160);
       this.time.delayedCall(
-          400,
-          function () {
-            this.player.setVelocity(0);
-            console.log("Bewegung abgeschlossen!");
-          },
-          [],
-          this
+        400,
+        function () {
+          this.player.setVelocity(0);
+          console.log("Bewegung abgeschlossen!");
+        },
+        [],
+        this
       );
     }
   }
@@ -1372,26 +1267,25 @@ class GameScene extends Scene {
   stopPlayer() {
     this.player.setVelocity(0);
   }
-
-  // TODO Levelcheck for socket packages
-  update() {
-    // this.executeCodeWithGenerator(this.player, this.isPreparingLevel)
-    if (selectedGameLevel === "Level 1") {
-      // console.log(this.player.x + '  ' + this.player.y);
-    }
-
+  checkIfTileIsSlowingDown() {
     var tile = this.wallLayer.getTileAtWorldXY(
-      this.player.x,
-      this.player.y,
-      true
+        this.player.x,
+        this.player.y,
+        true
     );
     if (tile && tile.properties.slowingDown) {
       // slow down the player
-      // this.player.setVelocity(this.player.body.velocity.x * 0.5, this.player.body.velocity.y * 0.5);
-      this.player.setMaxVelocity(80);
+      this.player.setMaxVelocity(this.MAX_SPEED/2);
     } else {
-      this.player.setMaxVelocity(160);
+      this.player.setMaxVelocity(this.MAX_SPEED);
     }
+  }
+
+  // TODO Levelcheck for socket packages
+  update() {
+    // this.player.body.setMaxSpeed(160);
+this.checkIfTileIsSlowingDown();
+
     if (!this.isPreparingLevel) {
       sendDirectionToSocket();
     }
@@ -1582,38 +1476,8 @@ class GameScene extends Scene {
             this.player.y
           );
       }
-      // this.statusText.setText('  right clear: ' + directionPlayer1.right.isClear + ' Object sighted: ' + this.objectSighted + '\n distClosest: ' + distClosest + ' hypot: ' + hypot + ' body.angle: ' + this.player.body.angle + '\nwalkedBy: ' + walkedBy + '\nx: ' + this.player.body.prev.x + ' collided:' + this.collided);
 
-      this.scoreText.setText("Score: " + score);
-
-      if (Object.keys(directionPlayer1).length > 0) {
-        this.statusText.setText(
-          "right clear: " +
-            directionPlayer1.right.isClear +
-            "\n moving right: " +
-            directionPlayer1.right.isMoving +
-            "\nobject collected: " +
-            objectCollected +
-            " body.angle: " +
-            this.player.body.angle +
-            "\nwalkedBy: " +
-            walkedBy +
-            "\nx: " +
-            this.player.body.prev.x +
-            " collided:" +
-            this.collided +
-            "\nobjectSighted: " +
-            directionPlayer1.toObject.isClear +
-            "\nmoveToObject: " +
-            directionPlayer1.toObject.isMoving +
-            "\nplayerVelocity Y: " +
-            this.player.body.velocity.y +
-            "\nplayerVelocity x: " +
-            this.player.body.velocity.x +
-            "\nisPreparingLevel: " +
-            this.isPreparingLevel
-        );
-      }
+      this.updateTexts();
     }
 
     if (this.cursors.space.isDown) {
@@ -1625,6 +1489,39 @@ class GameScene extends Scene {
     if (Object.keys(directionPlayer1).length > 0) {
       this.movePlayer(this.player, directionPlayer1);
       this.movePlayer(this.player2, directionPlayer2);
+    }
+  }
+
+  updateTexts() {
+    this.scoreText.setText("Score: " + score);
+
+    if (Object.keys(directionPlayer1).length > 0) {
+      this.statusText.setText(
+        "right clear: " +
+          directionPlayer1.right.isClear +
+          "\n moving right: " +
+          directionPlayer1.right.isMoving +
+          "\nobject collected: " +
+          objectCollected +
+          " body.angle: " +
+          this.player.body.angle +
+          "\nwalkedBy: " +
+          walkedBy +
+          "\nx: " +
+          this.player.body.prev.x +
+          " collided:" +
+          this.collided +
+          "\nobjectSighted: " +
+          directionPlayer1.toObject.isClear +
+          "\nmoveToObject: " +
+          directionPlayer1.toObject.isMoving +
+          "\nplayer.body.maxSpeed: " +
+          this.player.body.maxSpeed +
+          "\nplayerVelocity x: " +
+          this.player.body.velocity.x +
+          "\nisPreparingLevel: " +
+          this.isPreparingLevel
+      );
     }
   }
 
