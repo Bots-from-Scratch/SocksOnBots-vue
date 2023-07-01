@@ -53,7 +53,7 @@ export default defineComponent({
   },
   setup() {
     let game = ref(null);
-    let selectedLevel = ref(2);
+    let selectedLevel = ref(state.selectedLevel);
     activeScene = computed(() => {
       console.log(
         "=>(Game.vue:49) this.game.scene.getScenes",
@@ -1019,7 +1019,8 @@ class GameScene extends Scene {
           directionPlayer1.up.isClear = false;
           directionPlayer1.up.isMoving = false;
         } else if (_player.body.blocked.down) {
-          // player.setY(player.y - 2);
+          // TODO check setCoordinates for other directions
+          _player.setY(_player.y - 1);
           directionPlayer1.down.isClear = false;
           directionPlayer1.down.isMoving = false;
         } else if (_player.body.blocked.right) {
@@ -1210,7 +1211,7 @@ class GameScene extends Scene {
   }
 
   collectKey(player, key) {
-    if (Math.abs(player.x - key.x) < 5 && Math.abs(player.y - key.y) < 5) {
+    if (Math.abs(player.x - key.x) < 10 && Math.abs(player.y - key.y) < 10) {
       key.disableBody(true, true);
       objectCollected = true;
       this.player.setVelocity(0);
@@ -1277,11 +1278,10 @@ class GameScene extends Scene {
   }
 
   movePlayerRight() {
-    console.log("=>(Game.vue:1139) movePlayerRight");
+    console.log("=>(Game.vue:1553) movePlayerRight");
 
     if (this.player.body.velocity.x <= 0) {
-      this.player.setVelocity(0);
-      this.player.setVelocityX(160);
+      this.player.setVelocity(160,0);
       this.rotation = this.ROTATION_RIGHT;
 
       this.time.delayedCall(
@@ -1289,7 +1289,7 @@ class GameScene extends Scene {
         function () {
           // Delay of 400 by a velocity of 160 means a movement of 64 pixels (our tile size)
           this.player.setVelocityX(0);
-          console.log("Bewegung abgeschlossen!");
+          console.log("1553Bewegung abgeschlossen!");
         },
         [],
         this
@@ -1298,8 +1298,7 @@ class GameScene extends Scene {
   }
   movePlayerLeft() {
     if (this.player.body.velocity.x >= 0) {
-      this.player.setVelocity(0);
-      this.player.setVelocityX(-160);
+      this.player.setVelocity(-160,0);
       this.rotation = this.ROTATION_LEFT;
 
       this.time.delayedCall(
@@ -1315,10 +1314,9 @@ class GameScene extends Scene {
   }
 
   movePlayerUp() {
-    console.log("=>(Game.vue:111473) movePlayerUp");
+    console.log("=>(Game.vue:1553) movePlayerUp");
     if (this.player.body.velocity.y >= 0) {
-      this.player.setVelocity(0);
-      this.player.setVelocityY(-160);
+      this.player.setVelocity(0,-160);
       this.rotation = this.ROTATION_UP;
 
       this.time.delayedCall(
@@ -1335,8 +1333,7 @@ class GameScene extends Scene {
 
   movePlayerDown() {
     if (this.player.body.velocity.y <= 0) {
-      this.player.setVelocity(0);
-      this.player.setVelocityY(160);
+      this.player.setVelocity(0, 160);
       this.rotation = this.ROTATION_DOWN;
 
       this.time.delayedCall(
@@ -1378,6 +1375,7 @@ class GameScene extends Scene {
 
   // TODO Levelcheck for socket packages
   update() {
+    // this.executeCodeWithGenerator(this.player, this.isPreparingLevel)
     if (selectedGameLevel === "Level 1") {
       // console.log(this.player.x + '  ' + this.player.y);
     }
@@ -1549,6 +1547,7 @@ class GameScene extends Scene {
             (this.rotation === 0 || this.rotation === 180)
           ) {
             walkedBy = true;
+            console.log("=>(Game.vue:1553) walkedBy", walkedBy);
             this.player.setVelocity(0);
             this.objectCollidedWith = null;
           } else if (
@@ -1556,6 +1555,7 @@ class GameScene extends Scene {
             (this.rotation === 90 || this.rotation === -90)
           ) {
             walkedBy = true;
+            console.log("=>(Game.vue:1553) walkedBy", walkedBy);
             this.player.setVelocity(0);
             this.objectCollidedWith = null;
           }
