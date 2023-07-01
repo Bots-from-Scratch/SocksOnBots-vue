@@ -53,7 +53,7 @@ export default defineComponent({
   },
   setup() {
     let game = ref(null);
-    let selectedLevel = ref(2);
+    let selectedLevel = ref(1);
     activeScene = computed(() => {
       console.log(
         "=>(Game.vue:49) this.game.scene.getScenes",
@@ -701,8 +701,7 @@ class GameScene extends Scene {
 
   startDelayedBlockEvaluation() {
     intervalId = setInterval(
-      () =>
-        this.executeCodeWithGenerator( this.player, this.isPreparingLevel),
+      () => this.executeCodeWithGenerator(this.player, this.isPreparingLevel),
       400
     );
   }
@@ -1006,13 +1005,14 @@ class GameScene extends Scene {
       walkedBy = false;
       if (!_player.body.blocked.none) {
         if (!this.collisionSound.isPlaying) {
-          console.log("=>(Game.vue:620) movePl" );
+          console.log("=>(Game.vue:620) movePl");
           this.collisionSound.play();
         }
 
         if (_player.body.blocked.up) {
           console.log("=>(Game.vue:808) frontBlocked");
           // player.setY(player.y + 2);
+          _player.setVelocity(0);
           directionPlayer1.up.isClear = false;
           directionPlayer1.up.isMoving = false;
         } else if (_player.body.blocked.down) {
@@ -1279,6 +1279,7 @@ class GameScene extends Scene {
     if (this.player.body.velocity.x <= 0) {
       this.player.setVelocity(0);
       this.player.setVelocityX(160);
+      this.rotation = this.ROTATION_RIGHT;
 
       // this.time.delayedCall(
       //   400,
@@ -1296,6 +1297,8 @@ class GameScene extends Scene {
     if (this.player.body.velocity.x >= 0) {
       this.player.setVelocity(0);
       this.player.setVelocityX(-160);
+      this.rotation = this.ROTATION_LEFT;
+
 
       // this.time.delayedCall(
       //     400,
@@ -1314,6 +1317,7 @@ class GameScene extends Scene {
     if (this.player.body.velocity.y >= 0) {
       this.player.setVelocity(0);
       this.player.setVelocityY(-160);
+      this.rotation = this.ROTATION_UP;
 
       // this.time.delayedCall(
       //     400,
@@ -1331,6 +1335,7 @@ class GameScene extends Scene {
     if (this.player.body.velocity.y <= 0) {
       this.player.setVelocity(0);
       this.player.setVelocityY(160);
+      this.rotation = this.ROTATION_DOWN;
 
       // this.time.delayedCall(
       //     400,
@@ -1494,8 +1499,8 @@ class GameScene extends Scene {
     let distCheb;
     let distClosest;
     let hypot;
-    if (this.player.active) {
-      if (this.objectCollidedWith.active) {
+    if (this.player.active ) {
+      if (this.objectCollidedWith?.active) {
         distCheb = Phaser.Math.RoundTo(
           Phaser.Math.Distance.Chebyshev(
             this.player.x,
@@ -1506,6 +1511,7 @@ class GameScene extends Scene {
           0
         );
         // console.log(distCheb);
+
         distClosest = Phaser.Math.RoundTo(
           Phaser.Math.Distance.BetweenPoints(
             this.player,
@@ -1521,6 +1527,7 @@ class GameScene extends Scene {
         // console.log(distClosest);
         // if (distClosest < Phaser.Math.Distance.Between(closest.x, closest.y, (closest.body.position.x + 1), (closest.body.position.y + 1))) {
         if (distClosest > hypot) {
+          console.log("=>(Game.vue:1526) distClosest", distClosest);
           // console.log("clear");
           directionPlayer1.left.isClear = true;
           directionPlayer1.right.isClear = true;
@@ -1531,13 +1538,18 @@ class GameScene extends Scene {
             (this.rotation === 0 || this.rotation === 180)
           ) {
             walkedBy = true;
+            this.player.setVelocity(0);
+            this.objectCollidedWith = null;
+
           } else if (
             this.player.body.y - this.player.body.prev.y !== 0 &&
             (this.rotation === 90 || this.rotation === -90)
           ) {
             walkedBy = true;
-          }
+            this.player.setVelocity(0);
+            this.objectCollidedWith = null;
 
+          }
           // this.physics.accelerateToObject(player, itemSock, 4000);
         }
 
@@ -1555,8 +1567,8 @@ class GameScene extends Scene {
           .clear()
           .lineStyle(2, 0xff3300)
           .lineBetween(
-            this.objectCollidedWith.x,
-            this.objectCollidedWith.y,
+            this.objectCollidedWith?.x,
+            this.objectCollidedWith?.y,
             this.player.x,
             this.player.y
           );

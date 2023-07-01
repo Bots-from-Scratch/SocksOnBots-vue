@@ -35,8 +35,8 @@ javascriptGenerator["whileUntil"] = function (block) {
   );
   var statements_do = javascriptGenerator.statementToCode(block, "DO");
 
-  var code = "yield;\n";
-  // var code = "";
+  // var code = "yield;\n";
+  var code = "";
   if (dropdown_mode === "WHILE") {
     code +=
       "console.log('while Block')\n;while (" +
