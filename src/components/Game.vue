@@ -500,27 +500,7 @@ class GameScene extends Scene {
     this.createSock();
     this.createButtons();
 
-    this.physics.add.collider(
-      this.pushableObjectsGroup,
-      this.objectLayer,
-      (pushableObject, object) => {
-        this.player.setVelocity(0);
-        itemConnected = true;
-        pushableObject.tint = 0xeddc32;
-        pushableObject.setPushable(false);
-        console.log("=>(Game.vue:523) object", object);
-        object.tint = 0xeddc32;
 
-        this.doorGroup.children.entries.forEach(
-          (entry) =>
-            entry.data?.list?.removeEvent === this.getActiveLevel().number &&
-            entry.disableBody(true, true)
-        );
-        this.getActiveLevel();
-      },
-      null,
-      this
-    );
 
     this.physics.add.overlap(
       this.player,
@@ -530,13 +510,6 @@ class GameScene extends Scene {
       this
     );
 
-    this.physics.add.collider(
-      this.player,
-      this.cutSceneTriggerGroup,
-      this.triggerCutscene,
-      null,
-      this
-    );
 
     this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
       fontSize: "32px",
@@ -578,9 +551,7 @@ class GameScene extends Scene {
       }
     }
 
-    this.physics.add.collider(this.player, this.wallLayer);
 
-    this.physics.add.collider(this.player, this.objectLayer);
 
     this.statusText = this.add.text(
       16,
@@ -750,25 +721,7 @@ class GameScene extends Scene {
 
     this.player2.setCircle(20, 12, 28);
 
-    this.physics.add.collider(this.player2, this.rectangles);
 
-    this.physics.add.collider(
-      this.player,
-      this.winningPoints,
-      (sprite, rect) => {
-        this.detectCollisionDirection(sprite, rect);
-        this.checkForWin();
-      },
-      null,
-      this
-    );
-
-    this.physics.add.collider(
-      this.player,
-      this.rectangles,
-      this.detectCollisionDirection(),
-      this.processCallback
-    );
 
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
@@ -889,6 +842,61 @@ class GameScene extends Scene {
   }
 
   createCollider() {
+    this.physics.add.collider(this.player, this.pushableObjectsGroup);
+
+    this.physics.add.collider(
+        this.pushableObjectsGroup,
+        this.objectLayer,
+        (pushableObject, object) => {
+          this.player.setVelocity(0);
+          itemConnected = true;
+          pushableObject.tint = 0xeddc32;
+          pushableObject.setPushable(false);
+          console.log("=>(Game.vue:523) object", object);
+          object.tint = 0xeddc32;
+
+          this.doorGroup.children.entries.forEach(
+              (entry) =>
+                  entry.data?.list?.removeEvent === this.getActiveLevel().number &&
+                  entry.disableBody(true, true)
+          );
+          this.getActiveLevel();
+        },
+        null,
+        this
+    );
+
+    this.physics.add.collider(
+        this.player,
+        this.cutSceneTriggerGroup,
+        this.triggerCutscene,
+        null,
+        this
+    );
+
+    this.physics.add.collider(this.player, this.wallLayer);
+
+    this.physics.add.collider(this.player, this.objectLayer);
+
+    this.physics.add.collider(this.player2, this.rectangles);
+
+    this.physics.add.collider(
+        this.player,
+        this.winningPoints,
+        (sprite, rect) => {
+          this.detectCollisionDirection(sprite, rect);
+          this.checkForWin();
+        },
+        null,
+        this
+    );
+
+    this.physics.add.collider(
+        this.player,
+        this.rectangles,
+        this.detectCollisionDirection(),
+        this.processCallback
+    );
 
   };
 
