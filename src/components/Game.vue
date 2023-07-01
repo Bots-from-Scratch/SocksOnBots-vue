@@ -53,7 +53,7 @@ export default defineComponent({
   },
   setup() {
     let game = ref(null);
-    let selectedLevel = ref(1);
+    let selectedLevel = ref(2);
     activeScene = computed(() => {
       console.log(
         "=>(Game.vue:49) this.game.scene.getScenes",
@@ -702,7 +702,7 @@ class GameScene extends Scene {
   startDelayedBlockEvaluation() {
     intervalId = setInterval(
       () => this.executeCodeWithGenerator(this.player, this.isPreparingLevel),
-      400
+      0
     );
   }
 
@@ -746,8 +746,11 @@ class GameScene extends Scene {
 
     if (blockFunction !== undefined) {
       if (!blockResult?.done && !isPreparingLevel) {
-        blockResult = blockFunction.next();
+        if (player.body.velocity.x === 0 && player.body.velocity.y === 0) {
+        console.log("=>(Game.vue:751) next");
+          blockResult = blockFunction.next();
         score++;
+        }
       }
       if (blockResult?.done || isPreparingLevel) {
         clearInterval(intervalId);
@@ -1281,16 +1284,16 @@ class GameScene extends Scene {
       this.player.setVelocityX(160);
       this.rotation = this.ROTATION_RIGHT;
 
-      // this.time.delayedCall(
-      //   400,
-      //   function () {
-      //     // Delay of 400 by a velocity of 160 means a movement of 64 pixels (our tile size)
-      //     this.player.setVelocityX(0);
-      //     console.log("Bewegung abgeschlossen!");
-      //   },
-      //   [],
-      //   this
-      // );
+      this.time.delayedCall(
+        400,
+        function () {
+          // Delay of 400 by a velocity of 160 means a movement of 64 pixels (our tile size)
+          this.player.setVelocityX(0);
+          console.log("Bewegung abgeschlossen!");
+        },
+        [],
+        this
+      );
     }
   }
   movePlayerLeft() {
@@ -1299,16 +1302,15 @@ class GameScene extends Scene {
       this.player.setVelocityX(-160);
       this.rotation = this.ROTATION_LEFT;
 
-
-      // this.time.delayedCall(
-      //     400,
-      //     function () {
-      //       this.player.setVelocityX(0);
-      //       console.log("Bewegung abgeschlossen!");
-      //     },
-      //     [],
-      //     this
-      // );
+      this.time.delayedCall(
+          400,
+          function () {
+            this.player.setVelocityX(0);
+            console.log("Bewegung abgeschlossen!");
+          },
+          [],
+          this
+      );
     }
   }
 
@@ -1319,15 +1321,15 @@ class GameScene extends Scene {
       this.player.setVelocityY(-160);
       this.rotation = this.ROTATION_UP;
 
-      // this.time.delayedCall(
-      //     400,
-      //     function () {
-      //       this.player.setVelocityY(0);
-      //       console.log("Bewegung abgeschlossen!");
-      //     },
-      //     [],
-      //     this
-      // );
+      this.time.delayedCall(
+          400,
+          function () {
+            this.player.setVelocityY(0);
+            console.log("Bewegung abgeschlossen!");
+          },
+          [],
+          this
+      );
     }
   }
 
@@ -1337,15 +1339,15 @@ class GameScene extends Scene {
       this.player.setVelocityY(160);
       this.rotation = this.ROTATION_DOWN;
 
-      // this.time.delayedCall(
-      //     400,
-      //     function () {
-      //       this.player.setVelocityY(0);
-      //       console.log("Bewegung abgeschlossen!");
-      //     },
-      //     [],
-      //     this
-      // );
+      this.time.delayedCall(
+          400,
+          function () {
+            this.player.setVelocityY(0);
+            console.log("Bewegung abgeschlossen!");
+          },
+          [],
+          this
+      );
     }
   }
 
@@ -1358,6 +1360,15 @@ class GameScene extends Scene {
       // this.physics.accelerateToObject(player, objectToScanFor, 4000, 100, 100);
       // this.physics.accelerateToObject(player, objectToScanFor);
       this.player.setVelocityX(160);
+      this.time.delayedCall(
+          400,
+          function () {
+            this.player.setVelocity(0);
+            console.log("Bewegung abgeschlossen!");
+          },
+          [],
+          this
+      );
     }
   }
 
@@ -1499,7 +1510,7 @@ class GameScene extends Scene {
     let distCheb;
     let distClosest;
     let hypot;
-    if (this.player.active ) {
+    if (this.player.active) {
       if (this.objectCollidedWith?.active) {
         distCheb = Phaser.Math.RoundTo(
           Phaser.Math.Distance.Chebyshev(
@@ -1540,7 +1551,6 @@ class GameScene extends Scene {
             walkedBy = true;
             this.player.setVelocity(0);
             this.objectCollidedWith = null;
-
           } else if (
             this.player.body.y - this.player.body.prev.y !== 0 &&
             (this.rotation === 90 || this.rotation === -90)
@@ -1548,7 +1558,6 @@ class GameScene extends Scene {
             walkedBy = true;
             this.player.setVelocity(0);
             this.objectCollidedWith = null;
-
           }
           // this.physics.accelerateToObject(player, itemSock, 4000);
         }
