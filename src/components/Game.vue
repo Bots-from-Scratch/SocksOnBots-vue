@@ -101,7 +101,7 @@ export default defineComponent({
           x: 3,
           y: 28,
           isActive: false,
-          playerStart: { x: 10, y: 36.5 },
+          playerStart: { x: 10, y: 36.8 },
         },
         {
           number: 1,
@@ -380,11 +380,11 @@ class GameScene extends Scene {
     this.upIsClear = true;
     this.downIsClear = true;
 
-    this.scannedObject = false;
+    this.objectIsScanned = false;
     this.objectCollidedWith = {};
-    this.blockingObjects = undefined;
+    this.viewBlockingObjects = undefined;
     objectToScanFor = undefined;
-    this.objectSighted = false;
+    this.objectIsInSight = false;
     this.scanAngle = 0;
     this.itemCollected = false;
     this.levelWon = false;
@@ -582,7 +582,7 @@ class GameScene extends Scene {
       objectToScanFor?.y
     );
 
-    this.scanLineRot = new Phaser.Geom.Line(
+    this.rotatingScanLine = new Phaser.Geom.Line(
       this.player.x,
       this.player.y,
       300,
@@ -599,13 +599,17 @@ class GameScene extends Scene {
 
     this.scanCircle = new Phaser.Geom.Circle(300, 400, this.SCAN_DISTANCE);
 
-    this.blockingObjects = this.rectangles;
+    this.createViewBlockingObjectGroup();
 
     this.collisionSound = this.sound.add("collision");
     this.backgroundSound = this.sound.add("backgroundSound");
     this.movingSound = this.sound.add("movingSound");
 
     this.prepareLevel();
+  }
+
+  createViewBlockingObjectGroup() {
+    this.viewBlockingObjects = this.rectangles;
   }
 
   createGeneratorFunction(code, highlightBlock, _this) {
@@ -941,7 +945,7 @@ class GameScene extends Scene {
   }
 
   createSock() {
-    itemSock = this.physics.add.sprite(500, 2250, "star");
+    itemSock = this.physics.add.sprite(640, 2250, "star");
     // itemSock.setTint(0x006db2);
     itemSock.setScale(0.4);
 
@@ -968,8 +972,8 @@ class GameScene extends Scene {
 
     // this.buttonScan.on("pointerdown", () => {
     //   objectToScanFor = itemSock;
-    //   if (this.scannedObject) {
-    //     if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
+    //   if (this.objectIsScanned) {
+    //     if (this.checkIfObjectBlocksViewline(this.viewBlockingObjects)) {
     //       // console.log("not in view");
     //       this.scanLineGfx.setVisible(false);
     //     } else {
@@ -1005,6 +1009,7 @@ class GameScene extends Scene {
   }
 
   checkIfObjectBlocksViewline(gameObject) {
+    console.log("=>(Game.vue:1008) gameObject", gameObject);
     if (gameObject.isParent) {
       let intersects = gameObject
         .getChildren()
@@ -1312,110 +1317,34 @@ class GameScene extends Scene {
 
     this.checkForScannedObject();
 
-    // let lastBlock;
-    // for (const block of gen) {
-    //     console.log("Next block: " + block);
-    //     lastBlock = block;
-    // }
-    // directionPlayer1 = lastBlock;
-    // console.log(this.directionPlayer1 + playGame);
+    this.updateScanGraphics();
 
-    // TODO test if the delayed version works
-    // if (blockFunction !== undefined) {
-    //   var blockResult = blockFunction.next();
-    //   console.log("=>(Game.vue:1107) next");
-    //   if (blockResult.value !== undefined) {
-    //     console.log(blockResult.value);
-    //     blockResult.value;
-    //   }
-    //   if (blockResult.done || this.isPreparingLevel) {
-    //     //...
-    //     console.log("=>(Game.vue:1114) stop Block evaluation");
-    //     blockFunction = undefined;
-    //     this.resetDirection();
-    //   }
-    // }
 
-    // var tile = wallLayer.getTileAtWorldXY(this.player.x, this.player.y, true);
-    // // console.log(this.player.x + '  ' + this.player.y);
-    // if (tile && tile.properties.slowingDown) {
-    //     // slow down the player
-    //     this.player.setVelocity(this.player.body.velocity.x * 0.5, this.player.body.velocity.y * 0.5);
-    // }
-
-    if (!this.scannedObject) {
-      this.scanLineGfx.setVisible(true);
-    }
-    this.scanCircle.setPosition(this.player.x, this.player.y);
-    this.scanLine.setTo(
-      this.player.x,
-      this.player.y,
-      objectToScanFor?.x,
-      objectToScanFor?.y
-    );
-    this.scanAngle -= 0.04;
-    Phaser.Geom.Line.SetToAngle(
-      this.scanLineRot,
-      this.player.x,
-      this.player.y,
-      this.scanAngle,
-      200
-    );
-    if (
-      Phaser.Geom.Intersects.LineToRectangle(this.scanLineRot, itemSock) &&
-      this.scannedObject
-    ) {
-      this.objectSighted = true;
-      directionPlayer1.toObject.isClear = true;
-    }
-
-    this.scanGfx
-      .clear()
-      .strokeCircleShape(this.scanCircle)
-      .strokeLineShape(this.scanLineRot);
-
-    this.scanLineGfx.clear().strokeLineShape(this.scanLine);
-
-    if (objectToScanFor) {
-      if (
-        Phaser.Geom.Intersects.CircleToRectangle(
-          this.scanCircle,
-          objectToScanFor
-        )
-      ) {
-        this.scannedObject = true;
-        this.scanGfx.lineStyle(2, 0xff0000);
-      } else {
-        this.scannedObject = false;
-      }
-    }
+    this.checkIfObjectIsInScanDistance();
 
     let distCheb;
     let distClosest;
     let hypot;
     if (this.player.active) {
       if (this.objectCollidedWith?.active) {
-        distCheb = Phaser.Math.RoundTo(
-          Phaser.Math.Distance.Chebyshev(
-            this.player.body.position.x + this.player.body.halfWidth,
-            this.player.body.position.y + this.player.body.halfHeight,
-            this.objectCollidedWith.x,
-            this.objectCollidedWith.y
-          ),
-          0
-        );
+        // distCheb = Phaser.Math.RoundTo(
+        //   Phaser.Math.Distance.Chebyshev(
+        //     this.player.body.center.x,
+        //     this.player.body.center.y,
+        //     this.objectCollidedWith.x,
+        //     this.objectCollidedWith.y
+        //   ),
+        //   0
+        // );
         // console.log(distCheb);
 
         distClosest = Phaser.Math.RoundTo(
-          Phaser.Math.Distance.Between(
-            this.objectCollidedWith?.x,
-            this.objectCollidedWith?.y,
-            this.player.body.position.x + this.player.body.halfWidth,
-            this.player.body.position.y + this.player.body.halfHeight
+          Phaser.Math.Distance.BetweenPoints(
+            this.objectCollidedWith,
+            this.player.body.center
           ),
           0
         );
-
 
         hypot = Math.hypot(
           this.player.body.halfHeight + this.objectCollidedWith.body.halfHeight,
@@ -1451,15 +1380,15 @@ class GameScene extends Scene {
           // this.physics.accelerateToObject(player, itemSock, 4000);
         }
 
-        this.graphic
-          .clear()
-          .strokeCircle(this.player.x, this.player.y, distClosest)
-          .strokeRect(
-            this.player.x - distCheb,
-            this.player.y - distCheb,
-            2 * distCheb,
-            2 * distCheb
-          );
+        // this.graphic
+        //   .clear()
+        //   .strokeCircle(this.player.x, this.player.y, distClosest)
+        //   .strokeRect(
+        //     this.player.x - distCheb,
+        //     this.player.y - distCheb,
+        //     2 * distCheb,
+        //     2 * distCheb
+        //   );
 
         console.log("=>(Game.vue:1462) this.player", this.player);
         this.gfx
@@ -1468,8 +1397,8 @@ class GameScene extends Scene {
           .lineBetween(
             this.objectCollidedWith?.x,
             this.objectCollidedWith?.y,
-              this.player.body.position.x + this.player.body.halfWidth,
-              this.player.body.position.y + this.player.body.halfHeight
+            this.player.body.center.x,
+            this.player.body.center.y
           );
       }
 
@@ -1488,20 +1417,68 @@ class GameScene extends Scene {
     }
   }
 
+  checkIfObjectIsInScanDistance() {
+    if (objectToScanFor) {
+      if (
+          Phaser.Geom.Intersects.CircleToRectangle(
+              this.scanCircle,
+              objectToScanFor
+          )
+      ) {
+        this.objectIsScanned = true;
+        this.scanGfx.lineStyle(2, 0xff0000);
+      } else {
+        this.objectIsScanned = false;
+      }
+    }
+  }
+
+  updateScanGraphics() {
+    console.log("=>(Game.vue:1453) objectToScanFor", objectToScanFor);
+    this.scanCircle.setPosition(
+      this.player.body.center.x,
+      this.player.body.center.y
+    );
+    this.scanLine.setTo(
+      this.player.body.center.x,
+      this.player.body.center.y,
+      objectToScanFor?.x,
+      objectToScanFor?.y
+    );
+    this.scanAngle -= 0.04;
+    Phaser.Geom.Line.SetToAngle(
+      this.rotatingScanLine,
+      this.player.body.center.x,
+      this.player.body.center.y,
+      this.scanAngle,
+      200
+    );
+
+    this.scanGfx
+        .clear()
+        .strokeCircleShape(this.scanCircle)
+        .strokeLineShape(this.rotatingScanLine);
+
+    this.scanLineGfx.clear().strokeLineShape(this.scanLine);
+
+  }
+
   checkForScannedObject() {
-    if (this.scannedObject) {
-      if (this.checkIfObjectBlocksViewline(this.blockingObjects)) {
+    if (this.objectIsScanned) {
+      if (this.checkIfObjectBlocksViewline(this.viewBlockingObjects)) {
         // console.log("not in view");
         this.scanLineGfx.setVisible(false);
-        this.objectSighted = false;
+        this.objectIsInSight = false;
         directionPlayer1.toObject.isClear = false;
       } else {
         this.scanLineGfx.setVisible(true);
-        this.objectSighted = true;
+        this.player.setVelocity(0);
+        this.objectIsInSight = true;
         directionPlayer1.toObject.isClear = true;
       }
     } else {
-      this.objectSighted = false;
+      this.objectIsInSight = false;
+      this.scanLineGfx.setVisible(false);
     }
   }
 
@@ -1524,7 +1501,7 @@ class GameScene extends Scene {
           this.player.body.prev.x +
           " collided:" +
           this.collided +
-          "\nobjectSighted: " +
+          "\nobjectIsInSight: " +
           directionPlayer1.toObject.isClear +
           "\nmoveToObject: " +
           directionPlayer1.toObject.isMoving +

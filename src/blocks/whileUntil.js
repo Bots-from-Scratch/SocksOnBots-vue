@@ -40,7 +40,7 @@ javascriptGenerator["whileUntil"] = function (block) {
   }
 
   // var code = "yield;\n";
-  var code = "";
+  var code = ""; //don't use this yield!
   if (dropdown_mode === "WHILE") {
     code +=
       "console.log('while Block')\n;while (" +
