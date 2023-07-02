@@ -17,6 +17,7 @@ const cards = [
       <div v-for="card in cards">
         <PixelCard :text="card.text" />
       </div>
+      <PixelCard text="cards[2].text"/>
     </div>
   </div>
 </template>

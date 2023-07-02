@@ -9,7 +9,7 @@ export const state = reactive({
   directionOpponent: {},
   direction: {},
   roomID: "",
-  selectedLevel: ""
+  selectedLevel: 0
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -44,6 +44,8 @@ socket.on("joinRoom", (data) => {
   socket.emit("connectRoom", data);
 });
 
+socket.on("connectRoom.error", (error)=>{console.log(error)})
+
 socket.on("joinedRoom", (data) => {
   state.roomID = data;
 });
@@ -56,12 +58,10 @@ socket.on("playGame.response", (data) => {
 });
 
 socket.on("selectedLevel.response", (data)=> {
-  console.log("=>(socket.js:59) selectedLevel.response", data);
 
   state.selectedLevel = data;
 })
 socket.on("directionSelf.response", (data) => {
-  // console.log("direction", data);
   state.directionSelf = data;
   // console.log("state.directionSelf", state.directionSelf)
 });

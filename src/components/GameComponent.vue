@@ -14,7 +14,7 @@ const game = ref(null);
 const selectedLevel = ref("");
 const volume = ref({
   music: 5,
-  sound: 5,
+  sound: 80,
 });
 
 const store = useLocalStorage("volume", null);
@@ -67,7 +67,6 @@ const options = {
 function playGamePressed() {
   console.log("=>(GameComponent.vue:70) playGamePressed");
   playGame.value = state.playGame;
-  console.log("=>(GameComponent.vue:72) playGame", playGame.value);
   workspace = blockly.value.workspace;
   game.value.run(blockly.value.workspace, volume);
 }
