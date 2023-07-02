@@ -8,7 +8,6 @@ import { toolboxJson } from "@/toolbox_phaser.js";
 import { socket, state } from "@/socket";
 import RangeSlider from "@/components/RangeSlider.vue";
 import Level4 from "@/App.vue";
-import Test from "@/components/Test.vue";
 import { useLocalStorage } from "@vueuse/core";
 
 const blockly = ref(null);
@@ -72,7 +71,7 @@ function playGamePressed() {
   console.log("=>(GameComponent.vue:70) playGamePressed");
   playGame.value = state.playGame;
   console.log("=>(GameComponent.vue:72) playGame", playGame.value);
-  workspace = blockly.value.workspace;
+  workspace.value = blockly.value.workspace;
   game.value.run(blockly.value.workspace, volume);
 }
 
