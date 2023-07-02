@@ -9,7 +9,8 @@ export const state = reactive({
   directionOpponent: {},
   direction: {},
   roomID: "",
-  selectedLevel: 0
+  rooms: [],
+  selectedLevel: 0,
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -44,7 +45,9 @@ socket.on("joinRoom", (data) => {
   socket.emit("connectRoom", data);
 });
 
-socket.on("connectRoom.error", (error)=>{console.log(error)})
+socket.on("connectRoom.error", (error) => {
+  console.log(error);
+});
 
 socket.on("joinedRoom", (data) => {
   state.roomID = data;
@@ -57,10 +60,9 @@ socket.on("playGame.response", (data) => {
   state.playGame = data;
 });
 
-socket.on("selectedLevel.response", (data)=> {
-
+socket.on("selectedLevel.response", (data) => {
   state.selectedLevel = data;
-})
+});
 socket.on("directionSelf.response", (data) => {
   state.directionSelf = data;
   // console.log("state.directionSelf", state.directionSelf)
@@ -71,5 +73,28 @@ socket.on("direction", (data) => {
 });
 
 socket.on("listRooms.response", (data) => {
-  // console.log(data);
+  // console.log(state.rooms);
+  state.rooms = data;
 });
+
+export function connect() {
+  socket.connect();
+}
+
+export function disconnect() {
+  socket.disconnect();
+}
+
+export function connectRoom(roomName) {
+  if (state.roomID) {
+    console.log("disconnected from Room", state.roomID);
+    socket.emit("leaveRoom", state.roomID);
+    state.roomID = "";
+  }
+
+  if (!state.roomID) {
+    state.roomID = roomName;
+    socket.emit("connectRoom", state.roomID);
+    console.log("connected to Room", state.roomID);
+  }
+}
