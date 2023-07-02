@@ -316,7 +316,7 @@ class GameScene_Level_3 extends Scene {
 
     createKey() {
         this.blueStar = this.physics.add.sprite(420, 350, 'star');
-        // this.blueStar.setTint(0x006db2);
+        // this.itemSock.setTint(0x006db2);
         this.blueStar.setScale(2.0);
 
         this.physics.add.overlap(this.player, this.blueStar, this.collectStar, null, this);
@@ -470,7 +470,7 @@ class GameScene_Level_3 extends Scene {
                         this.walkedBy = true;
                     }
 
-                    // this.physics.accelerateToObject(player, blueStar, 4000);
+                    // this.physics.accelerateToObject(player, itemSock, 4000);
                 }
 
                 this.graphic

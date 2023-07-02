@@ -5,6 +5,7 @@ import bomb from "@/assets/bomb.png";
 import bot_sock from "@/assets/Spritesheetohnesocke.png"
 import mapLevel1 from "@/assets/SocksOnBots_lvl_1.json";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
+
 // import {code, playGame} from "./index";
 
 class GameScene_Level_1 extends Scene {
@@ -314,7 +315,7 @@ class GameScene_Level_1 extends Scene {
 
     createStar() {
         this.blueStar = this.physics.add.sprite(800, 100, 'star');
-        // this.blueStar.setTint(0x006db2);
+        // this.itemSock.setTint(0x006db2);
         this.blueStar.setScale(0.4).setVisible(false);
 
         this.physics.add.overlap(this.player, this.blueStar, this.collectStar, null, this);
@@ -408,6 +409,7 @@ class GameScene_Level_1 extends Scene {
 
         var tile = this.wallLayer.getTileAtWorldXY(this.player.x, this.player.y, true);
         if (tile && tile.properties.slowingDown) {
+        console.log("=>(GameScene_Level_1.js:411) //slowdowntheplayer");
             // slow down the player
             this.player.setVelocity(this.player.body.velocity.x * 0.5, this.player.body.velocity.y * 0.5);
         }
@@ -462,7 +464,7 @@ class GameScene_Level_1 extends Scene {
                         this.walkedBy = true;
                     }
 
-                    // this.physics.accelerateToObject(player, blueStar, 4000);
+                    // this.physics.accelerateToObject(player, itemSock, 4000);
                 }
 
                 this.graphic
@@ -478,7 +480,7 @@ class GameScene_Level_1 extends Scene {
             }
             this.statusText.setText('  right clear: ' + this.rightIsClear + ' Object sighted: ' + this.objectSighted + '\n distClosest: ' + distClosest + ' hypot: ' + hypot + ' body.angle: ' + this.player.body.angle + '\nwalkedBy: ' + this.walkedBy + '\nx: ' + this.player.body.prev.x + ' collided:' + this.collided);
 
-let playGame = true;
+            let playGame = true;
             if (playGame) {
                 eval(code);
                 this.physics.velocityFromAngle(this.rotation, this.player.body.maxSpeed, this.player.body.acceleration);

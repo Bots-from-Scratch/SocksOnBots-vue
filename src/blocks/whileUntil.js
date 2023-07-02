@@ -27,15 +27,20 @@ Blockly.common.defineBlocksWithJsonArray([
 ]);
 
 javascriptGenerator["whileUntil"] = function (block) {
-  var dropdown_mode = block.getFieldValue("MODE");
-  var value_bool = javascriptGenerator.valueToCode(
+  let dropdown_mode = block.getFieldValue("MODE");
+  let value_bool = javascriptGenerator.valueToCode(
     block,
     "BOOL",
     javascriptGenerator.ORDER_NONE
   );
-  var statements_do = javascriptGenerator.statementToCode(block, "DO");
 
-  var code = "yield;\n";
+  let statements_do = javascriptGenerator.statementToCode(block, "DO");
+  if (value_bool === "walkedBy" || value_bool === "objectCollected") {
+    statements_do = `yield;\nif (${value_bool}) {break};\n${statements_do}\n`;
+  }
+
+  // var code = "yield;\n";
+  var code = ""; //don't use this yield!
   if (dropdown_mode === "WHILE") {
     code +=
       "console.log('while Block')\n;while (" +
@@ -51,6 +56,6 @@ javascriptGenerator["whileUntil"] = function (block) {
       statements_do +
       "}\n";
   }
-
+  console.log("=>(whileUntil.js:70) code", code);
   return code;
 };

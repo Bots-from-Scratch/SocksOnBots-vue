@@ -3,7 +3,6 @@ import { computed, onMounted, ref, shallowRef, watch } from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
 import { useLocalStorage } from "@vueuse/core";
-import { javascriptGenerator } from "blockly/javascript";
 import PixelButton from "@/components/PixelButton.vue";
 import { socket, state } from "@/socket";
 
@@ -25,6 +24,8 @@ onMounted(() => {
   workspace.value = Blockly.inject(blocklyDiv.value, options);
 
   emit("workspace", workspace);
+
+  loadBlocksFromStorage(props.selectedLevel);
 
   workspace.value.addChangeListener(function (event) {
     if (
@@ -52,7 +53,7 @@ const directionObj = computed({
 watch(
   () => props.selectedLevel,
   (newLevel) => {
-    loadBlocksFromStorage(newLevel);
+    Blockly.getMainWorkspace() && loadBlocksFromStorage(newLevel);
   }
 );
 
@@ -79,7 +80,7 @@ function loadBlocksFromStorage(newLevel) {
   if (store.value !== null) {
     const startBlocks = JSON.parse(store.value);
     startBlocks.forEach((level) => {
-      level.level === newLevel &&
+      parseInt(level.level) === parseInt(newLevel) &&
         Blockly.serialization.workspaces.load(level.blocks, workspace.value);
     });
   } else {
@@ -105,7 +106,7 @@ function saveBlocksToStorage() {
 
 <template>
   <div class="w-full">
-    <div class="h-full" ref="blocklyDiv"></div>
+    <div ref="blocklyDiv" class="h-full"></div>
     <div ref="blocklyToolbox">
       <slot></slot>
     </div>
