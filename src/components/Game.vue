@@ -1319,87 +1319,19 @@ class GameScene extends Scene {
 
     this.updateScanGraphics();
 
-
     this.checkIfObjectIsInScanDistance();
 
-    let distCheb;
     let distClosest;
     let hypot;
     if (this.player.active) {
       if (this.objectCollidedWith?.active) {
-        // distCheb = Phaser.Math.RoundTo(
-        //   Phaser.Math.Distance.Chebyshev(
-        //     this.player.body.center.x,
-        //     this.player.body.center.y,
-        //     this.objectCollidedWith.x,
-        //     this.objectCollidedWith.y
-        //   ),
-        //   0
-        // );
-        // console.log(distCheb);
+        distClosest = this.calculateClosestDistanceToBlockingObject();
 
-        distClosest = Phaser.Math.RoundTo(
-          Phaser.Math.Distance.BetweenPoints(
-            this.objectCollidedWith,
-            this.player.body.center
-          ),
-          0
-        );
+        hypot = this.calculateHypotenuseBetweenObjects();
 
-        hypot = Math.hypot(
-          this.player.body.halfHeight + this.objectCollidedWith.body.halfHeight,
-          this.player.body.halfWidth + this.objectCollidedWith.body.halfWidth
-        );
+        this.checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot);
 
-        // console.log(distClosest);
-        // if (distClosest < Phaser.Math.Distance.Between(closest.x, closest.y, (closest.body.position.x + 1), (closest.body.position.y + 1))) {
-        if (distClosest > hypot) {
-          console.log("=>(Game.vue:1526) distClosest", distClosest);
-          // console.log("clear");
-          directionPlayer1.left.isClear = true;
-          directionPlayer1.right.isClear = true;
-          directionPlayer1.down.isClear = true;
-          directionPlayer1.up.isClear = true;
-          if (
-            this.player.body.x - this.player.body.prev.x !== 0 &&
-            (this.rotation === 0 || this.rotation === 180)
-          ) {
-            walkedBy = true;
-            console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-            this.player.setVelocity(0);
-            this.objectCollidedWith = null;
-          } else if (
-            this.player.body.y - this.player.body.prev.y !== 0 &&
-            (this.rotation === 90 || this.rotation === -90)
-          ) {
-            walkedBy = true;
-            console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-            this.player.setVelocity(0);
-            this.objectCollidedWith = null;
-          }
-          // this.physics.accelerateToObject(player, itemSock, 4000);
-        }
-
-        // this.graphic
-        //   .clear()
-        //   .strokeCircle(this.player.x, this.player.y, distClosest)
-        //   .strokeRect(
-        //     this.player.x - distCheb,
-        //     this.player.y - distCheb,
-        //     2 * distCheb,
-        //     2 * distCheb
-        //   );
-
-        console.log("=>(Game.vue:1462) this.player", this.player);
-        this.gfx
-          .clear()
-          .lineStyle(2, 0xff3300)
-          .lineBetween(
-            this.objectCollidedWith?.x,
-            this.objectCollidedWith?.y,
-            this.player.body.center.x,
-            this.player.body.center.y
-          );
+        this.drawLineBetweenPlayerAndBlockingObject();
       }
 
       this.updateTexts(distClosest);
@@ -1417,13 +1349,70 @@ class GameScene extends Scene {
     }
   }
 
+  drawLineBetweenPlayerAndBlockingObject() {
+    this.gfx
+      .clear()
+      .lineStyle(2, 0xff3300)
+      .lineBetween(
+        this.objectCollidedWith?.x,
+        this.objectCollidedWith?.y,
+        this.player.body.center.x,
+        this.player.body.center.y
+      );
+  }
+
+  checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot) {
+    if (distClosest > hypot) {
+      console.log("=>(Game.vue:1526) distClosest", distClosest);
+      // console.log("clear");
+      directionPlayer1.left.isClear = true;
+      directionPlayer1.right.isClear = true;
+      directionPlayer1.down.isClear = true;
+      directionPlayer1.up.isClear = true;
+      if (
+        this.player.body.x - this.player.body.prev.x !== 0 &&
+        (this.rotation === 0 || this.rotation === 180)
+      ) {
+        walkedBy = true;
+        console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+        this.player.setVelocity(0);
+        this.objectCollidedWith = null;
+      } else if (
+        this.player.body.y - this.player.body.prev.y !== 0 &&
+        (this.rotation === 90 || this.rotation === -90)
+      ) {
+        walkedBy = true;
+        console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+        this.player.setVelocity(0);
+        this.objectCollidedWith = null;
+      }
+    }
+  }
+
+  calculateHypotenuseBetweenObjects() {
+    return Math.hypot(
+      this.player.body.halfHeight + this.objectCollidedWith.body.halfHeight,
+      this.player.body.halfWidth + this.objectCollidedWith.body.halfWidth
+    );
+  }
+
+  calculateClosestDistanceToBlockingObject() {
+    return Phaser.Math.RoundTo(
+      Phaser.Math.Distance.BetweenPoints(
+        this.objectCollidedWith,
+        this.player.body.center
+      ),
+      0
+    );
+  }
+
   checkIfObjectIsInScanDistance() {
     if (objectToScanFor) {
       if (
-          Phaser.Geom.Intersects.CircleToRectangle(
-              this.scanCircle,
-              objectToScanFor
-          )
+        Phaser.Geom.Intersects.CircleToRectangle(
+          this.scanCircle,
+          objectToScanFor
+        )
       ) {
         this.objectIsScanned = true;
         this.scanGfx.lineStyle(2, 0xff0000);
@@ -1455,12 +1444,11 @@ class GameScene extends Scene {
     );
 
     this.scanGfx
-        .clear()
-        .strokeCircleShape(this.scanCircle)
-        .strokeLineShape(this.rotatingScanLine);
+      .clear()
+      .strokeCircleShape(this.scanCircle)
+      .strokeLineShape(this.rotatingScanLine);
 
     this.scanLineGfx.clear().strokeLineShape(this.scanLine);
-
   }
 
   checkForScannedObject() {
@@ -1472,7 +1460,6 @@ class GameScene extends Scene {
         directionPlayer1.toObject.isClear = false;
       } else {
         this.scanLineGfx.setVisible(true);
-        this.player.setVelocity(0);
         this.objectIsInSight = true;
         directionPlayer1.toObject.isClear = true;
       }
