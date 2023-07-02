@@ -15,6 +15,7 @@ class LobbyScene extends Scene {
 
     this.titleLobby = this.add.text(100, 20, "LOBBY AUSWÄHLEN", textStyle);
 
+    this.roomButtons = [];
     localRooms.map((room, i) => {
       let roomButtonEntry = this.add
         .text(100, 100 + i * 30, room, textStyle)
@@ -32,14 +33,20 @@ class LobbyScene extends Scene {
 
           this.scene.start("GameScene");
         });
+      this.roomButtons.push(roomButtonEntry);
       // this.playButton_lvl_1.setInteractive()
       // this.playButton_lvl_1.on('pointerover', () => this.playButton_lvl_1.setStyle({ fill: '#006db2' })).on('pointerout', () => this.playButton_lvl_1.setStyle({ fill: '#fff' })).on('pointerdown', () => this.scene.start('GameScene_Level_1'));
     });
+    this.roomSizes = [];
+    for (let i = 0; i < this.roomButtons.length; i++) {
+      this.roomSizes.push(this.add.text(400, 100 + i * 30, "0/2", textStyle));
+    }
   }
 
-  // update() {
-  //     console.log(state.rooms);
-  // }
+  update() {
+    // console.log(state.rooms);
+    this.roomSizes[3].setText("1/2");
+  }
 
   generateRooms(size) {
     let temp = [];
@@ -48,6 +55,8 @@ class LobbyScene extends Scene {
     }
     return temp;
   }
+
+  
 }
 
 export default LobbyScene;
