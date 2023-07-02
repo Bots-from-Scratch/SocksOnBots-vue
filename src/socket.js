@@ -78,13 +78,15 @@ export function disconnect() {
 }
 
 export function connectRoom(roomName) {
-  // if (!this.connectedToRoom) {
+  if (state.roomID) {
+    console.log("disconnected from Room", state.roomID);
+    socket.emit("leaveRoom", state.roomID);
+    state.roomID = "";
+  }
+
+  if (!state.roomID) {
     state.roomID = roomName;
     socket.emit("connectRoom", state.roomID);
-    // console.log("connected to Room", this.connectedToRoom);
-  // } else {
-  //   socket.emit("leaveRoom", this.connectedToRoom);
-  //   this.connectedToRoom = this.roomID;
-  //   socket.emit("connectRoom", this.roomID);
-  // }
+    console.log("connected to Room", state.roomID);
+  }
 }
