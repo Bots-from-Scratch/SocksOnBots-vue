@@ -13,8 +13,18 @@ const io = require("socket.io")(http, {
 });
 const path = require("path");
 const { data } = require("autoprefixer");
-const roomList = [];
-
+const roomList = [
+  { name: "Room1", connects: 0 },
+  { name: "Room2", connects: 0 },
+  { name: "Room3", connects: 0 },
+  { name: "Room4", connects: 0 },
+  { name: "Room5", connects: 0 },
+  { name: "Room6", connects: 0 },
+  { name: "Room7", connects: 0 },
+  { name: "Room8", connects: 0 },
+  { name: "Room9", connects: 0 },
+  { name: "Room10", connects: 0 },
+];
 app.get("/", (req, res) => {
   res.send("<h1>Server running</h1>");
 });
@@ -23,8 +33,11 @@ io.on("connection", function (socket) {
   console.log("A user with ID: " + socket.id + " connected");
 
   socket.on("disconnect", function () {
+
     console.log("A user with ID: " + socket.id + " disconnected");
   });
+
+  console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
   socket.on("foo", (data) => {
     socket.broadcast.emit("foo", data);
@@ -49,7 +62,7 @@ io.on("connection", function (socket) {
     // console.log("playerPosition method");
   });
 
-  socket.on("selectedLevel", (data)=>{
+  socket.on("selectedLevel", (data) => {
     socket.to(data.roomId).emit("selectedLevel.response", data.level);
     socket.emit("selectedLevel.response", data.level);
   });
@@ -64,28 +77,46 @@ io.on("connection", function (socket) {
   });
 
   socket.on("leaveRoom", (roomId) => {
-    socket.leave(roomId);
+    roomList.forEach((room) => {
+      if (room.name === roomId) {
+        socket.leave(roomId);
+        // room.connects--;
+      }
+    });
     socket.to(roomId).emit("leaveRoom.info");
     console.log("after leave Rooms:", socket.rooms);
   });
 
-  socket.on("connectRoom", (newRoom) => {
+  socket.on("connectRoom", (newRoomConnect) => {
     //TODO Check, if room < 2, then join
     //TODO Check if room exist
-    socket.join(newRoom);
+    console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
-    if (!roomList.includes(newRoom)) {
-      roomList.push(newRoom);
+    console.log("=>(server.js:42) io.rooms", io.sockets.adapter.rooms.get(newRoomConnect));
+    console.log("=>(server.js:42) io.rooms", io.sockets.adapter.rooms.get(newRoomConnect)?.size);
+
+    for (let i = 0; i < roomList.length; i++) {
+      if (roomList[i].name === newRoomConnect) {
+        if (io.sockets.adapter.rooms.get(newRoomConnect)?.size < 2 || !io.sockets.adapter.rooms.get(newRoomConnect)?.size) {
+          socket.join(newRoomConnect);
+          console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
+
+          roomList[i].connects = io.sockets.adapter.rooms.get(newRoomConnect)?.size;
+          socket.emit("joinedRoom", newRoomConnect);
+          socket
+            .to(newRoomConnect)
+            .emit("chatMessage", "User joined the room at " + printTime());
+          console.log(newRoomConnect);
+          console.log("Rooms client is in:", socket.rooms);
+        } // TODO else emit room voll
+        else {
+          socket.emit("connectRoom.error", "Room at max size")
+        }
+        break;
+      }
     }
 
     console.log(roomList);
-
-    socket.emit("joinedRoom", newRoom);
-    socket
-      .to(newRoom)
-      .emit("chatMessage", "User joined the room at " + printTime());
-    console.log(newRoom);
-    console.log("Rooms:", socket.rooms);
   });
 
   socket.on("chat", (data) => {

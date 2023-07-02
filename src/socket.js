@@ -44,6 +44,8 @@ socket.on("joinRoom", (data) => {
   socket.emit("connectRoom", data);
 });
 
+socket.on("connectRoom.error", (error)=>{console.log(error)})
+
 socket.on("joinedRoom", (data) => {
   state.roomID = data;
 });

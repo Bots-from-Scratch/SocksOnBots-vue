@@ -511,6 +511,7 @@ class GameScene extends Scene {
     this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
       fontSize: "32px",
       fill: "#fff",
+      fontFamily: "Pixel"
     });
     this.scoreText.setVisible(true).setScrollFactor(0);
 
