@@ -1,24 +1,30 @@
 import { Scene } from "phaser";
-import { state, socket } from "@/socket";
+import { state } from "@/socket";
 import { connectRoom } from "../../socket";
 import { textStyle } from "../utils";
+
+import logo from "@/assets/logo-full.png";
 
 class LobbyScene extends Scene {
   constructor() {
     super("LobbyScene");
   }
-  preload() {}
+  preload() {
+    this.load.image("logo", logo);
+  }
 
   create() {
+    this.logoIcon = this.add.image(800 / 2, 20, logo);
+
     const numberOfRooms = 10;
     const localRooms = this.generateRooms(numberOfRooms);
 
-    this.titleLobby = this.add.text(100, 20, "LOBBY AUSWÄHLEN", textStyle);
+    this.titleLobby = this.add.text(100, 100, "LOBBY AUSWÄHLEN", textStyle);
 
     this.roomButtons = [];
     localRooms.map((room, i) => {
       let roomButtonEntry = this.add
-        .text(100, 100 + i * 30, room, textStyle)
+        .text(100, 170 + i * 30, room, textStyle)
         .setInteractive()
         .on("pointerover", () => {
           roomButtonEntry.setStyle({ fill: "#006db2" });
@@ -39,7 +45,7 @@ class LobbyScene extends Scene {
     });
     this.roomSizes = [];
     for (let i = 0; i < this.roomButtons.length; i++) {
-      this.roomSizes.push(this.add.text(400, 100 + i * 30, "0/2", textStyle));
+      this.roomSizes.push(this.add.text(400, 170 + i * 30, "0/2", textStyle));
     }
   }
 
@@ -55,8 +61,6 @@ class LobbyScene extends Scene {
     }
     return temp;
   }
-
-  
 }
 
 export default LobbyScene;
