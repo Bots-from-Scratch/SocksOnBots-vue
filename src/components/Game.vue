@@ -4,7 +4,6 @@
   >
     <div ref="phaserGame" class="game-container pixel-border-16 w-full" />
     <div class="flex flex-col pixel-border-8 gap-4 basis-1/4 bg-stone-700 p-4">
-      <GameControls @volumeChange="controlSounds" />
       <div>
         <div class="text-black font-pixel">Level:</div>
         <select v-model="selectedLevel" class="bg-yellow-500">
@@ -14,6 +13,7 @@
           </option>
         </select>
       </div>
+      <GameControls @volumeChange="controlSounds" />
       <div class="h-1/2 w-full bg-gray-300 overflow-scroll">
         <p class="h-2 font-pixel text-[1vw]">
           Infotext zu den Levels gespeichert in JSONInfotext zu den Levels
@@ -24,13 +24,16 @@
         </p>
       </div>
       <div class="flex flex-row gap-8">
-        <PixelButton class="w-1/2" text="Play" @click="toggleLights" />
+        <PixelButton class="w-1/2" text="Play" @click="playGame" />
         <div class="flex flex-col gap-3">
           <div
             class="pixel-border-small h-3 aspect-square"
-            :class="[isPlaying ? 'bg-emerald-400': 'bg-emerald-800' ]"
+            :class="[state.playGame ? 'bg-emerald-400' : 'bg-emerald-800']"
           ></div>
-          <div class="pixel-border-small h-3 aspect-square bg-red-800" :class="[!isPlaying ? 'bg-red-400': 'bg-red-800' ]"></div>
+          <div
+            class="pixel-border-small h-3 aspect-square bg-red-800"
+            :class="[!state.playGame ? 'bg-red-400' : 'bg-red-800']"
+          ></div>
         </div>
       </div>
     </div>
@@ -70,16 +73,18 @@ export default defineComponent({
   components: { PixelButton, GameControls },
   emits: {
     selectedLevel: null,
+    playGamePressed: null
   },
   props: {
     // directionPlayer1: String,
     playGame: Boolean,
     volume: Object,
+    blocklyWorkspace: Object
     // workspace: Object,
   },
-  setup() {
-    let isPlaying = ref(false);
+  setup(props) {
     let game = ref(null);
+    const playGameCounter = ref(0);
     let selectedLevel = ref(state.selectedLevel);
     activeScene = () => {
       return game.value.scene.getScenes(true)[0];
@@ -94,28 +99,31 @@ export default defineComponent({
       scene.collisionSound?.setVolume(parseInt(volumes.value.sound) / 200);
     };
 
-    const run = (workspace, volumes) => {
-      runBlocks(workspace);
-      controlSounds(volumes);
+    const runGame = () => {
+      runBlocks(props.blocklyWorkspace.value);
+      controlSounds(props.volume);
+      playGameCounter.value++;
     };
 
-    const toggleLights = () => {
-      console.log("=>(Game.vue:103) ");
-      isPlaying.value = !isPlaying.value;
+    const playGame = () => {
+      socket.emit("playGame", { playGame: true, roomId: state.roomID }, () => {
+      });
+      runGame()
     };
 
     const updateSelectedLevel = (newLevel) => {
       selectedLevel.value = newLevel;
     };
     return {
+      props,
       game,
-      run,
+      runGame,
       controlSounds,
       activeScene,
       updateSelectedLevel,
       selectedLevel,
-      toggleLights,
-      isPlaying,
+      playGame,
+      playGameCounter
     };
   },
 
@@ -214,6 +222,13 @@ export default defineComponent({
         level: this.selectedLevel,
       });
       // this.activeScene.scene.restart();
+    },
+    "state.playGame": {
+      handler() {
+      console.log("=>(Game.vue:227) state.playGame", state.playGame);
+        console.log("=>(Game.vue:227) this.playGameCounter.value", this.playGameCounter);
+        this.playGameCounter === 0 && this.runGame();
+      },
     },
     "state.selectedLevel": {
       handler(newValue) {

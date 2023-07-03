@@ -6,7 +6,7 @@ import { useLocalStorage } from "@vueuse/core";
 import PixelButton from "@/components/PixelButton.vue";
 import { socket, state } from "@/socket";
 
-const emit = defineEmits(["playGamePressed", "workspace"]);
+const emit = defineEmits(["playGamePressed", "workspaceFromBlockly"]);
 const props = defineProps(["options", "selectedLevel"]);
 const blocklyToolbox = ref();
 const blocklyDiv = ref();
@@ -23,7 +23,7 @@ onMounted(() => {
 
   workspace.value = Blockly.inject(blocklyDiv.value, options);
 
-  emit("workspace", workspace);
+  emit("workspaceFromBlockly", workspace);
 
   loadBlocksFromStorage(props.selectedLevel);
 
@@ -56,24 +56,6 @@ watch(
     Blockly.getMainWorkspace() && loadBlocksFromStorage(newLevel);
   }
 );
-
-watch(
-  () => state.playGame,
-  () => {
-    console.log("watcher state.playGame blocklyComponent");
-    playGameCounter === 0 && emit("playGamePressed");
-  }
-);
-
-function playGameClicked() {
-  playGameCounter++;
-  socket.emit("playGame", { playGame: true, roomId: state.roomID }, () => {
-    emit("playGamePressed");
-  });
-
-  // TODO check if init is important
-  // javascriptGenerator.init(Blockly.common.getMainWorkspace());
-}
 
 function loadBlocksFromStorage(newLevel) {
   Blockly.serialization.workspaces.load([], workspace.value);
@@ -111,7 +93,6 @@ function saveBlocksToStorage() {
       <slot></slot>
     </div>
     <div class="flex justify-start my-8">
-      <PixelButton text="Play" @click="playGameClicked" />
       <p>{{ directionObj }}</p>
     </div>
   </div>

@@ -8,40 +8,12 @@ import Game from "@/components/Game.vue";
 import { useLocalStorage } from "@vueuse/core";
 
 const blockly = ref(null);
-let workspace = ref();
+let blocklyWorkspace = ref();
 const playGame = ref(state.playGame);
 const game = ref(null);
 const selectedLevel = ref("");
-// const volume = ref({
-//   music: 5,
-//   sound: 80,
-// });
-//
-// const store = useLocalStorage("volume", null);
-//
-// watch(
-//   volume,
-//   (newValue) => {
-//     store.value = JSON.stringify(newValue);
-//     playGame.value && game.value.controlSounds(volume);
-//   },
-//   { deep: true }
-// );
-//
-// onMounted(() => {
-//   const savedVolume = JSON.parse(store.value);
-//   if (savedVolume) {
-//     console.log(
-//       "=>(GameComponent.vue:36) savedVolume",
-//       savedVolume.music,
-//       savedVolume.sound
-//     );
-//     // TODO fix volume loading from localstorage
-//     // volume.value = savedVolume;
-//   }
-// });
 
-const options = {
+const blocklyOptions = {
   toolbox: toolboxJson,
   collapse: true,
   comments: true,
@@ -64,11 +36,8 @@ const options = {
   },
 };
 
-function playGamePressed() {
-  console.log("=>(GameComponent.vue:70) playGamePressed");
-  playGame.value = state.playGame;
-  workspace = blockly.value.workspace;
-  game.value.run(blockly.value.workspace);
+function sendBlocklyWorkspaceToGame(workspace) {
+  blocklyWorkspace.value = workspace;
 }
 
 function levelSelected(data) {
@@ -80,33 +49,23 @@ function levelSelected(data) {
   <div
     class="flex flex-col justify-start items-center xl:items-start my-12 mx-16"
   >
-    <Game :playGame="playGame" ref="game" @selectedLevel="levelSelected" />
-    <!--      <div class="flex flex-col justify-start">-->
-    <!--        <RangeSlider v-model="volume.music" name="Music Volume" />-->
-    <!--        <RangeSlider v-model="volume.sound" name="Sound Volume" />-->
-    <!--&lt;!&ndash;        <p>{{ "playGame: " + playGame }}</p>&ndash;&gt;-->
-    <!--      </div>-->
+    <Game
+      :playGame="playGame"
+      :blocklyWorkspace="blocklyWorkspace"
+      ref="game"
+      @selectedLevel="levelSelected"
+    />
 
     <BlocklyComponent
       class="w-full h-96 shrink grow-0"
       id="blockly"
-      :options="options"
+      :options="blocklyOptions"
       :selectedLevel="selectedLevel"
       ref="blockly"
-      @playGamePressed="playGamePressed"
+      @workspaceFromBlockly="sendBlocklyWorkspaceToGame"
     />
   </div>
 </template>
 
 <style scoped>
-.monitor {
-  margin: 2em auto;
-  box-shadow: -15px 0 0 0 black, 15px 0 0 0 black, 0 -15px 0 0 black,
-    0 15px 0 0 black;
-}
-
-.pixel-border-16 {
-  box-shadow: -16px 0 0 0 black, 16px 0 0 0 black, 0 -16px 0 0 black,
-    0 16px 0 0 black;
-}
 </style>
