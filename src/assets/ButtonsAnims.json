@@ -1,0 +1,45 @@
+{ "frames": {
+   "ButtonsAnims 0.aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 150, "h": 50 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 150, "h": 50 },
+    "sourceSize": { "w": 150, "h": 50 },
+    "duration": 100
+   },
+   "ButtonsAnims 1.aseprite": {
+    "frame": { "x": 0, "y": 50, "w": 150, "h": 50 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 150, "h": 50 },
+    "sourceSize": { "w": 150, "h": 50 },
+    "duration": 100
+   },
+   "ButtonsAnims 2.aseprite": {
+    "frame": { "x": 0, "y": 100, "w": 150, "h": 50 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 150, "h": 50 },
+    "sourceSize": { "w": 150, "h": 50 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.2.40-x64",
+  "image": "ButtonsAnims.png",
+  "format": "RGBA8888",
+  "size": { "w": 150, "h": 150 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "idle", "from": 0, "to": 0, "direction": "forward" },
+   { "name": "hover", "from": 1, "to": 1, "direction": "forward" },
+   { "name": "click", "from": 2, "to": 2, "direction": "forward" }
+  ],
+  "layers": [
+   { "name": "Button", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

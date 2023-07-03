@@ -6,6 +6,8 @@ import logo from "@/assets/logo-full.png";
 import background from "@/assets/BG_menuBG.png";
 import horizon from "@/assets/horizon_menuBG.png";
 import city from "@/assets/city_menuBG.png";
+import buttonAnimJson from "@/assets/ButtonsAnims.json";
+import buttonAnimPNG from "@/assets/ButtonsAnims.png";
 
 class MenuScene extends Scene {
   constructor() {
@@ -17,6 +19,8 @@ class MenuScene extends Scene {
     this.load.image("city", city);
 
     this.load.image("logo", logo);
+
+    this.load.aseprite("button", buttonAnimPNG, buttonAnimJson);
   }
 
   create() {
@@ -53,11 +57,20 @@ class MenuScene extends Scene {
       .setScrollFactor(0, 0);
 
     // BUTTONS
+
+    this.anims.createFromAseprite("button");
     this.buttonTutorial = this.add
-      .text(100, 250, "Tutorial", textStyle)
-      .setScrollFactor(0, 0)
-      .setInteractive()
-      .on("pointerdown", () => console.log("Tutorial"));
+      .sprite(150, 250, "button")
+      .setScrollFactor(0, 0);
+    this.buttonTutorial.setInteractive().on("pointerover", () => {
+      console.log(this.buttonTutorial);
+      this.buttonTutorial.play("hover");
+    });
+    // this.buttonTutorial = this.add
+    //   .text(100, 250, "Tutorial", textStyle)
+    //   .setScrollFactor(0, 0)
+    //   .setInteractive()
+    //   .on("pointerdown", () => console.log("Tutorial"));
 
     this.buttonMultiplayer = this.add
       .text(100, 300, "Multiplayer", textStyle)
@@ -78,6 +91,9 @@ class MenuScene extends Scene {
     // console.log(Scene.game.input.x);
     // console.log(Scene.game.input.y);
   }
+
+  // TODO Versuche Button Creation auszulagern
+  createButton(x, y, text) {}
 }
 
 export default MenuScene;
