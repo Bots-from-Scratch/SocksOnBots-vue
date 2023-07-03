@@ -36,6 +36,7 @@ import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
 import MenuScene from "@/game/scenes/MenuScene";
+import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
 
 // TODO licht/Strom anschalten
 // TODO schieben
@@ -214,6 +215,7 @@ export default defineComponent({
           this.levels,
           this.updateSelectedLevel
         ),
+        TutorialMenuScene,
         PreloadScene,
         CutSceneFirstSock,
       ],
@@ -466,6 +468,7 @@ class GameScene extends Scene {
       objects.forEach((el) => objectGroup.add(el));
       return objectGroup;
     }
+
 
     this.cutSceneTriggerGroup = createObjectsFromMapObjects(
       "TriggerCutScenesLayer",

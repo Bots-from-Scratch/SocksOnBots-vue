@@ -28,30 +28,54 @@ class MenuScene extends Scene {
     const widthGame = this.scale.width;
     const heightGame = this.scale.height;
 
-    this.add.image(widthGame * 0.5, heightGame * 0.5, "background");
 
-    this.cam = this.cameras.main.setBounds(0, 0, widthGame * 2, heightGame * 2);
+    console.log("=>(MenuScene.js:31) ", heightGame);
+
+    this.add.image(widthGame, heightGame, "background").setScrollFactor(0);
+
+    // this.cam = this.cameras.main.setBounds(0, 0, widthGame*4.5 , heightGame*4.5 );
     this.input.on("pointermove", (pointer) => {
-      this.cam.startFollow(pointer, true, 1);
+      console.log(pointer.x)
+      this.cameras.main.startFollow(pointer, true, 0.1);
     });
+    // this.centerX = this.scale.width / 2;
+    // this.centerY = this.scale.height / 2;
+    // this.input.on("pointermove", (pointer) => {
+    //   if (pointer.x < this.centerX) {
+    //     // Maus bewegt sich nach links, den Hintergrund nach rechts verschieben
+    //     this.cameras.main.scrollX -= 1;
+    //   } else if (pointer.x > this.centerX) {
+    //     // Maus bewegt sich nach rechts, den Hintergrund nach links verschieben
+    //     this.cameras.main.scrollX += 1;
+    //   }
+    //
+    //   if (pointer.y < this.centerY) {
+    //     // Maus bewegt sich nach oben, den Hintergrund nach unten verschieben
+    //     this.cameras.main.scrollY -= 1;
+    //   } else if (pointer.y > this.centerY) {
+    //     // Maus bewegt sich nach unten, den Hintergrund nach oben verschieben
+    //     this.cameras.main.scrollY += 1;
+    //   }
+    // });
+
 
     this.horizon1 = this.add
-      .image(0, heightGame, "horizon")
-      .setOrigin(0, 1)
-      .setScrollFactor(0.1, 0);
-    this.horizon2 = this.add
-      .image(this.horizon1.width, heightGame, "horizon")
-      .setOrigin(0, 1)
-      .setScrollFactor(0.1, 0);
+      .image(-50, heightGame, "horizon")
+      .setOrigin(0, 1).setScale(1.1)
+      .setScrollFactor(0.05, 0);
+    // this.horizon2 = this.add
+    //   .image(this.horizon1.width, heightGame, "horizon")
+    //   .setOrigin(0, 1)
+    //   .setScrollFactor(0.05, 0);
 
     this.city1 = this.add
-      .image(0, heightGame, "city")
-      .setOrigin(0, 1)
-      .setScrollFactor(0.4, 0);
-    this.city2 = this.add
-      .image(this.city1.width, heightGame, "city")
-      .setOrigin(0, 1)
-      .setScrollFactor(0.4, 0);
+      .image(-50, heightGame, "city")
+      .setOrigin(0, 1).setScale(1.1)
+      .setScrollFactor(0.1, 0);
+    // this.city2 = this.add
+    //   .image(this.city1.width, heightGame, "city")
+    //   .setOrigin(0, 1)
+    //   .setScrollFactor(0.1, 0);
 
     this.logoIcon = this.add
       .image(widthGame / 2, 100, "logo")
@@ -61,7 +85,7 @@ class MenuScene extends Scene {
 
     this.anims.createFromAseprite("button");
 
-    this.buttonTutorial = this.createButton(450, 250, "Tutorial", "GameScene");
+    this.buttonTutorial = this.createButton(450, 250, "Tutorial", "TutorialMenuScene");
 
     this.buttonMultiplayer = this.createButton(
       450,
