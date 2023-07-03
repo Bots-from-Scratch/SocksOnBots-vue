@@ -1,43 +1,67 @@
 { "frames": {
-   "ButtonsAnims 0.aseprite": {
-    "frame": { "x": 0, "y": 0, "w": 150, "h": 50 },
+   "0": {
+    "frame": { "x": 1, "y": 1, "w": 152, "h": 52 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 150, "h": 50 },
     "sourceSize": { "w": 150, "h": 50 },
-    "duration": 100
+    "duration": 50
    },
-   "ButtonsAnims 1.aseprite": {
-    "frame": { "x": 0, "y": 50, "w": 150, "h": 50 },
+   "1": {
+    "frame": { "x": 1, "y": 1, "w": 152, "h": 52 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 150, "h": 50 },
     "sourceSize": { "w": 150, "h": 50 },
-    "duration": 100
+    "duration": 50
    },
-   "ButtonsAnims 2.aseprite": {
-    "frame": { "x": 0, "y": 100, "w": 150, "h": 50 },
+   "2": {
+    "frame": { "x": 154, "y": 1, "w": 152, "h": 52 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 150, "h": 50 },
     "sourceSize": { "w": 150, "h": 50 },
-    "duration": 100
+    "duration": 50
+   },
+   "3": {
+    "frame": { "x": 154, "y": 1, "w": 152, "h": 52 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 150, "h": 50 },
+    "sourceSize": { "w": 150, "h": 50 },
+    "duration": 50
+   },
+   "4": {
+    "frame": { "x": 1, "y": 54, "w": 152, "h": 52 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 150, "h": 50 },
+    "sourceSize": { "w": 150, "h": 50 },
+    "duration": 50
+   },
+   "5": {
+    "frame": { "x": 1, "y": 54, "w": 152, "h": 52 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 150, "h": 50 },
+    "sourceSize": { "w": 150, "h": 50 },
+    "duration": 50
    }
  },
  "meta": {
   "app": "https://www.aseprite.org/",
-  "version": "1.2.40-x64",
+  "version": "1.2.40-arm64",
   "image": "ButtonsAnims.png",
   "format": "RGBA8888",
-  "size": { "w": 150, "h": 150 },
+  "size": { "w": 306, "h": 106 },
   "scale": "1",
   "frameTags": [
-   { "name": "idle", "from": 0, "to": 0, "direction": "forward" },
-   { "name": "hover", "from": 1, "to": 1, "direction": "forward" },
-   { "name": "click", "from": 2, "to": 2, "direction": "forward" }
+   { "name": "idle", "from": 0, "to": 1, "direction": "forward" },
+   { "name": "hover", "from": 2, "to": 3, "direction": "forward" },
+   { "name": "click", "from": 4, "to": 5, "direction": "forward" }
   ],
   "layers": [
-   { "name": "Button", "opacity": 255, "blendMode": "normal" }
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
   ],
   "slices": [
   ]

@@ -208,7 +208,7 @@ export default defineComponent({
       parent: this.$refs.phaserGame,
       width: 960,
       height: 640,
-      scene: [MenuScene,LobbyScene, 
+      scene: [MenuScene,LobbyScene,
         new GameScene(
           this.selectedLevel,
           this.levels,
@@ -1044,12 +1044,13 @@ class GameScene extends Scene {
     this.isPreparingLevel = true;
     // this.player.setVelocity(0);
 
+    // set(this)
+
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       () => {
         this.loadLevelCoordinates();
-        this.player.setScale(1);
         this.getItemKeyForActiveLevel();
         this.resetDirection();
 

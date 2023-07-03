@@ -13,6 +13,7 @@ class MenuScene extends Scene {
   constructor() {
     super("MenuScene");
   }
+
   preload() {
     this.load.image("background", background);
     this.load.image("horizon", horizon);
@@ -59,30 +60,15 @@ class MenuScene extends Scene {
     // BUTTONS
 
     this.anims.createFromAseprite("button");
-    this.buttonTutorial = this.add
-      .sprite(150, 250, "button")
-      .setScrollFactor(0, 0);
-    this.buttonTutorial.setInteractive().on("pointerover", () => {
-      console.log(this.buttonTutorial);
-      this.buttonTutorial.play("hover");
-    });
-    // this.buttonTutorial = this.add
-    //   .text(100, 250, "Tutorial", textStyle)
-    //   .setScrollFactor(0, 0)
-    //   .setInteractive()
-    //   .on("pointerdown", () => console.log("Tutorial"));
 
-    this.buttonMultiplayer = this.add
-      .text(100, 300, "Multiplayer", textStyle)
-      .setScrollFactor(0, 0)
-      .setInteractive()
-      .on("pointerdown", () => this.scene.start("LobbyScene"));
+    this.buttonTutorial = this.createButton(450, 250, "Tutorial", "GameScene");
 
-    this.buttonCredits = this.add
-      .text(100, 350, "Credits", textStyle)
-      .setScrollFactor(0, 0)
-      .setInteractive()
-      .on("pointerdown", () => console.log("Credits"));
+    this.buttonMultiplayer = this.createButton(450, 325, "Multiplayer", "LobbyScene");
+
+    this.buttonCredits = this.createButton(450, 400, "Credits").on(
+      "pointerdown",
+      () => console.log("Credits")
+    );
   }
 
   update() {
@@ -93,7 +79,37 @@ class MenuScene extends Scene {
   }
 
   // TODO Versuche Button Creation auszulagern
-  createButton(x, y, text) {}
+  createButton(x, y, text, scene) {
+    const button = this.add
+      .sprite(x, y, "button")
+      .setScrollFactor(0)
+      .setInteractive()
+      .on("pointerover", () => button.play({ key: "hover" }))
+      .on("pointerout", () => button.play({ key: "idle" }))
+      .on("pointerdown", () => button.play({ key: "click" }))
+      .on("pointerup", () => {
+        button.play({ key: "hover" });
+        this.scene.launch(scene);
+      });
+
+    const buttonText = this.add
+      .text(0, 0, text, {
+        fontSize: "16px",
+        fill: "#000000",
+      })
+      .setScrollFactor(0);
+    Phaser.Display.Align.In.Center(buttonText, button);
+
+    button.on("sizechanged", () => {
+      Phaser.Display.Align.In.Center(buttonText, button);
+    });
+
+    button.on("destroy", () => {
+      buttonText.destroy();
+    });
+
+    return button;
+  }
 }
 
 export default MenuScene;
