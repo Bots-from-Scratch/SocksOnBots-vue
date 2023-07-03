@@ -34,9 +34,10 @@ import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
-import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
 import MenuScene from "@/game/scenes/MenuScene";
+import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
 import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
+import CreditMenuScene from "@/game/scenes/CreditMenuScene";
 
 // TODO licht/Strom anschalten
 // TODO schieben
@@ -209,13 +210,12 @@ export default defineComponent({
       parent: this.$refs.phaserGame,
       width: 960,
       height: 640,
-      scene: [MenuScene,LobbyMenuScene,
+      scene: [MenuScene,LobbyMenuScene,TutorialMenuScene, CreditMenuScene,
         new GameScene(
           this.selectedLevel,
           this.levels,
           this.updateSelectedLevel
         ),
-        TutorialMenuScene,
         PreloadScene,
         CutSceneFirstSock,
       ],
@@ -468,7 +468,6 @@ class GameScene extends Scene {
       objects.forEach((el) => objectGroup.add(el));
       return objectGroup;
     }
-
 
     this.cutSceneTriggerGroup = createObjectsFromMapObjects(
       "TriggerCutScenesLayer",
