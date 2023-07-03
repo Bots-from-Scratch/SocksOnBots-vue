@@ -34,7 +34,7 @@ import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
-import LobbyScene from "@/game/scenes/LobbyScene";
+import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
 import MenuScene from "@/game/scenes/MenuScene";
 
 // TODO licht/Strom anschalten
@@ -208,7 +208,7 @@ export default defineComponent({
       parent: this.$refs.phaserGame,
       width: 960,
       height: 640,
-      scene: [MenuScene,LobbyScene,
+      scene: [MenuScene,LobbyMenuScene,
         new GameScene(
           this.selectedLevel,
           this.levels,

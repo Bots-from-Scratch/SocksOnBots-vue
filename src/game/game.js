@@ -8,8 +8,8 @@ import GameScene_Level_4 from "@/game/scenes/GameScene_Level_4";
 import { GameScene } from "@/components/Level4.vue";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
-import LobbyScene from "./scenes/LobbyScene";
 import MenuScene from "./scenes/MenuScene";
+import LobbyMenuScene from "./scenes/LobbyMenuScene";
 
 function launch(containerId) {
   return new Phaser.Game({
@@ -29,7 +29,7 @@ function launch(containerId) {
     // scene: [GameScene_Level_2, PreloadScene, GameScene_Level_4, GameScene_Level_3, GameScene_Level_1, CutSceneFirstSock ],
     scene: [
       MenuScene,
-      LobbyScene,
+      LobbyMenuScene,
       GameScene,
       PreloadScene,
       GameScene_Level_1,

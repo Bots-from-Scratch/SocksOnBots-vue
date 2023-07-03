@@ -5,9 +5,9 @@ import { textStyle } from "../utils";
 
 import logo from "@/assets/logo-full.png";
 
-class LobbyScene extends Scene {
+class LobbyMenuScene extends Scene {
   constructor() {
-    super("LobbyScene");
+    super("LobbyMenuScene");
   }
   preload() {
     this.load.image("logo", logo);
@@ -63,4 +63,4 @@ class LobbyScene extends Scene {
   }
 }
 
-export default LobbyScene;
+export default LobbyMenuScene;

@@ -63,7 +63,12 @@ class MenuScene extends Scene {
 
     this.buttonTutorial = this.createButton(450, 250, "Tutorial", "GameScene");
 
-    this.buttonMultiplayer = this.createButton(450, 325, "Multiplayer", "LobbyScene");
+    this.buttonMultiplayer = this.createButton(
+      450,
+      325,
+      "Multiplayer",
+      "LobbyMenuScene"
+    );
 
     this.buttonCredits = this.createButton(450, 400, "Credits").on(
       "pointerdown",
@@ -89,7 +94,8 @@ class MenuScene extends Scene {
       .on("pointerdown", () => button.play({ key: "click" }))
       .on("pointerup", () => {
         button.play({ key: "hover" });
-        this.scene.launch(scene);
+        // this.scene.stop(this.scene);
+        this.scene.start(scene);
       });
 
     const buttonText = this.add
