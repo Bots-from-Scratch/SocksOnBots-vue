@@ -15,19 +15,21 @@
       </transition>
     </div>
     <div class="flex flex-col pixel-border-8 gap-4 basis-1/4 bg-stone-700 p-4">
-        <div class="grid grid-cols-3 gap-x-8 gap-y-4">
-            <div v-for="level in levels" :key="level.number"
-              class="pixel-border-small bg-stone-500 text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
-              @click="selectLevel(level.number)"
-              :class="{
-                'bg-stone-300': selectedLevel === level.number,
-                'bg-stone-500': selectedLevel !== level.number,
-              }"
-            >
-              {{ level.number }}
-          </div>
+      <div class="grid grid-cols-3 gap-x-8 gap-y-4">
+        <div
+          v-for="level in levels"
+          :key="level.number"
+          class="pixel-border-small bg-stone-500 text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
+          @click="selectLevel(level.number)"
+          :class="{
+            'bg-stone-300': selectedLevel === level.number,
+            'bg-stone-500': selectedLevel !== level.number,
+          }"
+        >
+          {{ level.number }}
+        </div>
       </div>
-      <GameControls @volumeChange="controlSounds" />
+      <GameControls ref="volumesRef" @volumeChange="controlSounds" />
       <div class="h-1/2 w-full bg-gray-300 overflow-scroll">
         <p class="h-2 font-pixel text-[1vw]">
           Infotext zu den Levels gespeichert in JSONInfotext zu den Levels
@@ -41,12 +43,12 @@
         <PixelButton class="w-1/2" text="Play" @click="playGame" />
         <div class="flex flex-col gap-3">
           <div
-            class="pixel-border-small h-3 aspect-square"
-            :class="[state.playGame ? 'bg-emerald-400' : 'bg-emerald-800']"
+            class="pixel-border-small h-3 aspect-square text-white"
+            :class="[isPlayingRef ? 'bg-emerald-400' : 'bg-emerald-800']"
           ></div>
           <div
-            class="pixel-border-small h-3 aspect-square bg-red-800"
-            :class="[!state.playGame ? 'bg-red-400' : 'bg-red-800']"
+            class="pixel-border-small h-3 aspect-square bg-red-800 text-white"
+            :class="[!isPlayingRef ? 'bg-red-400' : 'bg-red-800']"
           ></div>
         </div>
       </div>
@@ -82,7 +84,7 @@ import PixelButton from "@/components/PixelButton.vue";
 // TODO
 
 let activeScene = null;
-export default defineComponent({
+export default {
   name: "Game",
   components: { PixelButton, GameControls },
   emits: {
@@ -91,8 +93,8 @@ export default defineComponent({
   },
   props: {
     // directionPlayer1: String,
-    playGame: Boolean,
-    volume: Object,
+    playGames: Boolean,
+    // volume: Object,
     blocklyWorkspace: Object,
     antennaClicked: true,
     // workspace: Object,
@@ -100,24 +102,26 @@ export default defineComponent({
   setup(props) {
     let game = ref(null);
     const playGameCounter = ref(0);
+    const volumesRef = ref();
     let selectedLevel = ref(state.selectedLevel);
     const isSelected = ref(false);
+    const isPlayingRef = ref(state.playGame);
     activeScene = () => {
       return game.value.scene.getScenes(true)[0];
     };
 
-    const controlSounds = (volumes) => {
+    const controlSounds = (volume) => {
       let scene = activeScene();
       if (!scene.backgroundSound?.isPlaying) {
         scene.backgroundSound?.play();
       }
-      scene.backgroundSound?.setVolume(parseInt(volumes.value.music) / 200);
-      scene.collisionSound?.setVolume(parseInt(volumes.value.sound) / 200);
+      scene.backgroundSound?.setVolume(parseInt(volume.music) / 200);
+      scene.collisionSound?.setVolume(parseInt(volume.sound) / 200);
     };
 
     const runGame = () => {
       runBlocks(props.blocklyWorkspace.value);
-      controlSounds(props.volume);
+      controlSounds(volumesRef.value.volume);
       playGameCounter.value++;
     };
 
@@ -151,6 +155,8 @@ export default defineComponent({
       playGameCounter,
       selectLevel,
       isSelected,
+      isPlayingRef,
+      volumesRef,
     };
   },
 
@@ -252,11 +258,7 @@ export default defineComponent({
     },
     "state.playGame": {
       handler() {
-        console.log("=>(Game.vue:227) state.playGame", state.playGame);
-        console.log(
-          "=>(Game.vue:227) this.playGameCounter.value",
-          this.playGameCounter
-        );
+        this.isPlayingRef = !this.isPlayingRef;
         this.playGameCounter === 0 && this.runGame();
       },
     },
@@ -299,7 +301,7 @@ export default defineComponent({
     };
     this.game = new Phaser.Game(gameConfig);
   },
-});
+};
 
 let directionPlayer1 = {
   right: { isClear: true, isMoving: false },

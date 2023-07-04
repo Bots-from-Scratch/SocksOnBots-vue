@@ -20,12 +20,12 @@ let volume = ref({
 const playGame = ref(state.playGame);
 
 const emit = defineEmits(["volumeChange"]);
-
+defineExpose({ volume });
 watch(
   volume,
   (newValue) => {
     store.value = JSON.stringify(newValue);
-    emit("volumeChange", volume);
+    emit("volumeChange", volume.value);
   },
   { deep: true }
 );
@@ -36,7 +36,6 @@ watch(
     <div class="flex flex-col justify-start gap-4">
       <RangeSlider v-model="volume.music" name="Music" />
       <RangeSlider v-model="volume.sound" name="Sound" />
-      <!--        <p>{{ "playGame: " + playGame }}</p>-->
     </div>
   </div>
 </template>
