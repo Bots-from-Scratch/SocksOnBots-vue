@@ -124,41 +124,44 @@ let antennaClicked = ref(false);
 
 <template>
   <div class="bg-hero-image">
-  <div
-    class="flex flex-col justify-center relative wobble-top-on-hover w-max h-max left-1/2"
-    @click="antennaClicked = !antennaClicked"
-  >
     <div
-      class="pixel-border-small mt-8 w-2 h-24 bg-stone-500"
-      :class="{ 'rotate-90 translate-y-10 translate-x-12': antennaClicked }"
-    ></div>
-    <div class="pixel-border-small-bottom w-2 h-24 bg-stone-500"></div>
-  </div>
-  <div
-    class="flex flex-col justify-start items-center xl:items-start mt-487 mb-12 mx-16"
-  >
-    <Game
-      :playGame="playGame"
-      :blocklyWorkspace="blocklyWorkspace"
-      ref="game"
-      :antennaClicked="antennaClicked"
-      @selectedLevel="levelSelected"
-    />
+      class="flex flex-col items-center justify-center relative wobble-top-on-hover w-max h-max left-1/2"
+      @click="antennaClicked = !antennaClicked"
+    >
+      <div class="flex flex-col items-center mt-8" :class="{ 'rotate-[120deg] translate-y-20 translate-x-12': antennaClicked }">
+        <div class="pixel-border-small mb-1 w-8 h-8 bg-stone-500"></div>
+        <div
+          class="pixel-border-small-top w-2 h-16 bg-stone-500"
+        ></div>
+      </div>
+      <div class="pixel-border-small-bottom w-2 h-24 bg-stone-500"></div>
+    </div>
+    <div
+      class="flex flex-col justify-start items-center xl:items-start mt-487 mb-12 mx-16"
+    >
+      <Game
+        :playGame="playGame"
+        :blocklyWorkspace="blocklyWorkspace"
+        ref="game"
+        :antennaClicked="antennaClicked"
+        @selectedLevel="levelSelected"
+      />
 
-    <BlocklyComponent
-      class="w-full h-96 shrink grow-0"
-      id="blockly"
-      :options="blocklyOptions"
-      :selectedLevel="selectedLevel"
-      ref="blockly"
-      @workspaceFromBlockly="sendBlocklyWorkspaceToGame"
-    />
-  </div></div>
+      <BlocklyComponent
+        class="w-full h-96 shrink grow-0"
+        id="blockly"
+        :options="blocklyOptions"
+        :selectedLevel="selectedLevel"
+        ref="blockly"
+        @workspaceFromBlockly="sendBlocklyWorkspaceToGame"
+      />
+    </div>
+  </div>
 </template>
 
 <style scoped>
 .wobble-top-on-hover {
-  display: inline-block;
+  //display: inline-block;
   vertical-align: middle;
   -webkit-transform: perspective(1px) translateZ(0);
   transform: perspective(1px) translateZ(0);
@@ -180,14 +183,10 @@ let antennaClicked = ref(false);
 .pixel-border-small-bottom {
   box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 0 0 0 black, 0 4px 0 0 black;
 }
-.pixel-border-small {
-  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
-    0 0 0 0 black;
+.pixel-border-small-top {
+  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 0 0 0 black, 0 0 0 0 black;
 }
-
-.before\:pixel-border-small::before {
-  content: var(--tw-content);
-  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
-    0 4px 0 0 black;
+.pixel-border-small {
+  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black, 0 4px 0 0 black;
 }
 </style>

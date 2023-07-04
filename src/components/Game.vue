@@ -5,6 +5,7 @@
     <div
       ref="phaserGame"
       class="game-container relative pixel-border-16 w-full"
+      id="gameCanvas"
     >
       <transition>
         <div
@@ -14,11 +15,9 @@
       </transition>
     </div>
     <div class="flex flex-col pixel-border-8 gap-4 basis-1/4 bg-stone-700 p-4">
-      <div>
-        <div class="grid grid-cols-3 gap-4">
-          <div v-for="level in levels" :key="level.number">
-            <div
-              class="pixel-border-small bg-stone-500 w-8 text-center font-pixel text-black hover:bg-stone-50 cursor-pointer"
+        <div class="grid grid-cols-3 gap-x-8 gap-y-4">
+            <div v-for="level in levels" :key="level.number"
+              class="pixel-border-small bg-stone-500 text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
               @click="selectLevel(level.number)"
               :class="{
                 'bg-stone-300': selectedLevel === level.number,
@@ -26,9 +25,7 @@
               }"
             >
               {{ level.number }}
-            </div>
           </div>
-        </div>
       </div>
       <GameControls @volumeChange="controlSounds" />
       <div class="h-1/2 w-full bg-gray-300 overflow-scroll">
@@ -297,6 +294,7 @@ export default defineComponent({
           debug: true,
         },
       },
+      input: { mouse: { preventDefaultWheel: false } },
       pixelArt: true,
     };
     this.game = new Phaser.Game(gameConfig);
