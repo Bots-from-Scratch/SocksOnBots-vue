@@ -43,16 +43,104 @@ function sendBlocklyWorkspaceToGame(workspace) {
 function levelSelected(data) {
   selectedLevel.value = data;
 }
+
+// Create the keyframes
+const wobbleTopOnHoverKeyframes = `
+  @-webkit-keyframes wobble-top-on-hover {
+    16.65% {
+      -webkit-transform: skew(-12deg);
+      transform: skew(-12deg);
+    }
+    33.3% {
+      -webkit-transform: skew(10deg);
+      transform: skew(10deg);
+    }
+    49.95% {
+      -webkit-transform: skew(-6deg);
+      transform: skew(-6deg);
+    }
+    66.6% {
+      -webkit-transform: skew(4deg);
+      transform: skew(4deg);
+    }
+    83.25% {
+      -webkit-transform: skew(-2deg);
+      transform: skew(-2deg);
+    }
+    100% {
+      -webkit-transform: skew(0);
+      transform: skew(0);
+    }
+  }
+  @keyframes wobble-top-on-hover {
+    16.65% {
+      -webkit-transform: skew(-12deg);
+      transform: skew(-12deg);
+    }
+    33.3% {
+      -webkit-transform: skew(10deg);
+      transform: skew(10deg);
+    }
+    49.95% {
+      -webkit-transform: skew(-6deg);
+      transform: skew(-6deg);
+    }
+    66.6% {
+      -webkit-transform: skew(4deg);
+      transform: skew(4deg);
+    }
+    83.25% {
+      -webkit-transform: skew(-2deg);
+      transform: skew(-2deg);
+    }
+    100% {
+      -webkit-transform: skew(0);
+      transform: skew(0);
+    }
+  }
+`;
+
+onMounted(() => {
+  const styleElement = document.createElement("style");
+  styleElement.innerHTML = wobbleTopOnHoverKeyframes;
+  document.head.appendChild(styleElement);
+
+  const element = document.querySelector(".wobble-top-on-hover");
+  element.classList.add("wobble-top-on-hover");
+  element.addEventListener("mouseover", () => playAnimation());
+
+  function playAnimation() {
+    console.log("=>(GameComponent.vue:114) ");
+    element.classList.add("wobble-top-on-hover-animation");
+    setTimeout(
+      () => element.classList.remove("wobble-top-on-hover-animation"),
+      1000
+    );
+  }
+});
+
+let antennaClicked = ref(false);
 </script>
 
 <template>
   <div
-    class="flex flex-col justify-start items-center xl:items-start my-12 mx-16"
+    class="flex flex-col justify-center relative wobble-top-on-hover w-max h-max left-1/2"
+    @click="antennaClicked = !antennaClicked"
+  >
+    <div
+      class="pixel-border-small mt-16 w-2 h-24 bg-stone-500"
+      :class="{ 'rotate-90 translate-y-10 translate-x-12': antennaClicked }"
+    ></div>
+    <div class="pixel-border-small-bottom w-2 h-24 bg-stone-500"></div>
+  </div>
+  <div
+    class="flex flex-col justify-start items-center xl:items-start mt-487 mb-12 mx-16"
   >
     <Game
       :playGame="playGame"
       :blocklyWorkspace="blocklyWorkspace"
       ref="game"
+      :antennaClicked="antennaClicked"
       @selectedLevel="levelSelected"
     />
 
@@ -68,4 +156,37 @@ function levelSelected(data) {
 </template>
 
 <style scoped>
+.wobble-top-on-hover {
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-transform: perspective(1px) translateZ(0);
+  transform: perspective(1px) translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  -webkit-transform-origin: 0 100%;
+  transform-origin: 0 100%;
+}
+.wobble-top-on-hover-animation {
+  -webkit-animation-name: wobble-top-on-hover;
+  animation-name: wobble-top-on-hover;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;
+  -webkit-animation-iteration-count: 1;
+  animation-iteration-count: 1;
+}
+
+.pixel-border-small-bottom {
+  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 0 0 0 black, 0 4px 0 0 black;
+}
+.pixel-border-small {
+  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
+    0 0 0 0 black;
+}
+
+.before\:pixel-border-small::before {
+  content: var(--tw-content);
+  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
+    0 4px 0 0 black;
+}
 </style>

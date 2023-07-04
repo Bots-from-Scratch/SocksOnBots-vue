@@ -1,25 +1,34 @@
 <template>
   <div
-    class="flex flex-row gap-16 justify-between pixel-border-16 w-full p-12 pl-14 bg-gray-600 mx-auto my-8"
+    class="flex flex-row gap-16 justify-between pixel-border-16 w-full p-12 pl-14 bg-gray-600 mx-auto my-4"
   >
-    <div ref="phaserGame" class="game-container pixel-border-16 w-full" />
+    <div
+      ref="phaserGame"
+      class="game-container relative pixel-border-16 w-full"
+    >
+      <transition>
+        <div
+          v-if="antennaClicked"
+          class="noise absolute w-full h-full bg-black top-0 left-0"
+        ></div>
+      </transition>
+    </div>
     <div class="flex flex-col pixel-border-8 gap-4 basis-1/4 bg-stone-700 p-4">
       <div>
-        <!--        <div class="text-black font-pixel">Level:</div>-->
-        <!--        <select v-model="selectedLevel" class="bg-yellow-500">-->
-        <!--          <option disabled value="">Select level</option>-->
         <div class="grid grid-cols-3 gap-4">
           <div v-for="level in levels" :key="level.number">
             <div
               class="pixel-border-small bg-stone-500 w-8 text-center font-pixel text-black hover:bg-stone-50 cursor-pointer"
               @click="selectLevel(level.number)"
-              :class="{'bg-stone-300': selectedLevel === level.number, 'bg-stone-500': selectedLevel !== level.number}"
+              :class="{
+                'bg-stone-300': selectedLevel === level.number,
+                'bg-stone-500': selectedLevel !== level.number,
+              }"
             >
               {{ level.number }}
             </div>
           </div>
         </div>
-        <!--        </select>-->
       </div>
       <GameControls @volumeChange="controlSounds" />
       <div class="h-1/2 w-full bg-gray-300 overflow-scroll">
@@ -88,6 +97,7 @@ export default defineComponent({
     playGame: Boolean,
     volume: Object,
     blocklyWorkspace: Object,
+    antennaClicked: true,
     // workspace: Object,
   },
   setup(props) {
@@ -102,7 +112,7 @@ export default defineComponent({
     const controlSounds = (volumes) => {
       let scene = activeScene();
       if (!scene.backgroundSound?.isPlaying) {
-        scene.backgroundSound?.play()
+        scene.backgroundSound?.play();
       }
       scene.backgroundSound?.setVolume(parseInt(volumes.value.music) / 200);
       scene.collisionSound?.setVolume(parseInt(volumes.value.sound) / 200);
@@ -1610,5 +1620,28 @@ class GameScene extends Scene {
 
 .highlighted {
   filter: drop-shadow(0 0 0.5rem crimson);
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.5s;
+}
+.v-enter-to {
+  transform: scale(1);
+  background-color: whitesmoke;
+}
+
+.noise {
+  background: repeating-radial-gradient(#000 0 0.0001%, #fff 0 0.0002%) 50% 0/2500px
+      2500px,
+    repeating-conic-gradient(#000 0 0.0001%, #fff 0 0.0002%) 60% 60%/2500px
+      2500px;
+  background-blend-mode: difference;
+  animation: b 0.2s infinite alternate;
+}
+@keyframes b {
+  100% {
+    background-position: 50% 0, 60% 50%;
+  }
 }
 </style>
