@@ -1,9 +1,10 @@
 <template>
-  <div class="game-container" :id="containerId" />
+<!--  <div class="game-container" :id="containerId" />-->
+  <Level4/>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { onActivated, onMounted, onUnmounted, ref, watch } from "vue";
 import { runBlocks, GameScene } from "@/components/Level4.vue";
 import Level4 from "@/App.vue";
 
@@ -13,10 +14,15 @@ let gameInstance = null;
 const containerId = "game-container";
 const game = await import("@/game/game");
 const value = "VALUE";
-onMounted(() => {
-  gameInstance = game.launch(containerId);
-  console.log(gameInstance.scene.getScenes());
+let currentScene = null;
+onMounted(async () => {
+  gameInstance = await game.launch(containerId);
+  currentScene = gameInstance.scene
+  console.log(currentScene)
 });
+
+
+defineEmits(["player2X"]);
 
 watch(
   () => props.playGame,
@@ -27,18 +33,15 @@ watch(
   }
 );
 
+
 watch(
   () => props.volume,
   () => {
     if (gameInstance) {
       let scene = gameInstance.scene.getScenes(true);
-      console.log(scene[0]);
-      scene[0].backgroundSound.setVolume(
-        props.volume.music / 200
-      );
-      scene[0].collisionSound.setVolume(
-        props.volume.sound / 200
-      );
+      console.log(scene);
+      scene[0].backgroundSound.setVolume(props.volume.music / 200);
+      scene[0].collisionSound.setVolume(props.volume.sound / 200);
     }
   },
   { deep: true, immediate: true }

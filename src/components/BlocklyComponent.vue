@@ -1,21 +1,18 @@
 <script setup>
-import { computed, onMounted, ref, shallowRef } from "vue";
+import { computed, onMounted, ref, shallowRef, watch } from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
-import level4 from "@/components/Level4.vue";
-import { toolboxJson } from "@/toolbox_phaser";
 import { useLocalStorage } from "@vueuse/core";
-import { javascriptGenerator } from "blockly/javascript";
 import PixelButton from "@/components/PixelButton.vue";
-import { state } from "../socket";
+import { socket, state } from "@/socket";
 
-const emit = defineEmits(["runCodePressed"]);
-const props = defineProps(["options"]);
+const emit = defineEmits(["playGamePressed", "workspaceFromBlockly"]);
+const props = defineProps(["options", "selectedLevel"]);
 const blocklyToolbox = ref();
 const blocklyDiv = ref();
 const workspace = shallowRef();
-const store = useLocalStorage("userBlocks", null);
-let startBlocks;
+let playGameCounter = 0;
+let store = useLocalStorage("userBlocks", null);
 defineExpose({ workspace });
 
 onMounted(() => {
@@ -24,65 +21,76 @@ onMounted(() => {
     options.toolbox = blocklyToolbox.value;
   }
 
-  if (store.value !== "undefined") {
-    // localStorage ist definiert
-    startBlocks = JSON.parse(store.value);
-    console.log(startBlocks);
-    // Weitere Aktionen mit dem localStorage durchführen
-  } else {
-    // localStorage ist undefined
-    console.log("localStorage ist nicht verfügbar.");
-    // Alternative Aktionen durchführen oder Fehlerbehandlung durchführen
-  }
-
   workspace.value = Blockly.inject(blocklyDiv.value, options);
-  console.log(workspace.value);
-  if (startBlocks) {
-    Blockly.serialization.workspaces.load(startBlocks, workspace.value);
-  }
+
+  emit("workspaceFromBlockly", workspace);
+
+  loadBlocksFromStorage(props.selectedLevel);
+
+  workspace.value.addChangeListener(function (event) {
+    if (
+      event.type === Blockly.Events.BLOCK_DRAG ||
+      event.type === Blockly.Events.BLOCK_CHANGE
+    ) {
+      console.log("=>(BlocklyComponent.vue:39) drag");
+      saveBlocksToStorage();
+    }
+  });
 });
 
-var playGame = ref();
+let playGame = computed({
+  get() {
+    return state.playGame;
+  },
+});
+
 const directionObj = computed({
   get() {
     return state.direction;
   },
 });
-// var outputArea = document.getElementById("output");
-// var runButton = document.getElementById("runButton");
 
-console.log(startBlocks);
-function runCode() {
-  console.log("runCode");
-  let blockList = [];
-  let blockListTmp = [];
+watch(
+  () => props.selectedLevel,
+  (newLevel) => {
+    Blockly.getMainWorkspace() && loadBlocksFromStorage(newLevel);
+  }
+);
 
-  const savedBlocks = Blockly.serialization.workspaces.save(workspace.value);
-  store.value = JSON.stringify(savedBlocks);
-  console.log(store.value);
+function loadBlocksFromStorage(newLevel) {
+  Blockly.serialization.workspaces.load([], workspace.value);
+  if (store.value !== null) {
+    const startBlocks = JSON.parse(store.value);
+    startBlocks.forEach((level) => {
+      parseInt(level.level) === parseInt(newLevel) &&
+        Blockly.serialization.workspaces.load(level.blocks, workspace.value);
+    });
+  } else {
+    console.log("localStorage ist nicht verfügbar.");
+  }
+}
 
-  blockList = [];
-  javascriptGenerator.init(Blockly.common.getMainWorkspace());
+function saveBlocksToStorage() {
+  const blocksToSave = Blockly.serialization.workspaces.save(workspace.value);
+  // TODO level zu name oder levelName umbenennen
+  const dataToStore = [];
+  if (store.value !== null) {
+    const storedData = JSON.parse(store.value);
+    storedData.forEach((level) => {
+      level.level !== props.selectedLevel && dataToStore.push(level);
+    });
+  }
+  dataToStore.push({ level: props.selectedLevel, blocks: blocksToSave });
 
-  blockListTmp = Blockly.common.getMainWorkspace().getAllBlocks(true);
-
-  blockListTmp.forEach(function (block) {
-    blockList.push(javascriptGenerator.blockToCode(block, true));
-  });
-  console.log(blockList);
-  emit("runCodePressed", blockList);
+  store.value = JSON.stringify(dataToStore);
 }
 </script>
 
 <template>
   <div class="w-full">
-    <div class="h-full" ref="blocklyDiv"></div>
+    <div ref="blocklyDiv" class="h-full"></div>
     <div ref="blocklyToolbox">
       <slot></slot>
-    </div>
-    <div class="flex justify-start my-8">
-      <PixelButton text="Play" @click="runCode" />
-      <p>{{ directionObj }}</p>
     </div>
   </div>
 </template>

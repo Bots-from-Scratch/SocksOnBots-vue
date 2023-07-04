@@ -8,214 +8,220 @@
  * @fileoverview Shared toolbox for JS-Interpreter demos.
  */
 
-
-import '@/blocks/move_player';
-import '@/blocks/walked_around';
-import '@/blocks/direction_blocked';
-import '@/blocks/direction_clear';
-import '@/blocks/object_sock';
-import '@/blocks/scan_for_object';
-import '@/blocks/bool_sighted';
-import '@/blocks/whileUntil';
-import '@/blocks/custom_if_controls';
+import "@/blocks/move_player";
+import "@/blocks/walked_around";
+import "@/blocks/direction_blocked";
+import "@/blocks/direction_clear";
+import "@/blocks/object_sock";
+import "@/blocks/scan_for_object";
+import "@/blocks/bool_sighted";
+import "@/blocks/whileUntil";
+import "@/blocks/custom_if_controls";
+import "@/blocks/object_collected";
+import "@/blocks/break";
+import "@/blocks/repeat_x_times";
+import "@/blocks/bool_connected";
 
 export var toolboxJson = {
-  "contents": [
+  contents: [
     {
-      "kind": "CATEGORY",
-      "name": "Logic",
-      "colour": "%{BKY_LOGIC_HUE}",
-      "contents": [
+      kind: "CATEGORY",
+      name: "Logic",
+      colour: "%{BKY_LOGIC_HUE}",
+      contents: [
         {
-          "kind": "BLOCK",
-          "type": "controls_if"
+          kind: "BLOCK",
+          type: "custom_if_controls",
         },
         {
-          "kind": "BLOCK",
-          "type": "logic_compare"
+          kind: "BLOCK",
+          type: "logic_compare",
         },
         {
-          "kind": "BLOCK",
-          "type": "logic_operation"
+          kind: "BLOCK",
+          type: "logic_operation",
         },
         {
-          "kind": "BLOCK",
-          "type": "logic_negate"
+          kind: "BLOCK",
+          type: "logic_negate",
         },
         {
-          "kind": "BLOCK",
-          "type": "logic_boolean"
+          kind: "BLOCK",
+          type: "logic_boolean",
+        }, {
+        kind: "BLOCK",
+          type: "bool_connected"
         }
-      ]
+      ],
     },
     {
-      "kind": "CATEGORY",
-      "name": "Loops",
-      "colour": "%{BKY_LOOPS_HUE}",
-      "contents": [
+      kind: "CATEGORY",
+      name: "Loops",
+      colour: "%{BKY_LOOPS_HUE}",
+      contents: [
         {
-          "kind": "BLOCK",
-          "type": "controls_repeat_ext",
-          "inputs": {
-            "TIMES": {
-              "shadow": {
-                "type": "math_number",
-                "fields": {"NUM": 10}
-              }
-            }
-          }
+          kind: "BLOCK",
+          type: "repeat_x_times",
+          // inputs: {
+          //   TIMES: {
+          //     shadow: {
+          //       type: "math_number",
+          //       fields: { NUM: 10 },
+          //     },
+          //   },
+          // },
         },
         {
-          "kind": "BLOCK",
-          "type": "controls_whileUntil"
-        }
-      ]
+          kind: "BLOCK",
+          type: "whileUntil",
+        },
+      ],
     },
     {
-      "kind": "CATEGORY",
-      "name": "Math",
-      "colour": "%{BKY_MATH_HUE}",
-      "contents": [
+      kind: "CATEGORY",
+      name: "Math",
+      colour: "%{BKY_MATH_HUE}",
+      contents: [
         {
-          "kind": "BLOCK",
-          "type": "math_number"
+          kind: "BLOCK",
+          type: "math_number",
         },
         {
-          "kind": "BLOCK",
-          "type": "math_arithmetic",
-          "inputs": {
-            "A": {
-              "shadow": {
-                "type": "math_number",
-                "fields": {"NUM": 1}
-              }
+          kind: "BLOCK",
+          type: "math_arithmetic",
+          inputs: {
+            A: {
+              shadow: {
+                type: "math_number",
+                fields: { NUM: 1 },
+              },
             },
-            "B": {
-              "shadow": {
-                "type": "math_number",
-                "fields": {"NUM": 1}
-              }
-            }
-          }
+            B: {
+              shadow: {
+                type: "math_number",
+                fields: { NUM: 1 },
+              },
+            },
+          },
         },
         {
-          "kind": "BLOCK",
-          "type": "math_single",
-          "inputs": {
-            "NUM": {
-              "shadow": {
-                "type": "math_number",
-                "fields": {"NUM": 9}
-              }
-            }
-          }
-        }
-      ]
+          kind: "BLOCK",
+          type: "math_single",
+          inputs: {
+            NUM: {
+              shadow: {
+                type: "math_number",
+                fields: { NUM: 9 },
+              },
+            },
+          },
+        },
+      ],
     },
     {
-      "kind": "CATEGORY",
-      "name": "Text",
-      "colour": "%{BKY_TEXTS_HUE}",
-      "contents": [
+      kind: "CATEGORY",
+      name: "Text",
+      colour: "%{BKY_TEXTS_HUE}",
+      contents: [
         {
-          "kind": "BLOCK",
-          "type": "text"
+          kind: "BLOCK",
+          type: "text",
         },
         {
-          "kind": "BLOCK",
-          "type": "text_length",
-          "inputs": {
-            "VALUE": {
-              "shadow": {
-                "type": "text",
-                "fields": {"TEXT": "abc"}
-              }
-            }
-          }
+          kind: "BLOCK",
+          type: "text_length",
+          inputs: {
+            VALUE: {
+              shadow: {
+                type: "text",
+                fields: { TEXT: "abc" },
+              },
+            },
+          },
         },
         {
-          "kind": "BLOCK",
-          "type": "text_print",
-          "inputs": {
-            "TEXT": {
-              "shadow": {
-                "type": "text",
-                "fields": {"TEXT": "abc"}
-              }
-            }
-          }
+          kind: "BLOCK",
+          type: "text_print",
+          inputs: {
+            TEXT: {
+              shadow: {
+                type: "text",
+                fields: { TEXT: "abc" },
+              },
+            },
+          },
         },
         {
-          "kind": "BLOCK",
-          "type": "text_prompt_ext",
-          "inputs": {
-            "TEXT": {
-              "shadow": {
-                "type": "text",
-                "fields": {"TEXT": "abc"}
-              }
-            }
-          }
-        }
-      ]
+          kind: "BLOCK",
+          type: "text_prompt_ext",
+          inputs: {
+            TEXT: {
+              shadow: {
+                type: "text",
+                fields: { TEXT: "abc" },
+              },
+            },
+          },
+        },
+      ],
     },
     {
-      "kind": "SEP"
+      kind: "SEP",
     },
     {
-      "kind": "CATEGORY",
-      "name": "Variables",
-      "custom": "VARIABLE",
-      "colour": "%{BKY_VARIABLES_HUE}",
+      kind: "CATEGORY",
+      name: "Variables",
+      custom: "VARIABLE",
+      colour: "%{BKY_VARIABLES_HUE}",
     },
     {
-      "kind": "CATEGORY",
-      "name": "Functions",
-      "custom": "PROCEDURE",
-      "colour": "%{BKY_PROCEDURES_HUE}",
+      kind: "CATEGORY",
+      name: "Functions",
+      custom: "PROCEDURE",
+      colour: "%{BKY_PROCEDURES_HUE}",
     },
     {
-      "kind": "CATEGORY",
-      "name": "Phaser",
-      "colour": "%{BKY_LOOPS_HUE}",
-      "contents": [
+      kind: "CATEGORY",
+      name: "Phaser",
+      colour: "%{BKY_LOOPS_HUE}",
+      contents: [
         {
-          "kind": "BLOCK",
-          "type": "custom_if_controls",
+          kind: "BLOCK",
+          type: "direction_blocked",
         },
         {
-          "kind": "BLOCK",
-          "type": "direction_blocked",
+          kind: "BLOCK",
+          type: "direction_clear",
         },
         {
-          "kind": "BLOCK",
-          "type": "direction_clear",
+          kind: "BLOCK",
+          type: "move_player",
         },
         {
-          "kind": "BLOCK",
-          "type": "move_player"
+          kind: "BLOCK",
+          type: "bool_sighted",
         },
         {
-          "kind": "BLOCK",
-          "type": "whileUntil"
+          kind: "BLOCK",
+          type: "scan_for_object",
         },
         {
-          "kind": "BLOCK",
-          "type": "bool_sighted"
+          kind: "BLOCK",
+          type: "object_sock",
         },
         {
-          "kind": "BLOCK",
-          "type": "scan_for_object"
+          kind: "BLOCK",
+          type: "walked_around",
         },
         {
-          "kind": "BLOCK",
-          "type": "object_sock"
+          kind: "BLOCK",
+          type: "object_collected",
         },
         {
-          "kind": "BLOCK",
-          "type": "walked_around"
+          kind: "BLOCK",
+          type: "break",
         },
-      ]
+      ],
     },
-  ]
+  ],
 };
