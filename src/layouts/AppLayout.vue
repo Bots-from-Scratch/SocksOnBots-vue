@@ -4,7 +4,7 @@ import Header from "@/components/Header.vue";
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-hero-image relative">
+  <div class="flex flex-col min-h-screen relative">
     <Header />
     <router-view class="grow" />
     <Footer class="shrink-0"/>

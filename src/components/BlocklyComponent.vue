@@ -92,9 +92,6 @@ function saveBlocksToStorage() {
     <div ref="blocklyToolbox">
       <slot></slot>
     </div>
-    <div class="flex justify-start my-8">
-      <p>{{ directionObj }}</p>
-    </div>
   </div>
 </template>
 

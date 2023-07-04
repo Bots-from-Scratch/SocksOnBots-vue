@@ -123,12 +123,13 @@ let antennaClicked = ref(false);
 </script>
 
 <template>
+  <div class="bg-hero-image">
   <div
     class="flex flex-col justify-center relative wobble-top-on-hover w-max h-max left-1/2"
     @click="antennaClicked = !antennaClicked"
   >
     <div
-      class="pixel-border-small mt-16 w-2 h-24 bg-stone-500"
+      class="pixel-border-small mt-8 w-2 h-24 bg-stone-500"
       :class="{ 'rotate-90 translate-y-10 translate-x-12': antennaClicked }"
     ></div>
     <div class="pixel-border-small-bottom w-2 h-24 bg-stone-500"></div>
@@ -152,7 +153,7 @@ let antennaClicked = ref(false);
       ref="blockly"
       @workspaceFromBlockly="sendBlocklyWorkspaceToGame"
     />
-  </div>
+  </div></div>
 </template>
 
 <style scoped>
