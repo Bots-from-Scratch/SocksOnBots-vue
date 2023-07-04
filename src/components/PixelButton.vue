@@ -12,7 +12,7 @@ const props = defineProps(["text"]);
       alt="Pixelart Button"
     />
     <img
-      class="absolute group-active:hidden top-1 h-auto"
+      class="absolute group-active:hidden top-1 -left-0.5 h-auto"
       src="@/assets/button-shadow.svg"
       alt="Pixelart Button"
     />

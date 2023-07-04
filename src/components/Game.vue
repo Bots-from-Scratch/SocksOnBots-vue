@@ -14,24 +14,24 @@
         ></div>
       </transition>
     </div>
-    <div class="flex flex-col pixel-border-8 gap-4 basis-1/4 bg-stone-700 p-4">
+    <div class="flex flex-col pixel-border-8 gap-8 basis-1/4 bg-stone-700 p-4">
       <div class="grid grid-cols-3 gap-x-8 gap-y-4">
         <div
           v-for="level in levels"
           :key="level.number"
-          class="pixel-border-small bg-stone-500 text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
+          class="pixel-border-small text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
           @click="selectLevel(level.number)"
-          :class="{
-            'bg-stone-300': selectedLevel === level.number,
-            'bg-stone-500': selectedLevel !== level.number,
-          }"
+          :class="[
+            selectedLevel === level.number ? 'bg-stone-300':
+            'bg-stone-500'
+          ]"
         >
           {{ level.number }}
         </div>
       </div>
       <GameControls ref="volumesRef" @volumeChange="controlSounds" />
-      <div class="h-1/2 w-full bg-gray-300 overflow-scroll">
-        <p class="h-2 font-pixel text-[1vw]">
+      <div class="pixel-border-small p-2 h-1/2 w-full bg-gray-300 overflow-scroll">
+        <p class="h-2 font-pixel text-xs">
           Infotext zu den Levels gespeichert in JSONInfotext zu den Levels
           gespeichert in JSONInfotext zu den Levels gespeichert in JSONInfotext
           zu den Levels gespeichert in JSON Infotext zu den Levels gespeichert
@@ -39,7 +39,7 @@
           Levels gespeichert in JSON Infotext zu den Levels gespeichert in JSON
         </p>
       </div>
-      <div class="flex flex-row gap-8">
+      <div class="pixel-border-small flex flex-row gap-8 bg-stone-800 p-4">
         <PixelButton class="w-1/2" text="Play" @click="playGame" />
         <div class="flex flex-col gap-3">
           <div
@@ -103,7 +103,7 @@ export default {
     let game = ref(null);
     const playGameCounter = ref(0);
     const volumesRef = ref();
-    let selectedLevel = ref(state.selectedLevel);
+    const  selectedLevel = ref(state.selectedLevel);
     const isSelected = ref(false);
     const isPlayingRef = ref(state.playGame);
     activeScene = () => {

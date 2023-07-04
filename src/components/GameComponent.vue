@@ -125,7 +125,7 @@ let antennaClicked = ref(false);
 <template>
   <div class="bg-hero-image">
     <div
-      class="flex flex-col items-center justify-center relative wobble-top-on-hover w-max h-max left-1/2"
+      class="flex flex-col items-center justify-center relative wobble-top-on-hover w-max h-max left-3/4"
       @click="antennaClicked = !antennaClicked"
     >
       <div class="flex flex-col items-center mt-8" :class="{ 'rotate-[120deg] translate-y-20 translate-x-12': antennaClicked }">

@@ -7,7 +7,7 @@ defineEmits(["update:modelValue"]);
   <div class="flex flex-row gap-4 items-center">
     <span class="text-black font-pixel">{{ name }}</span>
     <input
-      class="my-2 appearance-none bg-[#EFA866] rounded-none cursor-pointer w-32 h-2"
+      class="pixel-border-small my-2 appearance-none bg-[#EFA866] rounded-none cursor-pointer w-32 h-2"
       type="range"
       min="0"
       max="100"
@@ -26,7 +26,12 @@ input[type="range"]::-webkit-slider-thumb {
   height: 1rem;
   width: 0.5rem;
 
-  box-shadow: -5px 0 0 0 black, 5px 0 0 0 black, 0 -5px 0 0 black,
-    0 5px 0 0 black;
+  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
+  0 4px 0 0 black;
+}
+
+.pixel-border-small {
+  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
+  0 4px 0 0 black;
 }
 </style>
