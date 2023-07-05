@@ -2,14 +2,22 @@ import { Scene } from "phaser";
 import { state, socket } from "@/socket";
 import { connectRoom } from "../../socket";
 import { textStyle } from "../utils";
+import hoverSound from "@/assets/sounds/click/CLICK2.mp3";
 
 class LobbyScene extends Scene {
   constructor() {
     super("LobbyScene");
   }
-  preload() {}
+  preload() {
+    this.load.audio("hoverSound", hoverSound);
+  }
 
   create() {
+    // sounds
+    const hoverSound = this.sound.add("hoverSound", { loop: false });
+    hoverSound.setVolume(2.5);
+
+    // rooms
     const numberOfRooms = 10;
     const localRooms = this.generateRooms(numberOfRooms);
 
@@ -23,6 +31,7 @@ class LobbyScene extends Scene {
         .on("pointerover", () => {
           roomButtonEntry.setStyle({ fill: "#006db2" });
           // console.log(room);
+          hoverSound.play();
         })
         .on("pointerout", () => roomButtonEntry.setStyle({ fill: "#fff" }))
         .on("pointerdown", () => {

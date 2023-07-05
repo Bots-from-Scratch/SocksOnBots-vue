@@ -71,6 +71,7 @@ import world from "@/assets/BotsonsocksBIG.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
+import collectStarSound from "@/assets/sounds/PUNKTE/POINT2.mp3";
 import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
@@ -419,6 +420,7 @@ class GameScene extends Scene {
     this.load.audio("collision", collisionSound);
     this.load.audio("backgroundSound", bgSound);
     this.load.audio("movingSound", movingSound);
+    this.load.audio("collectStarSound", collectStarSound);
   }
 
   create() {
@@ -609,6 +611,7 @@ class GameScene extends Scene {
     this.collisionSound = this.sound.add("collision");
     this.backgroundSound = this.sound.add("backgroundSound");
     this.movingSound = this.sound.add("movingSound");
+    this.collectStarSound = this.sound.add("collectStarSound", { loop: false });
 
     this.prepareLevel();
   }
@@ -1135,6 +1138,7 @@ class GameScene extends Scene {
 
   collectStar(player, star) {
     star.disableBody(true, true);
+    this.collectStarSound.setVolume(0.1).play();
     this.cameras.main.fadeOut(3000, 0, 0, 0);
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
@@ -1195,11 +1199,16 @@ class GameScene extends Scene {
       this.player.setVelocity(160, 0);
       this.rotation = this.ROTATION_RIGHT;
 
+      this.playMoveSound();
+
       this.time.delayedCall(
         400,
         function () {
           // Delay of 400 by a velocity of 160 means a movement of 64 pixels (our tile size)
           this.player.setVelocityX(0);
+
+          this.stopMoveSound();
+
           console.log("1553Bewegung abgeschlossen!");
         },
         [],
@@ -1213,10 +1222,16 @@ class GameScene extends Scene {
       this.player.setVelocity(-160, 0);
       this.rotation = this.ROTATION_LEFT;
       console.log("=>(Game.vue:1210) movePlayerLeft");
+
+      this.playMoveSound();
+
       this.time.delayedCall(
         400,
         function () {
           this.player.setVelocityX(0);
+
+          this.stopMoveSound();
+
           console.log("1210Bewegung abgeschlossen!");
         },
         [],
@@ -1231,10 +1246,15 @@ class GameScene extends Scene {
       this.player.setVelocity(0, -160);
       this.rotation = this.ROTATION_UP;
 
+      this.playMoveSound();
+
       this.time.delayedCall(
         400,
         function () {
           this.player.setVelocityY(0);
+
+          this.stopMoveSound();
+
           console.log("Bewegung abgeschlossen!");
         },
         [],
@@ -1248,16 +1268,29 @@ class GameScene extends Scene {
       this.player.setVelocity(0, 160);
       this.rotation = this.ROTATION_DOWN;
 
+      this.playMoveSound();
+
       this.time.delayedCall(
         400,
         function () {
           this.player.setVelocityY(0);
+
+          this.stopMoveSound();
+
           console.log("Bewegung abgeschlossen!");
         },
         [],
         this
       );
     }
+  }
+
+  playMoveSound() {
+    this.movingSound.setVolume(0.01).play();
+  }
+
+  stopMoveSound() {
+    this.movingSound.stop();
   }
 
   movePlayerToObject() {
@@ -1549,7 +1582,7 @@ class GameScene extends Scene {
         }
       }
       this.rotation = this.ROTATION_RIGHT;
-      this.movingSound.setVolume(0).play();
+      // this.movingSound.setVolume(0).play();
       this.movePlayerRight();
       // player.setVelocityX(160);
       // player.setVelocityY(0);
