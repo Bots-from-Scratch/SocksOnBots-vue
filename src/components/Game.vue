@@ -64,8 +64,8 @@ import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
-import botSpritesheet from "@/assets/Spritesheetnew.png";
-import botAnimationJson from "@/assets/Spritesheetnew.json";
+import botSpritesheet from "@/assets/roboterspritesheet.png";
+import botAnimationJson from "@/assets/roboterspritesheet.json";
 import bot_with_sock from "@/assets/Spritesheet.png";
 import world from "@/assets/BotsonsocksBIG.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
@@ -404,12 +404,12 @@ class GameScene extends Scene {
     this.load.image("ground", platform);
     this.load.image("star", star);
     this.load.image("bomb", bomb);
-    this.load.spritesheet("bot", botSpritesheet, {
-      frameWidth: 64,
-      frameHeight: 64,
-    });
+    // this.load.spritesheet("bot", botSpritesheet, {
+    //   frameWidth: 64,
+    //   frameHeight: 64,
+    // });
     // TODO load player from aseprite
-    // this.load.aseprite("bot", botSpritesheet, botAnimationJson);
+    this.load.aseprite("bot", botSpritesheet, botAnimationJson);
 
     this.load.spritesheet("bot_with_sock", bot_with_sock, {
       frameWidth: 64,
@@ -730,119 +730,119 @@ class GameScene extends Scene {
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
 
-    function createPlayerAnimation() {
-      this.anims.create({
-        key: "left",
-        frames: this.anims.generateFrameNumbers("bot", {
-          start: 24,
-          end: 29,
-        }),
-        frameRate: 10,
-        repeat: -1,
-      });
-
-      this.anims.create({
-        key: "turnToFront",
-        frames: this.anims.generateFrameNumbers("bot", { frames: [0] }),
-        frameRate: 10,
-      });
-
-      this.anims.create({
-        key: "turnToSide",
-        frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 2 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "leftToRight",
-        frames: this.anims.generateFrameNumbers("bot", {
-          frames: [6, 7, 0, 1, 2],
-        }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "right",
-        frames: this.anims.generateFrameNumbers("bot", {
-          start: 24,
-          end: 29,
-        }),
-        frameRate: 10,
-        repeat: -1,
-      });
-
-      this.anims.create({
-        key: "up",
-        frames: this.anims.generateFrameNumbers("bot", {
-          start: 32,
-          end: 37,
-        }),
-        frameRate: 5,
-        repeat: -1,
-      });
-
-      this.anims.create({
-        key: "down",
-        frames: this.anims.generateFrameNumbers("bot", { start: 8, end: 13 }),
-        frameRate: 2,
-        repeat: -1,
-      });
-
-      this.anims.create({
-        key: "leftToUp",
-        frames: this.anims.generateFrameNumbers("bot", { start: 6, end: 4 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "rightToUp",
-        frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 4 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "downToUp",
-        frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 4 }),
-        frameRate: 20,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "upToDown",
-        frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 0 }),
-        frameRate: 20,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "upToRight",
-        frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 2 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "leftToDown",
-        frames: this.anims.generateFrameNumbers("bot", { frames: [6, 7, 0] }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "rightToDown",
-        frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 0 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-    }
+    // function createPlayerAnimation() {
+    //   this.anims.create({
+    //     key: "left",
+    //     frames: this.anims.generateFrameNumbers("bot", {
+    //       start: 24,
+    //       end: 29,
+    //     }),
+    //     frameRate: 10,
+    //     repeat: -1,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "turnToFront",
+    //     frames: this.anims.generateFrameNumbers("bot", { frames: [0] }),
+    //     frameRate: 10,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "turnToSide",
+    //     frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 2 }),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "leftToRight",
+    //     frames: this.anims.generateFrameNumbers("bot", {
+    //       frames: [6, 7, 0, 1, 2],
+    //     }),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "right",
+    //     frames: this.anims.generateFrameNumbers("bot", {
+    //       start: 24,
+    //       end: 29,
+    //     }),
+    //     frameRate: 10,
+    //     repeat: -1,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "up",
+    //     frames: this.anims.generateFrameNumbers("bot", {
+    //       start: 32,
+    //       end: 37,
+    //     }),
+    //     frameRate: 5,
+    //     repeat: -1,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "down",
+    //     frames: this.anims.generateFrameNumbers("bot", { start: 8, end: 13 }),
+    //     frameRate: 2,
+    //     repeat: -1,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "leftToUp",
+    //     frames: this.anims.generateFrameNumbers("bot", { start: 6, end: 4 }),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "rightToUp",
+    //     frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 4 }),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "downToUp",
+    //     frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 4 }),
+    //     frameRate: 20,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "upToDown",
+    //     frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 0 }),
+    //     frameRate: 20,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "upToRight",
+    //     frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 2 }),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "leftToDown",
+    //     frames: this.anims.generateFrameNumbers("bot", { frames: [6, 7, 0] }),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    //
+    //   this.anims.create({
+    //     key: "rightToDown",
+    //     frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 0 }),
+    //     frameRate: 10,
+    //     repeat: 0,
+    //   });
+    // }
 
     this.createCollider();
 
-    createPlayerAnimation.call(this);
+    // createPlayerAnimation.call(this);
   }
 
   createCollider() {
@@ -1194,7 +1194,7 @@ class GameScene extends Scene {
     if (this.player.body.velocity.x <= 0) {
       this.player.setVelocity(160, 0);
       this.rotation = this.ROTATION_RIGHT;
-
+this.player.play({key: "moveright"})
       this.time.delayedCall(
         400,
         function () {
@@ -1520,7 +1520,10 @@ class GameScene extends Scene {
       player.anims.playAfterRepeat("left");
     } else if (this.rotation === this.ROTATION_RIGHT) {
       player.flipX = false;
-      player.anims.playAfterRepeat("right");
+      // player.anims.playAfterRepeat("right");
+      console.log("=>(Game.vue:1525) this.player", this.player);
+      this.player.play({key: "moveright"})
+
     } else if (this.rotation === this.ROTATION_UP) {
       player.flipX = false;
       player.anims.playAfterRepeat("up");
