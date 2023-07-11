@@ -64,8 +64,8 @@ import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
-import botSpritesheet from "@/assets/roboterspritesheet.png";
-import botAnimationJson from "@/assets/roboterspritesheet.json";
+import botSpritesheet from "@/assets/animation.png";
+import botAnimationJson from "@/assets/animation.json";
 import bot_with_sock from "@/assets/Spritesheet.png";
 import world from "@/assets/BotsonsocksBIG.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
@@ -699,6 +699,8 @@ class GameScene extends Scene {
       gameConfig.height / 2,
       "bot"
     );
+    this.anims.createFromAseprite("bot");
+
     this.player2 = this.physics.add
       .sprite(0, 0, "bot")
       .setScale(1.4)
@@ -1194,7 +1196,7 @@ class GameScene extends Scene {
     if (this.player.body.velocity.x <= 0) {
       this.player.setVelocity(160, 0);
       this.rotation = this.ROTATION_RIGHT;
-this.player.play({key: "moveright"})
+this.player.playAfterRepeat({key: "moveright"})
       this.time.delayedCall(
         400,
         function () {
@@ -1212,6 +1214,8 @@ this.player.play({key: "moveright"})
     if (this.player.body.velocity.x >= 0) {
       this.player.setVelocity(-160, 0);
       this.rotation = this.ROTATION_LEFT;
+      this.player.playAfterRepeat({key: "moveleft"})
+
       console.log("=>(Game.vue:1210) movePlayerLeft");
       this.time.delayedCall(
         400,
@@ -1230,7 +1234,7 @@ this.player.play({key: "moveright"})
     if (this.player.body.velocity.y >= 0) {
       this.player.setVelocity(0, -160);
       this.rotation = this.ROTATION_UP;
-
+this.player.playAfterRepeat({key: "moveup"})
       this.time.delayedCall(
         400,
         function () {
@@ -1247,6 +1251,7 @@ this.player.play({key: "moveright"})
     if (this.player.body.velocity.y <= 0) {
       this.player.setVelocity(0, 160);
       this.rotation = this.ROTATION_DOWN;
+      this.player.playAfterRepeat({key: "movedown"})
 
       this.time.delayedCall(
         400,
@@ -1516,25 +1521,27 @@ this.player.play({key: "moveright"})
 
   movePlayer(player, dir) {
     if (this.rotation === this.ROTATION_LEFT) {
-      player.flipX = true;
-      player.anims.playAfterRepeat("left");
+      // player.flipX = true;
+      // this.player.play({key: "moveleft"})
+      // player.anims.playAfterRepeat("left");
     } else if (this.rotation === this.ROTATION_RIGHT) {
-      player.flipX = false;
+      // player.flipX = false;
       // player.anims.playAfterRepeat("right");
       console.log("=>(Game.vue:1525) this.player", this.player);
-      this.player.play({key: "moveright"})
+      // this.player.play({key: "moveright"})
 
     } else if (this.rotation === this.ROTATION_UP) {
-      player.flipX = false;
-      player.anims.playAfterRepeat("up");
+      // player.flipX = false;
+      // player.anims.playAfterRepeat("up");
     } else if (this.rotation === this.ROTATION_DOWN) {
-      player.flipX = false;
-      player.anims.playAfterRepeat("down");
+      // player.flipX = false;
+      // player.anims.playAfterRepeat("down");
     }
 
     if (this.cursors.left.isDown || dir.left.isMoving) {
       if (this.rotation !== this.ROTATION_LEFT) {
-        player.anims.play("turnToSide", true);
+        // player.anims.play("turnToSide", true);
+        // this.player.play({key: "moveleft"})
       }
       this.rotation = this.ROTATION_LEFT;
       this.movePlayerLeft();
@@ -1542,15 +1549,15 @@ this.player.play({key: "moveright"})
       // player.setVelocityY(0);
       // this.resetDirection();
     } else if (this.cursors.right.isDown || dir.right.isMoving) {
-      if (this.rotation !== this.ROTATION_RIGHT) {
-        if (this.rotation === this.ROTATION_LEFT) {
-          player.anims.play("leftToRight");
-        } else if (this.rotation === this.ROTATION_UP) {
-          player.anims.play("upToRight");
-        } else if (this.rotation === this.ROTATION_DOWN) {
-          player.anims.play("turnToSide");
-        }
-      }
+      // if (this.rotation !== this.ROTATION_RIGHT) {
+      //   if (this.rotation === this.ROTATION_LEFT) {
+      //     player.anims.play("leftToRight");
+      //   } else if (this.rotation === this.ROTATION_UP) {
+      //     player.anims.play("upToRight");
+      //   } else if (this.rotation === this.ROTATION_DOWN) {
+      //     player.anims.play("turnToSide");
+      //   }
+      // }
       this.rotation = this.ROTATION_RIGHT;
       this.movingSound.setVolume(0).play();
       this.movePlayerRight();
@@ -1558,33 +1565,34 @@ this.player.play({key: "moveright"})
       // player.setVelocityY(0);
       // this.resetDirection();
     } else if (this.cursors.up.isDown || dir.up.isMoving) {
-      if (this.rotation !== this.ROTATION_UP) {
-        if (this.rotation === this.ROTATION_LEFT) {
-          player.anims.play("leftToUp");
-        } else if (this.rotation === this.ROTATION_RIGHT) {
-          player.anims.play("rightToUp");
-        } else if (this.rotation === this.ROTATION_DOWN) {
-          player.anims.play("downToUp");
-        }
-      }
+      // if (this.rotation !== this.ROTATION_UP) {
+      //   if (this.rotation === this.ROTATION_LEFT) {
+      //     player.anims.play("leftToUp");
+      //   } else if (this.rotation === this.ROTATION_RIGHT) {
+      //     player.anims.play("rightToUp");
+      //   } else if (this.rotation === this.ROTATION_DOWN) {
+      //     player.anims.play("downToUp");
+      //   }
+      // }
       this.rotation = this.ROTATION_UP;
       this.movePlayerUp();
       // this.resetDirection();
     } else if (this.cursors.down.isDown || dir.down.isMoving) {
-      if (this.rotation !== this.ROTATION_DOWN) {
-        if (this.rotation === this.ROTATION_LEFT) {
-          player.anims.play("leftToDown");
-        } else if (this.rotation === this.ROTATION_RIGHT) {
-          player.anims.play("rightToDown");
-        } else if (this.rotation === this.ROTATION_UP) {
-          player.anims.play("upToDown");
-        }
-      }
+      // if (this.rotation !== this.ROTATION_DOWN) {
+      //   if (this.rotation === this.ROTATION_LEFT) {
+      //     player.anims.play("leftToDown");
+      //   } else if (this.rotation === this.ROTATION_RIGHT) {
+      //     player.anims.play("rightToDown");
+      //   } else if (this.rotation === this.ROTATION_UP) {
+      //     player.anims.play("upToDown");
+      //   }
+      // }
       this.rotation = this.ROTATION_DOWN;
       this.movePlayerDown();
       // this.resetDirection();
     } else {
       // player.setVelocityY(0);
+      this.player.playAfterRepeat({key: "idle", repeat: 100})
     }
     // playGame = false;
     if (dir.toObject.isClear && dir.toObject.isMoving) {
