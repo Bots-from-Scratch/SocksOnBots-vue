@@ -79,7 +79,7 @@ import { javascriptGenerator } from "blockly/javascript";
 import LobbyScene from "@/game/scenes/LobbyScene";
 import GameControls from "@/components/GameControls.vue";
 import PixelButton from "@/components/PixelButton.vue";
-
+import PlayerController, {maxSpeed} from "@/game/states/PlayerController";
 // TODO licht/Strom anschalten
 // TODO schieben
 // TODO
@@ -335,6 +335,8 @@ let player2XY;
 let blockFunction;
 let pushObject = true;
 let slowDownTimer;
+/** @type {PlayerController} */
+let playerController;
 
 function runBlocks(workspace) {
   console.log("runBlocks wurde aufgerufen.");
@@ -504,6 +506,10 @@ class GameScene extends Scene {
     this.createCursor();
     this.createSock();
     this.createButtons();
+
+    playerController = new PlayerController(this.player);
+
+    playerController.setState("idle");
 
     this.physics.add.overlap(
       this.player,
@@ -1268,7 +1274,10 @@ class GameScene extends Scene {
 
   movePlayerToObject() {
     if (directionPlayer1.toObject.isClear) {
-      let velocity = this.getVelocityValuesForPlayerToObject(this.player, objectToScanFor);
+      let velocity = this.getVelocityValuesForPlayerToObject(
+        this.player,
+        objectToScanFor
+      );
       this.player.setVelocity(velocity.velocityX, velocity.velocityY);
 
       // this.player.body.velocity.x = velocityX;
@@ -1316,6 +1325,7 @@ class GameScene extends Scene {
 
   // TODO Levelcheck for socket packages
   update() {
+    console.log("=>(Game.vue:1329) playerController.currentState", playerController.currentState);
     // this.player.body.setMaxSpeed(160);
     this.checkIfTileIsSlowingDown();
 
@@ -1352,7 +1362,7 @@ class GameScene extends Scene {
       if (this.objectCollidedWith?.active) {
         distClosest = this.calculateClosestDistanceToBlockingObject();
 
-        hypot = this.calculateHypotenuseBetweenObjects();
+        hypot = this.calculateHypotenuseBetweenObjects(this.player, this.objectCollidedWith);
 
         this.checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot);
 
@@ -1394,30 +1404,34 @@ class GameScene extends Scene {
       directionPlayer1.right.isClear = true;
       directionPlayer1.down.isClear = true;
       directionPlayer1.up.isClear = true;
-      if (
-        this.player.body.x - this.player.body.prev.x !== 0 &&
-        (this.rotation === 0 || this.rotation === 180)
-      ) {
-        walkedBy = true;
-        console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-        this.player.setVelocity(0);
-        this.objectCollidedWith = null;
-      } else if (
-        this.player.body.y - this.player.body.prev.y !== 0 &&
-        (this.rotation === 90 || this.rotation === -90)
-      ) {
-        walkedBy = true;
-        console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-        this.player.setVelocity(0);
-        this.objectCollidedWith = null;
-      }
+      // if (
+      //   this.player.body.x - this.player.body.prev.x !== 0 &&
+      //   (Math.abs(this.player.body.velocity.x) === maxSpeed )
+      // ) {
+      //   walkedBy = true;
+      //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+      //   this.player.setVelocity(0);
+      //   this.objectCollidedWith = null;
+      // } else if (
+      //   this.player.body.y - this.player.body.prev.y !== 0 &&
+      //   (Math.abs(this.player.body.velocity.y) === maxSpeed)
+      // ) {
+      //   walkedBy = true;
+      //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+      //   this.player.setVelocity(0);
+      //   this.objectCollidedWith = null;
+      // }
+      walkedBy = true;
+      console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+      this.player.setVelocity(0);
+      this.objectCollidedWith = null;
     }
   }
 
-  calculateHypotenuseBetweenObjects() {
+  calculateHypotenuseBetweenObjects(player, object) {
     return Math.hypot(
-      this.player.body.halfHeight + this.objectCollidedWith.body.halfHeight,
-      this.player.body.halfWidth + this.objectCollidedWith.body.halfWidth
+      player.body.halfHeight + object.body.halfHeight,
+      player.body.halfWidth + object.body.halfWidth
     );
   }
 
@@ -1499,8 +1513,8 @@ class GameScene extends Scene {
 
     if (Object.keys(directionPlayer1).length > 0) {
       this.statusText.setText(
-        "right clear: " +
-          directionPlayer1.right.isClear +
+        "up clear: " +
+          directionPlayer1.up.isClear +
           "\n moving right: " +
           directionPlayer1.right.isMoving +
           "\nobject collected: " +
@@ -1560,7 +1574,8 @@ class GameScene extends Scene {
         // this.player.play({key: "moveleft"})
       }
       this.rotation = this.ROTATION_LEFT;
-      this.movePlayerLeft();
+      playerController.setState("moveLeft");
+      // this.movePlayerLeft();
       // player.setVelocityX(-160);
       // player.setVelocityY(0);
       // this.resetDirection();
@@ -1576,7 +1591,8 @@ class GameScene extends Scene {
       // }
       this.rotation = this.ROTATION_RIGHT;
       this.movingSound.setVolume(0).play();
-      this.movePlayerRight();
+      playerController.setState("moveRight");
+      // this.movePlayerRight();
       // player.setVelocityX(160);
       // player.setVelocityY(0);
       // this.resetDirection();
@@ -1591,7 +1607,8 @@ class GameScene extends Scene {
       //   }
       // }
       this.rotation = this.ROTATION_UP;
-      this.movePlayerUp();
+      playerController.setState("moveUp");
+      // this.movePlayerUp();
       // this.resetDirection();
     } else if (this.cursors.down.isDown || dir.down.isMoving) {
       if (this.rotation !== this.ROTATION_DOWN) {
@@ -1604,7 +1621,8 @@ class GameScene extends Scene {
         // }
       }
       this.rotation = this.ROTATION_DOWN;
-      this.movePlayerDown();
+      // this.movePlayerDown();
+      playerController.setState("moveDown");
       // this.resetDirection();
     }
   }
