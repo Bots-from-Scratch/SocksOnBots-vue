@@ -22,15 +22,16 @@
           class="pixel-border-small text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
           @click="selectLevel(level.number)"
           :class="[
-            selectedLevel === level.number ? 'bg-stone-300':
-            'bg-stone-500'
+            selectedLevel === level.number ? 'bg-stone-300' : 'bg-stone-500',
           ]"
         >
           {{ level.number }}
         </div>
       </div>
       <GameControls ref="volumesRef" @volumeChange="controlSounds" />
-      <div class="pixel-border-small p-2 h-1/2 w-full bg-gray-300 overflow-scroll">
+      <div
+        class="pixel-border-small p-2 h-1/2 w-full bg-gray-300 overflow-scroll"
+      >
         <p class="h-2 font-pixel text-xs">
           Infotext zu den Levels gespeichert in JSONInfotext zu den Levels
           gespeichert in JSONInfotext zu den Levels gespeichert in JSONInfotext
@@ -103,7 +104,7 @@ export default {
     let game = ref(null);
     const playGameCounter = ref(0);
     const volumesRef = ref();
-    const  selectedLevel = ref(state.selectedLevel);
+    const selectedLevel = ref(state.selectedLevel);
     const isSelected = ref(false);
     const isPlayingRef = ref(state.playGame);
     activeScene = () => {
@@ -1196,7 +1197,7 @@ class GameScene extends Scene {
     if (this.player.body.velocity.x <= 0) {
       this.player.setVelocity(160, 0);
       this.rotation = this.ROTATION_RIGHT;
-this.player.playAfterRepeat({key: "moveright"})
+      this.player.playAfterRepeat("moveright", true);
       this.time.delayedCall(
         400,
         function () {
@@ -1214,7 +1215,7 @@ this.player.playAfterRepeat({key: "moveright"})
     if (this.player.body.velocity.x >= 0) {
       this.player.setVelocity(-160, 0);
       this.rotation = this.ROTATION_LEFT;
-      this.player.playAfterRepeat({key: "moveleft"})
+      this.player.play("moveleft", true);
 
       console.log("=>(Game.vue:1210) movePlayerLeft");
       this.time.delayedCall(
@@ -1234,7 +1235,7 @@ this.player.playAfterRepeat({key: "moveright"})
     if (this.player.body.velocity.y >= 0) {
       this.player.setVelocity(0, -160);
       this.rotation = this.ROTATION_UP;
-this.player.playAfterRepeat({key: "moveup"})
+      this.player.play("moveup", true);
       this.time.delayedCall(
         400,
         function () {
@@ -1251,7 +1252,7 @@ this.player.playAfterRepeat({key: "moveup"})
     if (this.player.body.velocity.y <= 0) {
       this.player.setVelocity(0, 160);
       this.rotation = this.ROTATION_DOWN;
-      this.player.playAfterRepeat({key: "movedown"})
+      this.player.play("movedown", true);
 
       this.time.delayedCall(
         400,
@@ -1267,13 +1268,12 @@ this.player.playAfterRepeat({key: "moveup"})
 
   movePlayerToObject() {
     if (directionPlayer1.toObject.isClear) {
-      // TODO calculate angle for velocityX,Y to move to object
+      let velocity = this.getVelocityValuesForPlayerToObject(this.player, objectToScanFor);
+      this.player.setVelocity(velocity.velocityX, velocity.velocityY);
 
-      // this.resetDirection();
-      console.log("=>(Game.vue:1388) movePlayerToObject");
-      // this.physics.accelerateToObject(player, objectToScanFor, 4000, 100, 100);
-      // this.physics.accelerateToObject(player, objectToScanFor);
-      this.player.setVelocityX(160);
+      // this.player.body.velocity.x = velocityX;
+      // this.player.body.velocity.y = velocityY;
+
       this.time.delayedCall(
         400,
         function () {
@@ -1284,6 +1284,16 @@ this.player.playAfterRepeat({key: "moveup"})
         this
       );
     }
+  }
+
+  getVelocityValuesForPlayerToObject(player, object) {
+    let directionX = object.x - player.x;
+    let directionY = object.y - player.y;
+    let length = Math.sqrt(directionX * directionX + directionY * directionY);
+    return {
+      velocityX: (directionX / length) * this.MAX_SPEED,
+      velocityY: (directionY / length) * this.MAX_SPEED,
+    };
   }
 
   stopPlayer() {
@@ -1495,8 +1505,8 @@ this.player.playAfterRepeat({key: "moveup"})
           directionPlayer1.right.isMoving +
           "\nobject collected: " +
           objectCollected +
-          " body.angle: " +
-          this.player.body.angle +
+          " rotation: " +
+          this.rotation +
           "\nwalkedBy: " +
           walkedBy +
           "\nx: " +
@@ -1529,7 +1539,6 @@ this.player.playAfterRepeat({key: "moveup"})
       // player.anims.playAfterRepeat("right");
       console.log("=>(Game.vue:1525) this.player", this.player);
       // this.player.play({key: "moveright"})
-
     } else if (this.rotation === this.ROTATION_UP) {
       // player.flipX = false;
       // player.anims.playAfterRepeat("up");
@@ -1540,6 +1549,13 @@ this.player.playAfterRepeat({key: "moveup"})
 
     if (this.cursors.left.isDown || dir.left.isMoving) {
       if (this.rotation !== this.ROTATION_LEFT) {
+        // if (this.rotation === this.ROTATION_RIGHT) {
+        //   player.anims.play("moveleft");
+        // } else if (this.rotation === this.ROTATION_UP) {
+        //   player.anims.play("rotateUpLeft");
+        // } else if (this.rotation === this.ROTATION_DOWN) {
+        //   player.anims.play("rotateLeftDown");
+        // }
         // player.anims.play("turnToSide", true);
         // this.player.play({key: "moveleft"})
       }
@@ -1551,11 +1567,11 @@ this.player.playAfterRepeat({key: "moveup"})
     } else if (this.cursors.right.isDown || dir.right.isMoving) {
       // if (this.rotation !== this.ROTATION_RIGHT) {
       //   if (this.rotation === this.ROTATION_LEFT) {
-      //     player.anims.play("leftToRight");
+      //     player.anims.play("rotateLeftDown");
       //   } else if (this.rotation === this.ROTATION_UP) {
-      //     player.anims.play("upToRight");
+      //     player.anims.play("rotateRightUp");
       //   } else if (this.rotation === this.ROTATION_DOWN) {
-      //     player.anims.play("turnToSide");
+      //     player.anims.play("rotateDownRight");
       //   }
       // }
       this.rotation = this.ROTATION_RIGHT;
@@ -1567,41 +1583,29 @@ this.player.playAfterRepeat({key: "moveup"})
     } else if (this.cursors.up.isDown || dir.up.isMoving) {
       // if (this.rotation !== this.ROTATION_UP) {
       //   if (this.rotation === this.ROTATION_LEFT) {
-      //     player.anims.play("leftToUp");
+      //     player.anims.play("rotateUpLeft");
       //   } else if (this.rotation === this.ROTATION_RIGHT) {
-      //     player.anims.play("rightToUp");
+      //     player.anims.playReverse("rotateRightUp");
       //   } else if (this.rotation === this.ROTATION_DOWN) {
-      //     player.anims.play("downToUp");
+      //     player.anims.play("moveup");
       //   }
       // }
       this.rotation = this.ROTATION_UP;
       this.movePlayerUp();
       // this.resetDirection();
     } else if (this.cursors.down.isDown || dir.down.isMoving) {
-      // if (this.rotation !== this.ROTATION_DOWN) {
-      //   if (this.rotation === this.ROTATION_LEFT) {
-      //     player.anims.play("leftToDown");
-      //   } else if (this.rotation === this.ROTATION_RIGHT) {
-      //     player.anims.play("rightToDown");
-      //   } else if (this.rotation === this.ROTATION_UP) {
-      //     player.anims.play("upToDown");
-      //   }
-      // }
+      if (this.rotation !== this.ROTATION_DOWN) {
+        // if (this.rotation === this.ROTATION_LEFT) {
+        //   player.anims.playAfterRepeat("rotateLeftDown");
+        // } else if (this.rotation === this.ROTATION_RIGHT) {
+        //   player.anims.play("rotateDownRight");
+        // } else if (this.rotation === this.ROTATION_UP) {
+        //   player.anims.play("movedown");
+        // }
+      }
       this.rotation = this.ROTATION_DOWN;
       this.movePlayerDown();
       // this.resetDirection();
-    } else {
-      // player.setVelocityY(0);
-      this.player.playAfterRepeat({key: "idle", repeat: 100})
-    }
-    // playGame = false;
-    if (dir.toObject.isClear && dir.toObject.isMoving) {
-      // TODO check if it could bug
-      this.resetDirection();
-      console.log("=>(Game.vue:1388) objectToScanFor");
-      // this.physics.accelerateToObject(player, objectToScanFor, 4000, 100, 100);
-      // this.physics.accelerateToObject(player, objectToScanFor);
-      player.setVelocityX(160);
     }
   }
 }
