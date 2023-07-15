@@ -74,7 +74,11 @@ import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
-import LobbyScene from "@/game/scenes/LobbyScene";
+import MenuScene from "@/game/scenes/MenuScene";
+import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
+import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
+import CreditMenuScene from "@/game/scenes/CreditMenuScene";
+import GameControls from "@/components/GameControls.vue";
 import PixelButton from "@/components/PixelButton.vue";
 import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
 import levels from "@/game/levels.json";
@@ -216,8 +220,7 @@ export default {
       parent: this.$refs.phaserGame,
       width: 960,
       height: 640,
-      scene: [
-        LobbyScene,
+      scene: [MenuScene,LobbyMenuScene,TutorialMenuScene, CreditMenuScene,
         new GameScene(
           this.selectedLevel,
           this.levels,

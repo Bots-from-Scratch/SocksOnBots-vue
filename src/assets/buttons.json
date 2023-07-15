@@ -1,0 +1,45 @@
+{ "frames": {
+   "0": {
+    "frame": { "x": 1, "y": 1, "w": 302, "h": 52 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 300, "h": 50 },
+    "sourceSize": { "w": 300, "h": 50 },
+    "duration": 100
+   },
+   "1": {
+    "frame": { "x": 304, "y": 1, "w": 302, "h": 52 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 300, "h": 50 },
+    "sourceSize": { "w": 300, "h": 50 },
+    "duration": 100
+   },
+   "2": {
+    "frame": { "x": 1, "y": 54, "w": 302, "h": 52 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 300, "h": 50 },
+    "sourceSize": { "w": 300, "h": 50 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.2.40-x64",
+  "image": "buttons.png",
+  "format": "RGBA8888",
+  "size": { "w": 606, "h": 106 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "idle", "from": 0, "to": 0, "direction": "forward" },
+   { "name": "hover", "from": 1, "to": 1, "direction": "forward" },
+   { "name": "click", "from": 2, "to": 2, "direction": "forward" }
+  ],
+  "layers": [
+   { "name": "Button", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}
