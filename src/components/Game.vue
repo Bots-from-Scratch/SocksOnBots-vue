@@ -28,12 +28,14 @@
           {{ level.number }}
         </div>
       </div>
-      <GameControls ref="volumesRef" @volumeChange="controlSounds" />
+      <SoundControls ref="volumesRef" @volumeChange="controlSounds" />
       <div
-        class="pixel-border-small p-2 h-1/2 w-full bg-stone-300 overflow-scroll" @mouseover="isBlinking = false" :class="{'blink': isBlinking, 'stop-blink': !isBlinking}"
+        class="pixel-border-small p-2 h-1/2 w-full bg-stone-300 overflow-scroll"
+        @mouseover="isBlinking = false"
+        :class="{ blink: isBlinking, 'stop-blink': !isBlinking }"
       >
         <p class="h-2 font-pixel text-xs">
-          {{levels.find(level=>level.number === selectedLevel).text}}
+          {{ levels.find((level) => level.number === selectedLevel).text }}
         </p>
       </div>
       <div class="pixel-border-small flex flex-row gap-8 bg-stone-800 p-4">
@@ -56,7 +58,7 @@
 <script>
 import * as Phaser from "phaser";
 import { Scene } from "phaser";
-import { computed, defineComponent, ref, toRaw } from "vue";
+import { computed, defineComponent, onMounted, ref, toRaw } from "vue";
 import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
@@ -73,10 +75,10 @@ import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 import LobbyScene from "@/game/scenes/LobbyScene";
-import GameControls from "@/components/GameControls.vue";
 import PixelButton from "@/components/PixelButton.vue";
 import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
-import levels from "@/game/levels.json"
+import levels from "@/game/levels.json";
+import SoundControls from "@/components/SoundControls.vue";
 // TODO licht/Strom anschalten
 // TODO schieben
 // TODO
@@ -84,7 +86,8 @@ import levels from "@/game/levels.json"
 let activeScene = null;
 export default {
   name: "Game",
-  components: { PixelButton, GameControls },
+  components: { SoundControls, PixelButton },
+  expose: ["activeScene"],
   emits: {
     selectedLevel: null,
     playGamePressed: null,
@@ -105,10 +108,14 @@ export default {
     const selectedLevel = ref(state.selectedLevel);
     const isSelected = ref(false);
     const isPlayingRef = ref(state.playGame);
+    const actScene = ref(null);
     activeScene = () => {
-      return game.value.scene.getScenes(true)[0];
+      if (game.value) {
+        return game.value.scene.getScenes(true)[0];
+      } else {
+        console.warn("Game not loaded");
+      }
     };
-
     const controlSounds = (volume) => {
       let scene = activeScene();
       if (!scene.backgroundSound?.isPlaying) {
@@ -143,6 +150,7 @@ export default {
       isSelected.value = !isSelected.value;
       isBlinking.value = true;
     };
+
     return {
       props,
       game,
@@ -157,7 +165,7 @@ export default {
       isSelected,
       isPlayingRef,
       volumesRef,
-      isBlinking
+      isBlinking,
     };
   },
 
@@ -228,6 +236,10 @@ export default {
       pixelArt: true,
     };
     this.game = new Phaser.Game(gameConfig);
+
+    setTimeout(() => {state.activeScene = activeScene().scene.key; console.log("=>(Game.vue:241) state.activeScene", state.activeScene);}, 1000);
+
+
   },
 };
 
@@ -288,6 +300,8 @@ class GameScene extends Scene {
   }
 
   init() {
+    state.activeScene = this.scene.key;
+
     this.resetDirection();
 
     score = 0;
@@ -357,7 +371,6 @@ class GameScene extends Scene {
     this.wallLayer = map.createLayer("walls", tileset, 0, 0);
     this.objectLayer = map.createLayer("objects", tileset, 0, 0);
     this.winningPointLayer = map.getObjectLayer("WinningPointLayer")["objects"];
-
 
     function createObjectsFromMapObjects(layerName, _this) {
       const objects = map.createFromObjects(layerName, {
@@ -621,9 +634,7 @@ class GameScene extends Scene {
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
 
-
     this.createCollider();
-
   }
 
   createCollider() {
@@ -835,6 +846,7 @@ class GameScene extends Scene {
       () => {
         this.loadLevelCoordinates();
         this.player.setScale(1);
+        playerController.setState("idle");
         this.getItemKeyForActiveLevel();
         this.resetDirection();
 
@@ -1264,9 +1276,15 @@ class GameScene extends Scene {
 }
 
 @keyframes blink {
-  0% { background-color: #f5f5f4; }
-  50% { background-color: #a8a29e; }
-  100% { background-color: #f5f5f4; }
+  0% {
+    background-color: #f5f5f4;
+  }
+  50% {
+    background-color: #a8a29e;
+  }
+  100% {
+    background-color: #f5f5f4;
+  }
 }
 
 .blink {
@@ -1276,5 +1294,4 @@ class GameScene extends Scene {
 .stop-blink {
   animation: none;
 }
-
 </style>

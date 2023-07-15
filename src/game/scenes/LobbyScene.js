@@ -7,6 +7,10 @@ class LobbyScene extends Scene {
   constructor() {
     super("LobbyScene");
   }
+
+  init() {
+    state.activeScene = this.scene.key;
+  }
   preload() {}
 
   create() {
@@ -56,7 +60,7 @@ class LobbyScene extends Scene {
     return temp;
   }
 
-  
+
 }
 
 export default LobbyScene;

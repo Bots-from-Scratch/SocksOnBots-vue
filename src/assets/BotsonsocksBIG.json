@@ -45,7 +45,6 @@
             92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92],
          "height":40,
          "id":1,
-         "locked":true,
          "name":"background",
          "opacity":1,
          "type":"tilelayer",
@@ -300,7 +299,7 @@
                         {
                          "name":"keyForLevel",
                          "type":"int",
-                         "value":5
+                         "value":3
                         }],
                  "rotation":0,
                  "type":"",
@@ -381,7 +380,7 @@
                         {
                          "name":"removeEvent",
                          "type":"int",
-                         "value":5
+                         "value":3
                         }],
                  "rotation":-180,
                  "type":"",
@@ -399,7 +398,7 @@
                         {
                          "name":"removeEvent",
                          "type":"int",
-                         "value":5
+                         "value":3
                         }],
                  "rotation":90,
                  "type":"",
@@ -417,7 +416,7 @@
                         {
                          "name":"removeEvent",
                          "type":"int",
-                         "value":5
+                         "value":3
                         }],
                  "rotation":-90,
                  "type":"",
@@ -435,7 +434,7 @@
                         {
                          "name":"removeEvent",
                          "type":"int",
-                         "value":5
+                         "value":3
                         }],
                  "rotation":-180,
                  "type":"",
@@ -453,7 +452,7 @@
                         {
                          "name":"removeEvent",
                          "type":"int",
-                         "value":5
+                         "value":3
                         }],
                  "rotation":-180,
                  "type":"",

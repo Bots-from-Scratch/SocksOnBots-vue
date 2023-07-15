@@ -28,12 +28,12 @@
   },
   {
     "number": 3,
-    "name": "Level 4",
-    "x": 23,
-    "y": 2,
+    "name": "Level 3",
+    "x": 22,
+    "y": 28,
     "isActive": false,
-    "playerStart": { "x": 25, "y": 3 },
-    "text": "Hier gibt es eine Tür. Türen sind fast immer verschlossen. Dein Suchsensor kann dir helfen einen Schlüssel für die Tür zu finden. Aber Achtung, deine Sichtweite ist nicht sonderlich hoch."
+    "playerStart": { "x": 25, "y": 29 },
+    "text": "Oh wieder eine Tür. Diesmal ist der Schlüssel aber hinter einem Zaun. Deine Ärmchen sind zu kurz um hindurchzulangen. (Hast du dich schon mal gefragt wieso deine Typenbezeichnung T-REX-5 ist?) Am Zaun hängt ein Kabel, und vor dir liegt ein Gegenstück mit Stromquelle. Passt das zusammen? "
   },
   {
     "number": 4,
@@ -47,11 +47,11 @@
   {
     "number": 5,
     "name": "Level 6",
-    "x": 22,
-    "y": 28,
+    "x": 23,
+    "y": 2,
     "isActive": false,
-    "playerStart": { "x": 25, "y": 29 },
-    "text": "Oh wieder eine Tür. Diesmal ist der Schlüssel aber hinter einem Zaun. Deine Ärmchen sind zu kurz um hindurchzulangen. (Hast du dich schon mal gefragt wieso deine Typenbezeichnung T-REX-5 ist?) Am Zaun hängt ein Kabel, und vor dir liegt ein Gegenstück mit Stromquelle. Passt das zusammen? "
+    "playerStart": { "x": 25, "y": 3 },
+    "text": "Hier gibt es eine Tür. Türen sind fast immer verschlossen. Dein Suchsensor kann dir helfen einen Schlüssel für die Tür zu finden. Aber Achtung, deine Sichtweite ist nicht sonderlich hoch."
   },
   {
     "number": 6,
