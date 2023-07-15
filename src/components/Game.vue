@@ -79,7 +79,7 @@ import { javascriptGenerator } from "blockly/javascript";
 import LobbyScene from "@/game/scenes/LobbyScene";
 import GameControls from "@/components/GameControls.vue";
 import PixelButton from "@/components/PixelButton.vue";
-import PlayerController, {maxSpeed} from "@/game/states/PlayerController";
+import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
 // TODO licht/Strom anschalten
 // TODO schieben
 // TODO
@@ -311,13 +311,6 @@ let directionPlayer1 = {
   down: { isClear: true, isMoving: false },
   toObject: { isClear: false, isMoving: false },
 };
-let directionPlayer2 = {
-  right: { isClear: true, isMoving: false },
-  left: { isClear: true, isMoving: false },
-  up: { isClear: true, isMoving: false },
-  down: { isClear: true, isMoving: false },
-  toObject: { isClear: false, isMoving: false },
-};
 
 let objectToScanFor;
 let itemSock;
@@ -358,12 +351,7 @@ function sendDirectionToSocket() {
 }
 
 class GameScene extends Scene {
-  ROTATION_RIGHT = 0;
-  ROTATION_LEFT = 180;
-  ROTATION_UP = -90;
-  ROTATION_DOWN = 90;
   SCAN_DISTANCE = 200;
-  MAX_SPEED = 160;
 
   constructor(selectedLevel, levels, updateSelectedLevel) {
     super({ key: "GameScene" });
@@ -487,16 +475,6 @@ class GameScene extends Scene {
     this.wallLayer.setCollisionByProperty({ collision: true });
     this.objectLayer.setCollisionByProperty({ collision: true });
     this.objectLayer.depth = 1;
-    // this.wallLayer.setCollisionFromCollisionGroup(true, true);
-    // this.wallLayer.renderDebug(this.add.graphics());
-
-    // for (let i = 0 ; i<105; i++) console.log(tileset.getTileCollisionGroup(i));
-
-    const collisionRect = new Phaser.Geom.Rectangle();
-
-    // let gidMapEntries = this.wallLayer.tileset[0].getTileData(0);
-    //
-    // for (const el of gidMapEntries) console.log(el[1]);
 
     map.setBaseTileSize(64, 64);
 
@@ -700,7 +678,6 @@ class GameScene extends Scene {
   }
 
   createPlayer() {
-    // this.player = this.physics.add.sprite(1664, 320, "bot").setScale(1.4);
     this.player = this.physics.add.sprite(
       gameConfig.width / 2,
       gameConfig.height / 2,
@@ -724,12 +701,9 @@ class GameScene extends Scene {
       blendMode: "DARKEN",
     });
 
-    // particles.startFollow(this.player2,0,0,false);
-    // particles.explode(10, this.player2.x, this.player2.y);
     // TODO set player mid to mid of tiles
 
-    // this.player.body.bounce.set(1);
-    this.player.body.setMaxSpeed(this.MAX_SPEED);
+    this.player.body.setMaxSpeed(maxSpeed);
     this.player.body.setCircle(20, 12, 28);
     // this.player.body.setSize(32, 30, 100, 20);
     // this.player.setOffset(16, 32);
@@ -739,119 +713,9 @@ class GameScene extends Scene {
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
 
-    // function createPlayerAnimation() {
-    //   this.anims.create({
-    //     key: "left",
-    //     frames: this.anims.generateFrameNumbers("bot", {
-    //       start: 24,
-    //       end: 29,
-    //     }),
-    //     frameRate: 10,
-    //     repeat: -1,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "turnToFront",
-    //     frames: this.anims.generateFrameNumbers("bot", { frames: [0] }),
-    //     frameRate: 10,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "turnToSide",
-    //     frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 2 }),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "leftToRight",
-    //     frames: this.anims.generateFrameNumbers("bot", {
-    //       frames: [6, 7, 0, 1, 2],
-    //     }),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "right",
-    //     frames: this.anims.generateFrameNumbers("bot", {
-    //       start: 24,
-    //       end: 29,
-    //     }),
-    //     frameRate: 10,
-    //     repeat: -1,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "up",
-    //     frames: this.anims.generateFrameNumbers("bot", {
-    //       start: 32,
-    //       end: 37,
-    //     }),
-    //     frameRate: 5,
-    //     repeat: -1,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "down",
-    //     frames: this.anims.generateFrameNumbers("bot", { start: 8, end: 13 }),
-    //     frameRate: 2,
-    //     repeat: -1,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "leftToUp",
-    //     frames: this.anims.generateFrameNumbers("bot", { start: 6, end: 4 }),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "rightToUp",
-    //     frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 4 }),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "downToUp",
-    //     frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 4 }),
-    //     frameRate: 20,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "upToDown",
-    //     frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 0 }),
-    //     frameRate: 20,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "upToRight",
-    //     frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 2 }),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "leftToDown",
-    //     frames: this.anims.generateFrameNumbers("bot", { frames: [6, 7, 0] }),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    //
-    //   this.anims.create({
-    //     key: "rightToDown",
-    //     frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 0 }),
-    //     frameRate: 10,
-    //     repeat: 0,
-    //   });
-    // }
 
     this.createCollider();
 
-    // createPlayerAnimation.call(this);
   }
 
   createCollider() {
@@ -1197,118 +1061,6 @@ class GameScene extends Scene {
     this.backgroundSound.setVolume(volume);
   }
 
-  movePlayerRight() {
-    console.log("=>(Game.vue:1553) movePlayerRight");
-
-    if (this.player.body.velocity.x <= 0) {
-      this.player.setVelocity(160, 0);
-      this.rotation = this.ROTATION_RIGHT;
-      this.player.playAfterRepeat("moveright", true);
-      this.time.delayedCall(
-        400,
-        function () {
-          // Delay of 400 by a velocity of 160 means a movement of 64 pixels (our tile size)
-          this.player.setVelocityX(0);
-          console.log("1553Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  movePlayerLeft() {
-    if (this.player.body.velocity.x >= 0) {
-      this.player.setVelocity(-160, 0);
-      this.rotation = this.ROTATION_LEFT;
-      this.player.play("moveleft", true);
-
-      console.log("=>(Game.vue:1210) movePlayerLeft");
-      this.time.delayedCall(
-        400,
-        function () {
-          this.player.setVelocityX(0);
-          console.log("1210Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  movePlayerUp() {
-    console.log("=>(Game.vue:1553) movePlayerUp");
-    if (this.player.body.velocity.y >= 0) {
-      this.player.setVelocity(0, -160);
-      this.rotation = this.ROTATION_UP;
-      this.player.play("moveup", true);
-      this.time.delayedCall(
-        400,
-        function () {
-          this.player.setVelocityY(0);
-          console.log("Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  movePlayerDown() {
-    if (this.player.body.velocity.y <= 0) {
-      this.player.setVelocity(0, 160);
-      this.rotation = this.ROTATION_DOWN;
-      this.player.play("movedown", true);
-
-      this.time.delayedCall(
-        400,
-        function () {
-          this.player.setVelocityY(0);
-          console.log("Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  movePlayerToObject() {
-    if (directionPlayer1.toObject.isClear) {
-      let velocity = this.getVelocityValuesForPlayerToObject(
-        this.player,
-        objectToScanFor
-      );
-      this.player.setVelocity(velocity.velocityX, velocity.velocityY);
-
-      // this.player.body.velocity.x = velocityX;
-      // this.player.body.velocity.y = velocityY;
-
-      this.time.delayedCall(
-        400,
-        function () {
-          this.player.setVelocity(0);
-          console.log("Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  // getVelocityValuesForPlayerToObject(player, object) {
-  //   let directionX = object.x - player.x;
-  //   let directionY = object.y - player.y;
-  //   let length = Math.sqrt(directionX * directionX + directionY * directionY);
-  //   return {
-  //     velocityX: (directionX / length) * this.MAX_SPEED,
-  //     velocityY: (directionY / length) * this.MAX_SPEED,
-  //   };
-  // }
-
-  stopPlayer() {
-    this.player.setVelocity(0);
-  }
-
   checkIfTileIsSlowingDown() {
     var tile = this.wallLayer.getTileAtWorldXY(
       this.player.x,
@@ -1317,25 +1069,20 @@ class GameScene extends Scene {
     );
     if (tile && tile.properties.slowingDown) {
       // slow down the player
-      this.player.setMaxVelocity(this.MAX_SPEED / 2);
+      this.player.setMaxVelocity(maxSpeed / 2);
     } else {
-      this.player.setMaxVelocity(this.MAX_SPEED);
+      this.player.setMaxVelocity(maxSpeed);
     }
   }
 
   // TODO Levelcheck for socket packages
   update() {
-    console.log("=>(Game.vue:1329) playerController.currentState", playerController.currentState);
-    // this.player.body.setMaxSpeed(160);
     this.checkIfTileIsSlowingDown();
 
     if (!this.isPreparingLevel) {
       sendDirectionToSocket();
     }
 
-    if (Object.entries(state.directionOpponent).length > 0) {
-      directionPlayer2 = toRaw(state.directionOpponent);
-    }
     if (Object.entries(state.directionSelf).length > 0) {
       directionPlayer1 = toRaw(state.directionSelf);
     }
@@ -1343,12 +1090,7 @@ class GameScene extends Scene {
     player2XY = toRaw(state.playerPosition);
     this.player2.setX(player2XY.x);
     this.player2.setY(player2XY.y);
-    playerPosition.x = this.player.x;
-    playerPosition.y = this.player.y;
-    socket.emit("playerXY", {
-      roomId: state.roomID,
-      playerPosition: playerPosition,
-    });
+    this.sendPlayerPositionToSocketServer(this.player);
 
     this.checkForScannedObject();
 
@@ -1362,7 +1104,10 @@ class GameScene extends Scene {
       if (this.objectCollidedWith?.active) {
         distClosest = this.calculateClosestDistanceToBlockingObject();
 
-        hypot = this.calculateHypotenuseBetweenObjects(this.player, this.objectCollidedWith);
+        hypot = this.calculateHypotenuseBetweenObjects(
+          this.player,
+          this.objectCollidedWith
+        );
 
         this.checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot);
 
@@ -1380,8 +1125,16 @@ class GameScene extends Scene {
 
     if (Object.keys(directionPlayer1).length > 0) {
       this.movePlayer(this.player, directionPlayer1);
-      this.movePlayer(this.player2, directionPlayer2);
     }
+  }
+
+  sendPlayerPositionToSocketServer(player) {
+    playerPosition.x = player.x;
+    playerPosition.y = player.y;
+    socket.emit("playerXY", {
+      roomId: state.roomID,
+      playerPosition: playerPosition,
+    });
   }
 
   drawLineBetweenPlayerAndBlockingObject() {
@@ -1519,8 +1272,6 @@ class GameScene extends Scene {
           directionPlayer1.right.isMoving +
           "\nobject collected: " +
           objectCollected +
-          " rotation: " +
-          this.rotation +
           "\nwalkedBy: " +
           walkedBy +
           "\nx: " +
@@ -1544,91 +1295,17 @@ class GameScene extends Scene {
   }
 
   movePlayer(player, dir) {
-    if (this.rotation === this.ROTATION_LEFT) {
-      // player.flipX = true;
-      // this.player.play({key: "moveleft"})
-      // player.anims.playAfterRepeat("left");
-    } else if (this.rotation === this.ROTATION_RIGHT) {
-      // player.flipX = false;
-      // player.anims.playAfterRepeat("right");
-      console.log("=>(Game.vue:1525) this.player", this.player);
-      // this.player.play({key: "moveright"})
-    } else if (this.rotation === this.ROTATION_UP) {
-      // player.flipX = false;
-      // player.anims.playAfterRepeat("up");
-    } else if (this.rotation === this.ROTATION_DOWN) {
-      // player.flipX = false;
-      // player.anims.playAfterRepeat("down");
-    }
-
     if (this.cursors.left.isDown || dir.left.isMoving) {
-      if (this.rotation !== this.ROTATION_LEFT) {
-        // if (this.rotation === this.ROTATION_RIGHT) {
-        //   player.anims.play("moveleft");
-        // } else if (this.rotation === this.ROTATION_UP) {
-        //   player.anims.play("rotateUpLeft");
-        // } else if (this.rotation === this.ROTATION_DOWN) {
-        //   player.anims.play("rotateLeftDown");
-        // }
-        // player.anims.play("turnToSide", true);
-        // this.player.play({key: "moveleft"})
-      }
-      this.rotation = this.ROTATION_LEFT;
       playerController.setState("moveLeft");
-      // this.movePlayerLeft();
-      // player.setVelocityX(-160);
-      // player.setVelocityY(0);
-      // this.resetDirection();
     } else if (this.cursors.right.isDown || dir.right.isMoving) {
-      // if (this.rotation !== this.ROTATION_RIGHT) {
-      //   if (this.rotation === this.ROTATION_LEFT) {
-      //     player.anims.play("rotateLeftDown");
-      //   } else if (this.rotation === this.ROTATION_UP) {
-      //     player.anims.play("rotateRightUp");
-      //   } else if (this.rotation === this.ROTATION_DOWN) {
-      //     player.anims.play("rotateDownRight");
-      //   }
-      // }
-      this.rotation = this.ROTATION_RIGHT;
-      this.movingSound.setVolume(0).play();
       playerController.setState("moveRight");
-      // this.movePlayerRight();
-      // player.setVelocityX(160);
-      // player.setVelocityY(0);
-      // this.resetDirection();
     } else if (this.cursors.up.isDown || dir.up.isMoving) {
-      // if (this.rotation !== this.ROTATION_UP) {
-      //   if (this.rotation === this.ROTATION_LEFT) {
-      //     player.anims.play("rotateUpLeft");
-      //   } else if (this.rotation === this.ROTATION_RIGHT) {
-      //     player.anims.playReverse("rotateRightUp");
-      //   } else if (this.rotation === this.ROTATION_DOWN) {
-      //     player.anims.play("moveup");
-      //   }
-      // }
-      this.rotation = this.ROTATION_UP;
       playerController.setState("moveUp");
-      // this.movePlayerUp();
-      // this.resetDirection();
     } else if (this.cursors.down.isDown || dir.down.isMoving) {
-      if (this.rotation !== this.ROTATION_DOWN) {
-        // if (this.rotation === this.ROTATION_LEFT) {
-        //   player.anims.playAfterRepeat("rotateLeftDown");
-        // } else if (this.rotation === this.ROTATION_RIGHT) {
-        //   player.anims.play("rotateDownRight");
-        // } else if (this.rotation === this.ROTATION_UP) {
-        //   player.anims.play("movedown");
-        // }
-      }
-      this.rotation = this.ROTATION_DOWN;
-      // this.movePlayerDown();
       playerController.setState("moveDown");
-      // this.resetDirection();
     }
   }
 }
-
-// export { GameScene };
 </script>
 
 <style>
