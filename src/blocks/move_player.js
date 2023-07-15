@@ -10,11 +10,11 @@ Blockly.common.defineBlocksWithJsonArray([
         type: "field_dropdown",
         name: "VALUE",
         options: [
-          ["left", "Left"],
-          ["right", "Right"],
-          ["up", "Up"],
-          ["down", "Down"],
-          ["to object", "ToObject"],
+          ["left", "moveLeft"],
+          ["right", "moveRight"],
+          ["up", "moveUp"],
+          ["down", "moveDown"],
+          ["to object", "moveToObject"],
         ],
       },
     ],
@@ -29,7 +29,11 @@ Blockly.common.defineBlocksWithJsonArray([
 javascriptGenerator["move_player"] = function (block) {
   let blockValue = block.getFieldValue("VALUE");
   let code = "yield;\n";
-  code += "_this.movePlayer" + blockValue + "();";
+  if (blockValue === "moveToObject") {
+    code += "playerController.setState('" + blockValue + "', directionPlayer1.toObject.isClear, objectToScanFor);";
+  } else {
+    code += "playerController.setState('" + blockValue + "');";
+  }
   console.log("=>(move_player.js:50) code", code);
   return code;
 };
