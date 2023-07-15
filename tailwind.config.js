@@ -6,6 +6,9 @@ module.exports = {
       pixel: ["Pixel"],
     },
     extend: {
+      colors: {
+        'black': '#181e26'
+      },
       backgroundImage: {
         'hero-image': "url('@/assets/img.png')",
         'pixel-button': "url('@/assets/button.svg')"

@@ -1,17 +1,58 @@
 <template>
-  <div ref="phaserGame" class="game-container" />
-  <div class="flex flex-col">
-    <div>volume: {{ volume }}</div>
-    <div id="play-status">playGame: {{ playGame }}</div>
-    <div>Self Direction: {{ state.directionSelf }}</div>
-    <!--    <div>Level: {{ playingLevel }}</div>-->
-    <div>Level: {{ selectedLevel }}</div>
-    <select v-model="selectedLevel" class="bg-yellow-500">
-      <option disabled value="">Select level</option>
-      <option v-for="level in levels" class="capitalize">
-        {{ level.number }}
-      </option>
-    </select>
+  <div
+    class="flex flex-row gap-16 justify-between pixel-border-16 w-full p-12 pl-14 bg-gray-600 mx-auto my-4"
+  >
+    <div
+      ref="phaserGame"
+      class="game-container relative pixel-border-16 w-full"
+      id="gameCanvas"
+    >
+      <transition>
+        <div
+          v-if="antennaClicked"
+          class="noise absolute w-full h-full bg-black top-0 left-0"
+        ></div>
+      </transition>
+    </div>
+    <div class="flex flex-col pixel-border-8 gap-8 basis-1/4 bg-stone-700 p-4">
+      <div class="grid grid-cols-3 gap-x-8 gap-y-4">
+        <div
+          v-for="level in levels"
+          :key="level.number"
+          class="pixel-border-small text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
+          @click="selectLevel(level.number)"
+          :class="[
+            selectedLevel === level.number ? 'bg-stone-300':
+            'bg-stone-500'
+          ]"
+        >
+          {{ level.number }}
+        </div>
+      </div>
+      <GameControls ref="volumesRef" @volumeChange="controlSounds" />
+      <div class="pixel-border-small p-2 h-1/2 w-full bg-gray-300 overflow-scroll">
+        <p class="h-2 font-pixel text-xs">
+          Infotext zu den Levels gespeichert in JSONInfotext zu den Levels
+          gespeichert in JSONInfotext zu den Levels gespeichert in JSONInfotext
+          zu den Levels gespeichert in JSON Infotext zu den Levels gespeichert
+          in JSON Infotext zu den Levels gespeichert in JSON Infotext zu den
+          Levels gespeichert in JSON Infotext zu den Levels gespeichert in JSON
+        </p>
+      </div>
+      <div class="pixel-border-small flex flex-row gap-8 bg-stone-800 p-4">
+        <PixelButton class="w-1/2" text="Play" @click="playGame" />
+        <div class="flex flex-col gap-3">
+          <div
+            class="pixel-border-small h-3 aspect-square text-white"
+            :class="[isPlayingRef ? 'bg-emerald-400' : 'bg-emerald-800']"
+          ></div>
+          <div
+            class="pixel-border-small h-3 aspect-square bg-red-800 text-white"
+            :class="[!isPlayingRef ? 'bg-red-400' : 'bg-red-800']"
+          ></div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -38,61 +79,87 @@ import MenuScene from "@/game/scenes/MenuScene";
 import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
 import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
 import CreditMenuScene from "@/game/scenes/CreditMenuScene";
+import GameControls from "@/components/GameControls.vue";
+import PixelButton from "@/components/PixelButton.vue";
 
 // TODO licht/Strom anschalten
 // TODO schieben
 // TODO
 
 let activeScene = null;
-export default defineComponent({
+export default {
   name: "Game",
+  components: { PixelButton, GameControls },
   emits: {
     selectedLevel: null,
+    playGamePressed: null,
   },
   props: {
     // directionPlayer1: String,
-    playGame: Boolean,
-    volume: Object,
+    playGames: Boolean,
+    // volume: Object,
+    blocklyWorkspace: Object,
+    antennaClicked: true,
     // workspace: Object,
   },
-  setup() {
+  setup(props) {
     let game = ref(null);
-    let selectedLevel = ref(state.selectedLevel);
-    activeScene = computed(() => {
-      console.log(
-        "=>(Game.vue:49) this.game.scene.getScenes",
-        game.value.scene.getScenes(true)[0]
-      );
+    const playGameCounter = ref(0);
+    const volumesRef = ref();
+    const  selectedLevel = ref(state.selectedLevel);
+    const isSelected = ref(false);
+    const isPlayingRef = ref(state.playGame);
+    activeScene = () => {
       return game.value.scene.getScenes(true)[0];
-    });
-
-    const controlSounds = (volumes) => {
-      let scene = activeScene.value;
-
-      if (!scene.backgroundSound.isPlaying) {
-        console.log("=>(Game.vue:63) playScene");
-        scene.backgroundSound.play();
-      }
-
-      scene.backgroundSound.setVolume(parseInt(volumes.value.music) / 200);
-      scene.collisionSound.setVolume(parseInt(volumes.value.sound) / 200);
     };
 
-    const run = (workspace, volumes) => {
-      runBlocks(workspace);
-      controlSounds(volumes);
+    const controlSounds = (volume) => {
+      let scene = activeScene();
+      if (!scene.backgroundSound?.isPlaying) {
+        scene.backgroundSound?.play();
+      }
+      scene.backgroundSound?.setVolume(parseInt(volume.music) / 200);
+      scene.collisionSound?.setVolume(parseInt(volume.sound) / 200);
+    };
+
+    const runGame = () => {
+      runBlocks(props.blocklyWorkspace.value);
+      controlSounds(volumesRef.value.volume);
+      playGameCounter.value++;
+    };
+
+    const playGame = () => {
+      socket.emit(
+        "playGame",
+        { playGame: true, roomId: state.roomID },
+        () => {}
+      );
+      runGame();
     };
 
     const updateSelectedLevel = (newLevel) => {
       selectedLevel.value = newLevel;
     };
+
+    const selectLevel = (levelNumber) => {
+      console.log("=>(Game.vue:126) selectLevel", levelNumber);
+      selectedLevel.value = levelNumber;
+      isSelected.value = !isSelected.value;
+    };
     return {
+      props,
       game,
-      run,
+      runGame,
       controlSounds,
       activeScene,
       updateSelectedLevel,
       selectedLevel,
+      playGame,
+      playGameCounter,
+      selectLevel,
+      isSelected,
+      isPlayingRef,
+      volumesRef,
     };
   },
 
@@ -192,12 +259,18 @@ export default defineComponent({
       });
       // this.activeScene.scene.restart();
     },
+    "state.playGame": {
+      handler() {
+        this.isPlayingRef = !this.isPlayingRef;
+        this.playGameCounter === 0 && this.runGame();
+      },
+    },
     "state.selectedLevel": {
       handler(newValue) {
         selectedGameLevel = newValue;
         this.$emit("selectedLevel", selectedGameLevel);
         if (this.game) {
-          this.activeScene.prepareLevel();
+          this.activeScene().prepareLevel();
         }
       },
       immediate: true,
@@ -225,11 +298,12 @@ export default defineComponent({
           debug: true,
         },
       },
+      input: { mouse: { preventDefaultWheel: false } },
       pixelArt: true,
     };
     this.game = new Phaser.Game(gameConfig);
   },
-});
+};
 
 let directionPlayer1 = {
   right: { isClear: true, isMoving: false },
@@ -272,11 +346,7 @@ function runBlocks(workspace) {
     workspace.highlightBlock(id);
   };
   const code = javascriptGenerator.workspaceToCode(workspace);
-  activeScene.value.createGeneratorFunction(
-    code,
-    highlightBlock,
-    activeScene.value
-  );
+  activeScene().createGeneratorFunction(code, highlightBlock, activeScene());
 }
 
 function sendDirectionToSocket() {
@@ -287,13 +357,6 @@ function sendDirectionToSocket() {
 }
 
 class GameScene extends Scene {
-  constructor(selectedLevel, levels, updateSelectedLevel) {
-    super({ key: "GameScene" });
-    selectedGameLevel = selectedLevel;
-    this.levels = levels;
-    this.updateLevels = updateSelectedLevel;
-  }
-
   ROTATION_RIGHT = 0;
   ROTATION_LEFT = 180;
   ROTATION_UP = -90;
@@ -301,76 +364,15 @@ class GameScene extends Scene {
   SCAN_DISTANCE = 200;
   MAX_SPEED = 160;
 
-  // levels = [
-  //   {
-  //     name: "Level 1",
-  //     x: 3,
-  //     y: 28,
-  //     isActive: false,
-  //     playerStart: {x: 10, y: 37},
-  //   },
-  //   {
-  //     name: "Level 2",
-  //     x: 3,
-  //     y: 15,
-  //     isActive: false,
-  //     playerStart: {x: 10, y: 23},
-  //   },
-  //   {
-  //     name: "Level 3",
-  //     x: 3,
-  //     y: 2,
-  //     isActive: false,
-  //     playerStart: {x: 3, y: 7},
-  //   },
-  //   {
-  //     name: "Level 4",
-  //     x: 23,
-  //     y: 2,
-  //     isActive: false,
-  //     playerStart: {x: 25, y: 3},
-  //   },
-  //   {
-  //     name: "Level 5",
-  //     x: 24,
-  //     y: 15,
-  //     isActive: false,
-  //     playerStart: {x: 300, y: 600},
-  //   },
-  //   {
-  //     name: "Level 6",
-  //     x: 22,
-  //     y: 28,
-  //     isActive: false,
-  //     playerStart: {x: 350, y: 700},
-  //   },
-  //   {
-  //     name: "Level 7",
-  //     x: 42,
-  //     y: 2,
-  //     isActive: false,
-  //     playerStart: {x: 400, y: 800},
-  //   },
-  //   {
-  //     name: "Level 8",
-  //     x: 42,
-  //     y: 15,
-  //     isActive: false,
-  //     playerStart: {x: 450, y: 900},
-  //   },
-  //   {
-  //     name: "Level 9",
-  //     x: 42,
-  //     y: 28,
-  //     isActive: false,
-  //     playerStart: {x: 500, y: 1000},
-  //   },
-  // ];
+  constructor(selectedLevel, levels, updateSelectedLevel) {
+    super({ key: "GameScene" });
+    selectedGameLevel = selectedLevel;
+    this.levels = levels;
+    this.updateLevels = updateSelectedLevel;
+  }
 
   init() {
     this.resetDirection();
-
-    // playingLevel = 4;
 
     score = 0;
 
@@ -515,7 +517,7 @@ class GameScene extends Scene {
     this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
       fontSize: "32px",
       fill: "#fff",
-      fontFamily: "Pixel"
+      fontFamily: "Pixel",
     });
     this.scoreText.setVisible(true).setScrollFactor(0);
 
@@ -619,9 +621,11 @@ class GameScene extends Scene {
 
   createGeneratorFunction(code, highlightBlock, _this) {
     const blockGenerator = eval(`
-    (function* () {console.log("eval.new");
-      ${code};console.log("eval.new.finished");
-    })`);
+      (function* () {
+        console.log("eval.new");
+        ${code};
+        console.log("eval.new.finished");
+      })`);
 
     blockFunction = blockGenerator();
 
@@ -1078,6 +1082,7 @@ class GameScene extends Scene {
   getActiveLevel() {
     return this.levels.find((level) => level.isActive);
   }
+
   loadLevelCoordinates() {
     console.log("=>(Game.vue:837) loadLevelCoordinates");
     let x;
@@ -1205,6 +1210,7 @@ class GameScene extends Scene {
       );
     }
   }
+
   movePlayerLeft() {
     if (this.player.body.velocity.x >= 0) {
       this.player.setVelocity(-160, 0);
@@ -1281,6 +1287,7 @@ class GameScene extends Scene {
   stopPlayer() {
     this.player.setVelocity(0);
   }
+
   checkIfTileIsSlowingDown() {
     var tile = this.wallLayer.getTileAtWorldXY(
       this.player.x,
@@ -1599,7 +1606,45 @@ class GameScene extends Scene {
   width: 100%;
 }
 
+.pixel-border-small {
+  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
+    0 4px 0 0 black;
+}
+
+.pixel-border-8 {
+  box-shadow: -8px 0 0 0 black, 8px 0 0 0 black, 0 -8px 0 0 black,
+    0 8px 0 0 black;
+}
+
+.pixel-border-16 {
+  box-shadow: -16px 0 0 0 black, 16px 0 0 0 black, 0 -16px 0 0 black,
+    0 16px 0 0 black;
+}
+
 .highlighted {
   filter: drop-shadow(0 0 0.5rem crimson);
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.5s;
+}
+.v-enter-to {
+  transform: scale(1);
+  background-color: whitesmoke;
+}
+
+.noise {
+  background: repeating-radial-gradient(#000 0 0.0001%, #fff 0 0.0002%) 50% 0/2500px
+      2500px,
+    repeating-conic-gradient(#000 0 0.0001%, #fff 0 0.0002%) 60% 60%/2500px
+      2500px;
+  background-blend-mode: difference;
+  animation: b 0.2s infinite alternate;
+}
+@keyframes b {
+  100% {
+    background-position: 50% 0, 60% 50%;
+  }
 }
 </style>
