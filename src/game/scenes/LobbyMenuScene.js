@@ -92,7 +92,8 @@ class LobbyMenuScene extends Scene {
         widthGame / 2,
         bodyStartPoint + 60 + i * 54,
         room,
-        textStyle
+        textStyle,
+        true
       );
 
       this.roomButtons.push(roomButtonEntry);
@@ -128,7 +129,7 @@ class LobbyMenuScene extends Scene {
   }
 
   // TODO Versuche Button Creation auszulagern
-  createButton(x, y, text, scene, game) {
+  createButton(x, y, text, scene, isGame) {
     let button = this.add
       .sprite(x, y, "button")
       .setScrollFactor(0)
@@ -136,17 +137,17 @@ class LobbyMenuScene extends Scene {
       .on("pointerover", () => button.play({ key: "hover" }))
       .on("pointerout", () => button.play({ key: "idle" }))
       .on("pointerdown", () => button.play({ key: "click" }))
-      .on("pointerdown", () => {
-        if (game) {
+      .on("pointerdown", () => {})
+      .on("pointerup", () => {
+        button.play({ key: "hover" });
+        if (isGame) {
           state.roomID = text;
           connectRoom(text);
           this.scene.start("GameScene");
+        } else {
+          // this.scene.stop(this.scene);
+          this.scene.start(scene);
         }
-      })
-      .on("pointerup", () => {
-        button.play({ key: "hover" });
-        // this.scene.stop(this.scene);
-        this.scene.start(scene);
       });
 
     const buttonText = this.add
