@@ -151,7 +151,7 @@ let antennaClicked = ref(false);
       />
         <BlocklyComponent
           v-if="state.activeScene === 'GameScene'"
-          class="pixel-border bg-gray-600 p-4 w-full h-96 shrink grow-0"
+          class="pixel-border-8 bg-gray-600 p-4 w-full h-[32rem] shrink grow-0"
           id="blockly"
           :options="blocklyOptions"
           :selectedLevel="selectedLevel"
@@ -193,8 +193,8 @@ let antennaClicked = ref(false);
   box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
     0 4px 0 0 black;
 }
-.pixel-border {
-  box-shadow: -6px 0 0 0 black, 6px 0 0 0 black, 0 -6px 0 0 black,
-    0 6px 0 0 black;
+.pixel-border-8 {
+  box-shadow: -8px 0 0 0 black, 8px 0 0 0 black, 0 -8px 0 0 black,
+    0 8px 0 0 black;
 }
 </style>
