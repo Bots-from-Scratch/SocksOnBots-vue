@@ -30,7 +30,7 @@
       </div>
       <SoundControls ref="volumesRef" @volumeChange="controlSounds" />
       <div
-        class="pixel-border-small p-2 h-1/2 w-full bg-stone-300 overflow-scroll"
+        class="pixel-border-small p-2 h-1/2 w-full bg-stone-300 overflow-scroll no-scrollbar"
         @mouseover="isBlinking = false"
         :class="{ blink: isBlinking, 'stop-blink': !isBlinking }"
       >
@@ -78,7 +78,6 @@ import MenuScene from "@/game/scenes/MenuScene";
 import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
 import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
 import CreditMenuScene from "@/game/scenes/CreditMenuScene";
-import GameControls from "@/components/GameControls.vue";
 import PixelButton from "@/components/PixelButton.vue";
 import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
 import levels from "@/game/levels.json";
@@ -1297,4 +1296,6 @@ class GameScene extends Scene {
 .stop-blink {
   animation: none;
 }
+
+
 </style>

@@ -351,7 +351,7 @@
    { "name": "rotateLeftDown", "from": 9, "to": 11, "direction": "forward" },
    { "name": "moveright", "from": 12, "to": 15, "direction": "forward" },
    { "name": "moveleft", "from": 16, "to": 19, "direction": "forward" },
-   { "name": "idle", "from": 20, "to": 29, "direction": "forward" },
+   { "name": "playerIdle", "from": 20, "to": 29, "direction": "forward" },
    { "name": "moveup", "from": 30, "to": 35, "direction": "forward" },
    { "name": "movedown", "from": 36, "to": 41, "direction": "forward" }
   ]
