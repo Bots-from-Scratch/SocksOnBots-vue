@@ -30,14 +30,10 @@
       </div>
       <GameControls ref="volumesRef" @volumeChange="controlSounds" />
       <div
-        class="pixel-border-small p-2 h-1/2 w-full bg-gray-300 overflow-scroll"
+        class="pixel-border-small p-2 h-1/2 w-full bg-stone-300 overflow-scroll" @mouseover="isBlinking = false" :class="{'blink': isBlinking, 'stop-blink': !isBlinking}"
       >
         <p class="h-2 font-pixel text-xs">
-          Infotext zu den Levels gespeichert in JSONInfotext zu den Levels
-          gespeichert in JSONInfotext zu den Levels gespeichert in JSONInfotext
-          zu den Levels gespeichert in JSON Infotext zu den Levels gespeichert
-          in JSON Infotext zu den Levels gespeichert in JSON Infotext zu den
-          Levels gespeichert in JSON Infotext zu den Levels gespeichert in JSON
+          {{levels.find(level=>level.number === selectedLevel).text}}
         </p>
       </div>
       <div class="pixel-border-small flex flex-row gap-8 bg-stone-800 p-4">
@@ -80,6 +76,7 @@ import LobbyScene from "@/game/scenes/LobbyScene";
 import GameControls from "@/components/GameControls.vue";
 import PixelButton from "@/components/PixelButton.vue";
 import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
+import levels from "@/game/levels.json"
 // TODO licht/Strom anschalten
 // TODO schieben
 // TODO
@@ -102,6 +99,7 @@ export default {
   },
   setup(props) {
     let game = ref(null);
+    const isBlinking = ref(true);
     const playGameCounter = ref(0);
     const volumesRef = ref();
     const selectedLevel = ref(state.selectedLevel);
@@ -143,6 +141,7 @@ export default {
       console.log("=>(Game.vue:126) selectLevel", levelNumber);
       selectedLevel.value = levelNumber;
       isSelected.value = !isSelected.value;
+      isBlinking.value = true;
     };
     return {
       props,
@@ -158,85 +157,13 @@ export default {
       isSelected,
       isPlayingRef,
       volumesRef,
+      isBlinking
     };
   },
 
   data() {
     return {
-      levels: [
-        {
-          number: 0,
-          name: "Level 1",
-          x: 3,
-          y: 28,
-          isActive: false,
-          playerStart: { x: 10, y: 36.8 },
-        },
-        {
-          number: 1,
-          name: "Level 2",
-          x: 3,
-          y: 15,
-          isActive: false,
-          playerStart: { x: 10, y: 23 },
-        },
-        {
-          number: 2,
-          name: "Level 3",
-          x: 3,
-          y: 2,
-          isActive: false,
-          playerStart: { x: 3, y: 7 },
-        },
-        {
-          number: 3,
-          name: "Level 4",
-          x: 23,
-          y: 2,
-          isActive: false,
-          playerStart: { x: 25, y: 3 },
-        },
-        {
-          number: 4,
-          name: "Level 5",
-          x: 24,
-          y: 15,
-          isActive: false,
-          playerStart: { x: 300, y: 600 },
-        },
-        {
-          number: 5,
-          name: "Level 6",
-          x: 22,
-          y: 28,
-          isActive: false,
-          playerStart: { x: 25, y: 29 },
-        },
-        {
-          number: 6,
-          name: "Level 7",
-          x: 42,
-          y: 2,
-          isActive: false,
-          playerStart: { x: 400, y: 800 },
-        },
-        {
-          number: 7,
-          name: "Level 8",
-          x: 42,
-          y: 15,
-          isActive: false,
-          playerStart: { x: 450, y: 900 },
-        },
-        {
-          number: 8,
-          name: "Level 9",
-          x: 42,
-          y: 28,
-          isActive: false,
-          playerStart: { x: 500, y: 1000 },
-        },
-      ],
+      levels: levels,
     };
   },
 
@@ -431,25 +358,6 @@ class GameScene extends Scene {
     this.objectLayer = map.createLayer("objects", tileset, 0, 0);
     this.winningPointLayer = map.getObjectLayer("WinningPointLayer")["objects"];
 
-    // this.cutSceneTriggers = map.createFromObjects("TriggerCutScenesLayer", {
-    //   classType: Phaser.Physics.Arcade.Sprite,
-    // });
-    // this.cutSceneTriggerGroup = this.physics.add.staticGroup();
-    // this.cutSceneTriggers.forEach((el) => this.cutSceneTriggerGroup.add(el));
-    //
-    // this.pushableObjects = map.createFromObjects("PushableObjectsLayer", {
-    //   classType: Phaser.Physics.Arcade.Sprite,
-    // });
-    // this.pushableObjectsGroup = this.physics.add.group();
-    // this.pushableObjects.forEach((el)=>this.pushableObjectsGroup.add(el));
-    //
-    // this.keys = map.createFromObjects("KeyLayer", {
-    //   classType: Phaser.Physics.Arcade.Sprite,
-    // });
-    // console.log("=>(Game.vue:436) this.keys", this.keys);
-    //
-    // this.keyGroup = this.physics.add.group();
-    // this.keys.forEach((key) => this.keyGroup.add(key));
 
     function createObjectsFromMapObjects(layerName, _this) {
       const objects = map.createFromObjects(layerName, {
@@ -825,7 +733,7 @@ class GameScene extends Scene {
   }
 
   createSock() {
-    itemSock = this.physics.add.sprite(640, 2250, "star");
+    itemSock = this.physics.add.sprite(420, 2180, "star");
     // itemSock.setTint(0x006db2);
     itemSock.setScale(0.4);
 
@@ -1266,8 +1174,8 @@ class GameScene extends Scene {
 
     if (Object.keys(directionPlayer1).length > 0) {
       this.statusText.setText(
-        "up clear: " +
-          directionPlayer1.up.isClear +
+        "down clear: " +
+          directionPlayer1.down.isClear +
           "\n moving right: " +
           directionPlayer1.right.isMoving +
           "\nobject collected: " +
@@ -1354,4 +1262,19 @@ class GameScene extends Scene {
     background-position: 50% 0, 60% 50%;
   }
 }
+
+@keyframes blink {
+  0% { background-color: #f5f5f4; }
+  50% { background-color: #a8a29e; }
+  100% { background-color: #f5f5f4; }
+}
+
+.blink {
+  animation: blink 1s infinite;
+}
+
+.stop-blink {
+  animation: none;
+}
+
 </style>

@@ -18,6 +18,8 @@ export default class MoveToObjectState {
         objectToScanFor
       );
       this.player.setVelocity(velocity.velocityX, velocity.velocityY);
+      console.log("=>(MoveToObjectState.js:21) velocity.velocityX, velocity.velocityY", velocity.velocityX, velocity.velocityY);
+
 
       setTimeout(() => {
         this.player.setVelocityY(0);
@@ -30,8 +32,8 @@ export default class MoveToObjectState {
     let directionY = object.y - player.y;
     let length = Math.sqrt(directionX * directionX + directionY * directionY);
     return {
-      velocityX: (directionX / length) * maxSpeed,
-      velocityY: (directionY / length) * maxSpeed,
+      velocityX: Math.round((directionX / length) * maxSpeed),
+      velocityY: Math.round((directionY / length) * maxSpeed)
     };
   }
 }
