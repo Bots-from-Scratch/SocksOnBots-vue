@@ -3,6 +3,7 @@ import MoveLeftState from "@/game/states/MoveLeftState";
 import MoveRightState from "@/game/states/MoveRightState";
 import MoveDownState from "@/game/states/MoveDownState";
 import MoveUpState from "@/game/states/MoveUpState";
+import MoveToObjectState from "@/game/states/MoveToObjectState";
 
 export const maxSpeed = 160
 export default class PlayerController {
@@ -14,6 +15,7 @@ export default class PlayerController {
 
   /**
    * @param {Phaser.Physics.Arcade.Sprite} player
+
    */
   constructor(player) {
     this.states = {
@@ -22,19 +24,22 @@ export default class PlayerController {
       moveRight: new MoveRightState(player),
       moveDown: new MoveDownState(player),
       moveUp: new MoveUpState(player),
+      moveToObject: new MoveToObjectState(player)
     };
   }
 
   /**
    *
    * @param {string} name
+   * @param {boolean} directionIsClear
+   * @param {Phaser.Physics.Arcade.Sprite} object
    */
-  setState(name) {
+  setState(name,directionIsClear, object) {
     // if (this.currentState === this.states[name]) {
     //   return;
     // }
 
     this.currentState = this.states[name];
-    this.currentState.enter();
+    name === "moveToObject" ? this.currentState.enter(directionIsClear, object) : this.currentState.enter();
   }
 }

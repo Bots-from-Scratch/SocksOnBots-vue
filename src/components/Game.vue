@@ -1295,15 +1295,15 @@ class GameScene extends Scene {
     }
   }
 
-  getVelocityValuesForPlayerToObject(player, object) {
-    let directionX = object.x - player.x;
-    let directionY = object.y - player.y;
-    let length = Math.sqrt(directionX * directionX + directionY * directionY);
-    return {
-      velocityX: (directionX / length) * this.MAX_SPEED,
-      velocityY: (directionY / length) * this.MAX_SPEED,
-    };
-  }
+  // getVelocityValuesForPlayerToObject(player, object) {
+  //   let directionX = object.x - player.x;
+  //   let directionY = object.y - player.y;
+  //   let length = Math.sqrt(directionX * directionX + directionY * directionY);
+  //   return {
+  //     velocityX: (directionX / length) * this.MAX_SPEED,
+  //     velocityY: (directionY / length) * this.MAX_SPEED,
+  //   };
+  // }
 
   stopPlayer() {
     this.player.setVelocity(0);

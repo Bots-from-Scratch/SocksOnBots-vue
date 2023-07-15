@@ -14,7 +14,7 @@ Blockly.common.defineBlocksWithJsonArray([
           ["right", "moveRight"],
           ["up", "moveUp"],
           ["down", "moveDown"],
-          ["to object", "ToObject"],
+          ["to object", "moveToObject"],
         ],
       },
     ],
@@ -29,8 +29,8 @@ Blockly.common.defineBlocksWithJsonArray([
 javascriptGenerator["move_player"] = function (block) {
   let blockValue = block.getFieldValue("VALUE");
   let code = "yield;\n";
-  if (blockValue === "ToObject") {
-    code += "_this.movePlayer" + blockValue + "();";
+  if (blockValue === "moveToObject") {
+    code += "playerController.setState('" + blockValue + "', directionPlayer1.toObject.isClear, objectToScanFor);";
   } else {
     code += "playerController.setState('" + blockValue + "');";
   }
