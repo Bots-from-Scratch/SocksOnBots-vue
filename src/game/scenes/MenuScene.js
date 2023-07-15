@@ -6,8 +6,8 @@ import logo from "@/assets/logo-full.png";
 import background from "@/assets/BG_menuBG.png";
 import horizon from "@/assets/horizon_menuBG.png";
 import city from "@/assets/city_menuBG.png";
-import buttonAnimJson from "@/assets/ButtonsAnims.json";
-import buttonAnimPNG from "@/assets/ButtonsAnims.png";
+import buttonAnimJson from "@/assets/buttons.json";
+import buttonAnimPNG from "@/assets/buttons.png";
 
 class MenuScene extends Scene {
   constructor() {
@@ -28,14 +28,13 @@ class MenuScene extends Scene {
     const widthGame = this.scale.width;
     const heightGame = this.scale.height;
 
-
     console.log("=>(MenuScene.js:31) ", heightGame);
 
     this.add.image(widthGame, heightGame, "background").setScrollFactor(0);
 
     // this.cam = this.cameras.main.setBounds(0, 0, widthGame*4.5 , heightGame*4.5 );
     this.input.on("pointermove", (pointer) => {
-      console.log(pointer.x)
+      console.log(pointer.x);
       this.cameras.main.startFollow(pointer, true, 0.1);
     });
     // this.centerX = this.scale.width / 2;
@@ -58,10 +57,10 @@ class MenuScene extends Scene {
     //   }
     // });
 
-
     this.horizon1 = this.add
       .image(-50, heightGame, "horizon")
-      .setOrigin(0, 1).setScale(1.1)
+      .setOrigin(0, 1)
+      .setScale(1.1)
       .setScrollFactor(0.05, 0);
     // this.horizon2 = this.add
     //   .image(this.horizon1.width, heightGame, "horizon")
@@ -70,7 +69,8 @@ class MenuScene extends Scene {
 
     this.city1 = this.add
       .image(-50, heightGame, "city")
-      .setOrigin(0, 1).setScale(1.1)
+      .setOrigin(0, 1)
+      .setScale(1.1)
       .setScrollFactor(0.1, 0);
     // this.city2 = this.add
     //   .image(this.city1.width, heightGame, "city")
@@ -78,14 +78,20 @@ class MenuScene extends Scene {
     //   .setScrollFactor(0.1, 0);
 
     this.logoIcon = this.add
-      .image(widthGame / 2, 100, "logo")
-      .setScrollFactor(0, 0);
+      .image(widthGame / 2, 70, "logo")
+      .setScrollFactor(0, 0)
+      .setScale(0.6);
 
     // BUTTONS
 
     this.anims.createFromAseprite("button");
 
-    this.buttonTutorial = this.createButton(450, 250, "Tutorial", "TutorialMenuScene");
+    this.buttonTutorial = this.createButton(
+      450,
+      250,
+      "Tutorial",
+      "TutorialMenuScene"
+    );
 
     this.buttonMultiplayer = this.createButton(
       450,
@@ -125,6 +131,7 @@ class MenuScene extends Scene {
     const buttonText = this.add
       .text(0, 0, text, {
         fontSize: "16px",
+        fontFamily: "Pixel",
         fill: "#000000",
       })
       .setScrollFactor(0);
