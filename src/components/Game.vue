@@ -76,6 +76,7 @@ import collectKeySound from "@/assets/sounds/PUNKTE/POINT3.mp3";
 import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import doorSound from "@/assets/sounds/Door/doorsound.mp3";
+import movingObjectSound from "@/assets/sounds/movingobject.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 import LobbyScene from "@/game/scenes/LobbyScene";
@@ -425,6 +426,7 @@ class GameScene extends Scene {
     this.load.audio("collectStarSound", collectStarSound);
     this.load.audio("collectKeySound", collectKeySound);
     this.load.audio("doorSound", doorSound);
+    this.load.audio("movingObjectSound", movingObjectSound);
   }
 
   create() {
@@ -618,6 +620,7 @@ class GameScene extends Scene {
     this.collectStarSound = this.sound.add("collectStarSound", { loop: false });
     this.collectKeySound = this.sound.add("collectKeySound", { loop: false});
     this.doorSound = this.sound.add("doorSound", { loop: false });
+    this.movingObjectSound = this.sound.add("movingObjectSound", { loop: true });
 
     this.prepareLevel();
   }
@@ -855,13 +858,23 @@ class GameScene extends Scene {
   }
 
   createCollider() {
-    this.physics.add.collider(this.player, this.pushableObjectsGroup);
+    this.physics.add.collider(this.player, this.pushableObjectsGroup,
+        (player, pushableObject) => {
+          if (!itemConnected) {
+            this.movingObjectSound.setVolume(0.2).play();
+          } else {
+            this.movingObjectSound.stop();
+          }
+        });
 
     this.physics.add.collider(
       this.pushableObjectsGroup,
       this.objectLayer,
       (pushableObject, object) => {
         this.player.setVelocity(0);
+
+        this.movingObjectSound.stop();
+
         itemConnected = true;
         pushableObject.tint = 0xeddc32;
         pushableObject.setPushable(false);
