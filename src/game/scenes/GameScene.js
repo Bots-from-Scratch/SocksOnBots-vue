@@ -38,7 +38,7 @@ let slowDownTimer;
 let playerController;
 export class GameScene extends Scene {
     SCAN_DISTANCE = 200;
-static player;
+
     init() {
         state.activeScene = this.scene.key;
 

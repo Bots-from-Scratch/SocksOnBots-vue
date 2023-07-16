@@ -16,6 +16,7 @@ export class MultiplayerScene extends GameScene {
   }
 
   create() {
+    super.create();
     this.player2 = this.physics.add
       .sprite(0, 0, "bot")
       .setScale(1.4)
@@ -37,10 +38,12 @@ export class MultiplayerScene extends GameScene {
   }
 
   update() {
+    super.update();
     player2XY = toRaw(state.playerPosition);
     this.player2.setX(player2XY.x);
     this.player2.setY(player2XY.y);
-    this.sendPlayerPositionToSocketServer(GameScene.player);
+    console.log("=>(MultiplayerScene.js:45) this.player", this.player);
+    this.sendPlayerPositionToSocketServer(this.player);
   }
 
   sendPlayerPositionToSocketServer(player) {
