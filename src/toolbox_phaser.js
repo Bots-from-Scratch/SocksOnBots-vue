@@ -209,7 +209,7 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Aktionen",
-      colour: "%{BKY_LOOPS_HUE}",
+      colour: "#eb6c4b",
       contents: [
         {
           kind: "BLOCK",
