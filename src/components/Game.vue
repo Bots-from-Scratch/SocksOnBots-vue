@@ -130,6 +130,11 @@ export default {
       }
       scene.backgroundSound?.setVolume(parseInt(volume.music) / 200);
       scene.collisionSound?.setVolume(parseInt(volume.sound) / 200);
+      scene.movingSound?.setVolume(parseInt(volume.sound) / 400);
+      scene.collectStarSound?.setVolume(parseInt(volume.sound) / 200);
+      scene.collectKeySound?.setVolume(parseInt(volume.sound) / 200);
+      scene.doorSound?.setVolume(parseInt(volume.sound) / 200);
+      scene.movingObjectSound?.setVolume(parseInt(volume.sound) / 200);
     };
 
     const runGame = () => {
@@ -525,6 +530,10 @@ class GameScene extends Scene {
     this.collisionSound = this.sound.add("collision");
     this.backgroundSound = this.sound.add("backgroundSound");
     this.movingSound = this.sound.add("movingSound");
+    this.collectStarSound = this.sound.add("collectStarSound");
+    this.collectKeySound = this.sound.add("collectKeySound");
+    this.doorSound = this.sound.add("doorSound");
+    this.movingObjectSound = this.sound.add("movingObjectSound");
 
     this.prepareLevel();
   }
@@ -648,13 +657,18 @@ class GameScene extends Scene {
   }
 
   createCollider() {
-    this.physics.add.collider(this.player, this.pushableObjectsGroup);
+    this.physics.add.collider(this.player, this.pushableObjectsGroup, (player, pushableObject) => {
+      if (!itemConnected) {
+        this.movingObjectSound.play();
+      }
+    });
 
     this.physics.add.collider(
       this.pushableObjectsGroup,
       this.objectLayer,
       (pushableObject, object) => {
         this.player.setVelocity(0);
+        this.movingObjectSound.stop();
         itemConnected = true;
         pushableObject.tint = 0xeddc32;
         pushableObject.setPushable(false);
@@ -926,7 +940,7 @@ class GameScene extends Scene {
 
   collectKey(player, key) {
     if (Math.abs(player.x - key.x) < 10 && Math.abs(player.y - key.y) < 10) {
-      this.collectKeySound.setVolume(0.5).play();
+      this.collectKeySound.play();
       key.disableBody(true, true);
       objectCollected = true;
       this.player.setVelocity(0);
@@ -939,7 +953,7 @@ class GameScene extends Scene {
 
   collectStar(player, star) {
     star.disableBody(true, true);
-    this.collectStarSound.setVolume(0.1).play();
+    this.collectStarSound.play();
     this.cameras.main.fadeOut(3000, 0, 0, 0);
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
@@ -957,7 +971,7 @@ class GameScene extends Scene {
   checkForWin(sprite, object) {
     // const activeLevel = this.getActiveLevel();
 
-    this.doorSound.setVolume(0.5).play();
+    this.doorSound.play();
 
     this.updateLevels(this.getActiveLevel().number + 1);
     console.log("=>(Game.vue:916) level finished");
