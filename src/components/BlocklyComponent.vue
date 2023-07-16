@@ -16,6 +16,25 @@ let playGameCounter = 0;
 let store = useLocalStorage("userBlocks", null);
 defineExpose({ workspace });
 
+Blockly.registry.unregister('theme', 'dark');
+Blockly.Theme.defineTheme('dark', {
+  'base': Blockly.Themes.Classic,
+  'componentStyles': {
+    'workspaceBackgroundColour': '#1e1f22',
+    'toolboxBackgroundColour': 'blackBackground',
+    'toolboxForegroundColour': '#fff',
+    'flyoutBackgroundColour': '#252526',
+    'flyoutForegroundColour': '#ccc',
+    'flyoutOpacity': 1,
+    'scrollbarColour': '#797979',
+    'insertionMarkerColour': '#fff',
+    'insertionMarkerOpacity': 0.3,
+    'scrollbarOpacity': 0.4,
+    'cursorColour': '#d0d0d0',
+    'blackBackground': '#2b2d30',
+  },
+})
+
 const blocklyOptions = {
   toolbox: toolboxJson,
   collapse: true,
@@ -37,23 +56,7 @@ const blocklyOptions = {
     colour: "#393b40",
     snap: true,
   },
-  theme: Blockly.Theme.defineTheme('dark', {
-    'base': Blockly.Themes.Classic,
-    'componentStyles': {
-      'workspaceBackgroundColour': '#1e1f22',
-      'toolboxBackgroundColour': 'blackBackground',
-      'toolboxForegroundColour': '#fff',
-      'flyoutBackgroundColour': '#252526',
-      'flyoutForegroundColour': '#ccc',
-      'flyoutOpacity': 1,
-      'scrollbarColour': '#797979',
-      'insertionMarkerColour': '#fff',
-      'insertionMarkerOpacity': 0.3,
-      'scrollbarOpacity': 0.4,
-      'cursorColour': '#d0d0d0',
-      'blackBackground': '#2b2d30',
-    },
-  })
+  theme: 'dark'
 };
 
 onMounted(() => {

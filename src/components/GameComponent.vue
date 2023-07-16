@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BlocklyComponent from "@/components/BlocklyComponent.vue";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { toolboxJson } from "@/toolbox_phaser.js";
 import { state } from "@/socket";
 import RangeSlider from "@/components/RangeSlider.vue";
@@ -33,7 +33,7 @@ const blocklyOptions = {
     length: 3,
     colour: "#ccc",
     snap: true,
-  }
+  },
 };
 
 function sendBlocklyWorkspaceToGame(workspace) {
@@ -120,6 +120,8 @@ onMounted(() => {
 });
 
 let antennaClicked = ref(false);
+
+onUnmounted(() => state.activeScene = null);
 </script>
 
 <template>
@@ -148,7 +150,9 @@ let antennaClicked = ref(false);
         ref="game"
         :antennaClicked="antennaClicked"
         @selectedLevel="levelSelected"
+        class="z-10"
       />
+      <transition name="blockly">
         <BlocklyComponent
           v-if="state.activeScene === 'GameScene'"
           class="pixel-border-8 bg-gray-600 p-4 w-full h-[32rem] shrink grow-0"
@@ -157,12 +161,20 @@ let antennaClicked = ref(false);
           :selectedLevel="selectedLevel"
           ref="blockly"
           @workspaceFromBlockly="sendBlocklyWorkspaceToGame"
-        />
+      /></transition>
     </div>
   </div>
 </template>
 
 <style scoped>
+.blockly-enter-active,
+.blockly-leave-active {
+  transition: all 0.5s;
+}
+.blockly-enter-from {
+  transform: translateY(-50%);
+}
+
 .wobble-top-on-hover {
   //display: inline-block;
   vertical-align: middle;
