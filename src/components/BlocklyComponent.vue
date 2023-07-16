@@ -53,7 +53,7 @@ const blocklyOptions = {
       'cursorColour': '#d0d0d0',
       'blackBackground': '#2b2d30',
     },
-  })
+  }),
 };
 
 onMounted(() => {

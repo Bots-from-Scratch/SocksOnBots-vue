@@ -6,7 +6,7 @@ Blockly.common.defineBlocksWithJsonArray([
         "type": "break",
         "message0": "break",
         "previousStatement": null,
-        "colour": 355,
+        "colour": "#502828",
         "tooltip": "",
         "helpUrl": ""
     }
