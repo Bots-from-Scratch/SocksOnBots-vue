@@ -90,7 +90,7 @@ class MenuScene extends Scene {
       450,
       250,
       "Tutorial",
-      "TutorialMenuScene"
+      "SingleplayerScene"
     );
 
     this.buttonMultiplayer = this.createButton(

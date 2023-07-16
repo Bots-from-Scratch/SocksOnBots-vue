@@ -154,7 +154,7 @@ onUnmounted(() => state.activeScene = null);
       />
       <transition name="blockly">
         <BlocklyComponent
-          v-if="state.activeScene === 'GameScene'"
+          v-if="state.activeScene === 'SingleplayerScene' || state.activeScene === 'MultiplayerScene'"
           class="pixel-border-8 bg-gray-600 p-4 w-full h-[32rem] shrink grow-0"
           id="blockly"
           :options="blocklyOptions"

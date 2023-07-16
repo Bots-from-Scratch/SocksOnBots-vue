@@ -143,7 +143,7 @@ class LobbyMenuScene extends Scene {
         if (isGame) {
           state.roomID = text;
           connectRoom(text);
-          this.scene.start("GameScene");
+          this.scene.start("MultiplayerScene");
         } else {
           // this.scene.stop(this.scene);
           this.scene.start(scene);
