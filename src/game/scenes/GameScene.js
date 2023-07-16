@@ -1,4 +1,4 @@
-import {socket, state} from "@/socket";
+import { socket, state } from "@/socket";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
@@ -10,16 +10,16 @@ import world from "@/assets/BotsonsocksBIG.json";
 import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
 import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
-import Phaser, {Scene} from "phaser";
-import PlayerController, {maxSpeed} from "@/game/states/PlayerController";
-import {toRaw} from "vue";
+import Phaser, { Scene } from "phaser";
+import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
+import { toRaw } from "vue";
 
 let directionPlayer1 = {
-    right: { isClear: true, isMoving: false },
-    left: { isClear: true, isMoving: false },
-    up: { isClear: true, isMoving: false },
-    down: { isClear: true, isMoving: false },
-    toObject: { isClear: false, isMoving: false },
+  right: { isClear: true, isMoving: false },
+  left: { isClear: true, isMoving: false },
+  up: { isClear: true, isMoving: false },
+  down: { isClear: true, isMoving: false },
+  toObject: { isClear: false, isMoving: false },
 };
 
 let objectToScanFor;
@@ -37,910 +37,908 @@ let slowDownTimer;
 /** @type {PlayerController} */
 let playerController;
 export class GameScene extends Scene {
-    SCAN_DISTANCE = 200;
+  SCAN_DISTANCE = 200;
 
-    init() {
-        state.activeScene = this.scene.key;
+  init() {
+    state.activeScene = this.scene.key;
 
-        this.resetDirection();
+    this.resetDirection();
 
-        score = 0;
+    score = 0;
 
-        walkedBy = false;
-        objectCollected = false;
-        this.value;
-        this.collided = false;
+    walkedBy = false;
+    objectCollected = false;
+    this.value;
+    this.collided = false;
 
-        this.rightIsClear = true;
-        this.leftIsClear = true;
-        this.upIsClear = true;
-        this.downIsClear = true;
+    this.rightIsClear = true;
+    this.leftIsClear = true;
+    this.upIsClear = true;
+    this.downIsClear = true;
 
-        this.objectIsScanned = false;
-        this.objectCollidedWith = {};
-        this.viewBlockingObjects = undefined;
-        objectToScanFor = undefined;
-        this.objectIsInSight = false;
-        this.scanAngle = 0;
-        this.itemCollected = false;
-        this.levelWon = false;
-        this.isPreparingLevel = false;
+    this.objectIsScanned = false;
+    this.objectCollidedWith = {};
+    this.viewBlockingObjects = undefined;
+    objectToScanFor = undefined;
+    this.objectIsInSight = false;
+    this.scanAngle = 0;
+    this.itemCollected = false;
+    this.levelWon = false;
+    this.isPreparingLevel = false;
+  }
+
+  preload() {
+    // this.load.image('sky', sky);
+    this.load.spritesheet("tileset", tileset, {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+    this.load.image("ground", platform);
+    this.load.image("star", star);
+    this.load.image("bomb", bomb);
+    // this.load.spritesheet("bot", botSpritesheet, {
+    //   frameWidth: 64,
+    //   frameHeight: 64,
+    // });
+    // TODO load player from aseprite
+    this.load.aseprite("bot", botSpritesheet, botAnimationJson);
+
+    this.load.spritesheet("bot_with_sock", bot_with_sock, {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+    this.load.tilemapTiledJSON("map", world);
+    this.load.audio("collision", collisionSound);
+    this.load.audio("backgroundSound", bgSound);
+    this.load.audio("movingSound", movingSound);
+  }
+
+  create() {
+    // this.add.image(400, 300, 'sky');
+
+    const map = this.make.tilemap({ key: "map" });
+
+    this.tileWidth = map.tileWidth;
+    this.tileHeight = map.tileHeight;
+
+    const tileset = map.addTilesetImage(
+      "CosmicLilac_Tiles_64x64-cd3",
+      "tileset"
+    );
+
+    this.backgroundLayer = map.createLayer("background", tileset, 0, 0);
+    const groundLayer = map.createLayer("floor", tileset, 0, 0);
+    this.wallLayer = map.createLayer("walls", tileset, 0, 0);
+    this.objectLayer = map.createLayer("objects", tileset, 0, 0);
+    this.winningPointLayer = map.getObjectLayer("WinningPointLayer")["objects"];
+
+    function createObjectsFromMapObjects(layerName, _this) {
+      const objects = map.createFromObjects(layerName, {
+        classType: Phaser.Physics.Arcade.Sprite,
+      });
+      const objectGroup = _this.physics.add.group();
+      objects.forEach((el) => objectGroup.add(el));
+      return objectGroup;
     }
 
-    preload() {
-        // this.load.image('sky', sky);
-        this.load.spritesheet("tileset", tileset, {
-            frameWidth: 64,
-            frameHeight: 64,
-        });
-        this.load.image("ground", platform);
-        this.load.image("star", star);
-        this.load.image("bomb", bomb);
-        // this.load.spritesheet("bot", botSpritesheet, {
-        //   frameWidth: 64,
-        //   frameHeight: 64,
-        // });
-        // TODO load player from aseprite
-        this.load.aseprite("bot", botSpritesheet, botAnimationJson);
+    this.cutSceneTriggerGroup = createObjectsFromMapObjects(
+      "TriggerCutScenesLayer",
+      this
+    );
+    this.pushableObjectsGroup = createObjectsFromMapObjects(
+      "PushableObjectsLayer",
+      this
+    );
+    this.keyGroup = createObjectsFromMapObjects("KeyLayer", this);
+    this.doorGroup = createObjectsFromMapObjects("DoorLayer", this);
 
-        this.load.spritesheet("bot_with_sock", bot_with_sock, {
-            frameWidth: 64,
-            frameHeight: 64,
+    this.backgroundLayer.setCollisionByProperty({ noFloor: true });
+    this.wallLayer.setCollisionByProperty({ collision: true });
+    this.objectLayer.setCollisionByProperty({ collision: true });
+    this.objectLayer.depth = 1;
+
+    map.setBaseTileSize(64, 64);
+
+    this.createWinningZones();
+    this.createBlockingObjects(map);
+    this.createPlayer();
+    this.createCursor();
+    this.createSock();
+    this.createButtons();
+
+    playerController = new PlayerController(this.player);
+
+    playerController.setState("idle");
+
+    this.physics.add.overlap(
+      this.player,
+      this.keyGroup,
+      this.collectKey,
+      null,
+      this
+    );
+
+    this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
+      fontSize: "32px",
+      fill: "#fff",
+      fontFamily: "Pixel",
+    });
+    this.scoreText.setVisible(true).setScrollFactor(0);
+
+    // TODO overlap winning points
+
+    console.log(this.winningPointLayer);
+
+    this.physics.add.overlap(
+      this.player,
+      this.backgroundLayer,
+      fallingDown,
+      null,
+      this
+    );
+    let tween;
+
+    function fallingDown(sprite, tile) {
+      if (tile.properties && tile.properties.noFloor && tween === undefined) {
+        console.log("fallingDown");
+        const scene = this.scene;
+        tween = this.tweens.addCounter({
+          from: 100,
+          to: 0,
+          duration: 800,
+          onUpdate: function (from, target) {
+            sprite.setScale(target.value / 100);
+            sprite.setMaxVelocity(target.value);
+          },
+          onComplete: () => {
+            scene.restart();
+          },
         });
-        this.load.tilemapTiledJSON("map", world);
-        this.load.audio("collision", collisionSound);
-        this.load.audio("backgroundSound", bgSound);
-        this.load.audio("movingSound", movingSound);
+      } else {
+        return null;
+      }
     }
 
-    create() {
-        // this.add.image(400, 300, 'sky');
+    this.statusText = this.add.text(
+      16,
+      50,
+      "Speed: " + this.player.velocity + "Angle: " + this.player.body.rotation,
+      {
+        fontSize: "16px",
+        fill: "#fff",
+      }
+    );
+    this.statusText.setVisible(true).setScrollFactor(0).setDepth(2);
 
-        const map = this.make.tilemap({key: "map"});
+    this.gfx = this.add.graphics();
 
-        this.tileWidth = map.tileWidth;
-        this.tileHeight = map.tileHeight;
+    // this.physics.world.on("worldbounds", (body) => {
+    //   this.collided = true;
+    // });
 
-        const tileset = map.addTilesetImage(
-            "CosmicLilac_Tiles_64x64-cd3",
-            "tileset"
-        );
+    this.graphic = this.add.graphics({ lineStyle: { color: 0x00ffff } });
+    this.graphic.setVisible(false);
 
-        this.backgroundLayer = map.createLayer("background", tileset, 0, 0);
-        const groundLayer = map.createLayer("floor", tileset, 0, 0);
-        this.wallLayer = map.createLayer("walls", tileset, 0, 0);
-        this.objectLayer = map.createLayer("objects", tileset, 0, 0);
-        this.winningPointLayer = map.getObjectLayer("WinningPointLayer")["objects"];
+    this.scanGfx = this.add.graphics({
+      fillStyle: {
+        color: 0x00ffff,
+        alpha: 0.5,
+      },
+    });
+    this.scanGfx.setVisible(true);
+    this.scanLine = new Phaser.Geom.Line(
+      this.player.x,
+      this.player.y,
+      objectToScanFor?.x,
+      objectToScanFor?.y
+    );
 
-        function createObjectsFromMapObjects(layerName, _this) {
-            const objects = map.createFromObjects(layerName, {
-                classType: Phaser.Physics.Arcade.Sprite,
-            });
-            const objectGroup = _this.physics.add.group();
-            objects.forEach((el) => objectGroup.add(el));
-            return objectGroup;
-        }
+    this.rotatingScanLine = new Phaser.Geom.Line(
+      this.player.x,
+      this.player.y,
+      300,
+      100
+    );
 
-        this.cutSceneTriggerGroup = createObjectsFromMapObjects(
-            "TriggerCutScenesLayer",
-            this
-        );
-        this.pushableObjectsGroup = createObjectsFromMapObjects(
-            "PushableObjectsLayer",
-            this
-        );
-        this.keyGroup = createObjectsFromMapObjects("KeyLayer", this);
-        this.doorGroup = createObjectsFromMapObjects("DoorLayer", this);
+    this.scanLineGfx = this.add.graphics({
+      fillStyle: {
+        color: 0x00ffff,
+        alpha: 0.5,
+      },
+    });
+    this.scanLineGfx.setVisible(false);
 
-        this.backgroundLayer.setCollisionByProperty({noFloor: true});
-        this.wallLayer.setCollisionByProperty({collision: true});
-        this.objectLayer.setCollisionByProperty({collision: true});
-        this.objectLayer.depth = 1;
+    this.scanCircle = new Phaser.Geom.Circle(300, 400, this.SCAN_DISTANCE);
 
-        map.setBaseTileSize(64, 64);
+    this.createViewBlockingObjectGroup();
 
-        this.createWinningZones();
-        this.createBlockingObjects(map);
-        this.createPlayer();
-        this.createCursor();
-        this.createSock();
-        this.createButtons();
+    this.collisionSound = this.sound.add("collision");
+    this.backgroundSound = this.sound.add("backgroundSound");
+    this.movingSound = this.sound.add("movingSound");
 
-        playerController = new PlayerController(this.player);
+    this.prepareLevel(this.selectedGameLevel);
+  }
 
-        playerController.setState("idle");
+  createViewBlockingObjectGroup() {
+    this.viewBlockingObjects = this.rectangles;
+  }
 
-        this.physics.add.overlap(
-            this.player,
-            this.keyGroup,
-            this.collectKey,
-            null,
-            this
-        );
-
-        this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
-            fontSize: "32px",
-            fill: "#fff",
-            fontFamily: "Pixel",
-        });
-        this.scoreText.setVisible(true).setScrollFactor(0);
-
-        // TODO overlap winning points
-
-        console.log(this.winningPointLayer);
-
-        this.physics.add.overlap(
-            this.player,
-            this.backgroundLayer,
-            fallingDown,
-            null,
-            this
-        );
-        let tween;
-
-        function fallingDown(sprite, tile) {
-            if (tile.properties && tile.properties.noFloor && tween === undefined) {
-                console.log("fallingDown");
-                const scene = this.scene;
-                tween = this.tweens.addCounter({
-                    from: 100,
-                    to: 0,
-                    duration: 800,
-                    onUpdate: function (from, target) {
-                        sprite.setScale(target.value / 100);
-                        sprite.setMaxVelocity(target.value);
-                    },
-                    onComplete: () => {
-                        scene.restart();
-                    },
-                });
-            } else {
-                return null;
-            }
-        }
-
-        this.statusText = this.add.text(
-            16,
-            50,
-            "Speed: " + this.player.velocity + "Angle: " + this.player.body.rotation,
-            {
-                fontSize: "16px",
-                fill: "#fff",
-            }
-        );
-        this.statusText.setVisible(true).setScrollFactor(0).setDepth(2);
-
-        this.gfx = this.add.graphics();
-
-        // this.physics.world.on("worldbounds", (body) => {
-        //   this.collided = true;
-        // });
-
-        this.graphic = this.add.graphics({lineStyle: {color: 0x00ffff}});
-        this.graphic.setVisible(false);
-
-        this.scanGfx = this.add.graphics({
-            fillStyle: {
-                color: 0x00ffff,
-                alpha: 0.5,
-            },
-        });
-        this.scanGfx.setVisible(true);
-        this.scanLine = new Phaser.Geom.Line(
-            this.player.x,
-            this.player.y,
-            objectToScanFor?.x,
-            objectToScanFor?.y
-        );
-
-        this.rotatingScanLine = new Phaser.Geom.Line(
-            this.player.x,
-            this.player.y,
-            300,
-            100
-        );
-
-        this.scanLineGfx = this.add.graphics({
-            fillStyle: {
-                color: 0x00ffff,
-                alpha: 0.5,
-            },
-        });
-        this.scanLineGfx.setVisible(false);
-
-        this.scanCircle = new Phaser.Geom.Circle(300, 400, this.SCAN_DISTANCE);
-
-        this.createViewBlockingObjectGroup();
-
-        this.collisionSound = this.sound.add("collision");
-        this.backgroundSound = this.sound.add("backgroundSound");
-        this.movingSound = this.sound.add("movingSound");
-
-        this.prepareLevel(this.selectedGameLevel);
-    }
-
-    createViewBlockingObjectGroup() {
-        this.viewBlockingObjects = this.rectangles;
-    }
-
-    createGeneratorFunction(code, highlightBlock, _this) {
-        const blockGenerator = eval(`
+  createGeneratorFunction(code, highlightBlock, _this) {
+    const blockGenerator = eval(`
             (function* () {
                 console.log("eval.new");
                 ${code};
                 console.log("eval.new.finished");
             })`);
 
-        blockFunction = blockGenerator();
+    blockFunction = blockGenerator();
 
-        this.startDelayedBlockEvaluation();
-    }
+    this.startDelayedBlockEvaluation();
+  }
 
-    startDelayedBlockEvaluation() {
-        intervalId = setInterval(
-            () => this.executeCodeWithGenerator(this.player, this.isPreparingLevel),
-            0
-        );
-    }
+  startDelayedBlockEvaluation() {
+    intervalId = setInterval(
+      () => this.executeCodeWithGenerator(this.player, this.isPreparingLevel),
+      0
+    );
+  }
 
-    executeCodeWithGenerator(player, isPreparingLevel) {
-        let blockResult = {done: false, value: undefined};
+  executeCodeWithGenerator(player, isPreparingLevel) {
+    let blockResult = { done: false, value: undefined };
 
-        if (blockFunction !== undefined) {
-            if (!blockResult?.done && !isPreparingLevel) {
-                if (player.body.velocity.x === 0 && player.body.velocity.y === 0) {
-                    console.log("=>(Game.vue:751) next");
-                    blockResult = blockFunction.next();
-                    score++;
-                }
-            }
-            if (blockResult?.done || isPreparingLevel) {
-                clearInterval(intervalId);
-                console.log("=>(Game.vue:755) intervalId", intervalId);
-
-                intervalId = null;
-                console.log("=>(Game.vue:755) intervalId", intervalId);
-
-                setTimeout(() => {
-                    player.setVelocity(0);
-                    blockFunction = undefined;
-                }, 390); //390 um delay auszugleichen
-                // this.resetDirection();
-            }
+    if (blockFunction !== undefined) {
+      if (!blockResult?.done && !isPreparingLevel) {
+        if (player.body.velocity.x === 0 && player.body.velocity.y === 0) {
+          console.log("=>(Game.vue:751) next");
+          blockResult = blockFunction.next();
+          score++;
         }
-    }
+      }
+      if (blockResult?.done || isPreparingLevel) {
+        clearInterval(intervalId);
+        console.log("=>(Game.vue:755) intervalId", intervalId);
 
-    triggerCutscene(player, triggerPoint) {
-        directionPlayer1.up.isClear = false;
-        // this.scene.isPaused();
-        this.scene.start(triggerPoint.data.list.cutSceneName);
-    }
+        intervalId = null;
+        console.log("=>(Game.vue:755) intervalId", intervalId);
 
-    createWinningZones() {
-        this.winningPoints = this.physics.add.staticGroup();
-        this.winningPointLayer.forEach((object) => {
-            let obj = this.add.rectangle(
-                object.x,
-                object.y,
-                object.width,
-                object.height
-            );
-            obj.setOrigin(0);
-            this.winningPoints.add(obj);
-        });
-    }
-
-    //------------------------------------------------------------------------------------------------------------
-//-------CREATE FUNCTIONS
-
-    createBlockingObjects(map) {
-        this.rectangles = this.physics.add.staticGroup();
-        this.createTileFrames(this.wallLayer);
-    }
-
-    createPlayer() {
-        console.log("=>(GameScenes.js:344) this", this);
-        this.player = this.physics.add.sprite(
-            this.game.config.width / 2,
-            this.game.config.height / 2,
-            "bot"
-        );
-        this.anims.createFromAseprite("bot");
-
-
-
-
-        // TODO set player mid to mid of tiles
-
-        this.player.body.setMaxSpeed(maxSpeed);
-        this.player.body.setCircle(20, 12, 28);
-        // this.player.body.setSize(32, 30, 100, 20);
-        // this.player.setOffset(16, 32);
-
-
-        this.player.setCollideWorldBounds(true);
-        this.player.body.onWorldBounds = true;
-
-        this.createCollider();
-    }
-
-    createCollider() {
-        this.physics.add.collider(this.player, this.pushableObjectsGroup);
-
-        this.physics.add.collider(
-            this.pushableObjectsGroup,
-            this.objectLayer,
-            (pushableObject, object) => {
-                this.player.setVelocity(0);
-                itemConnected = true;
-                pushableObject.tint = 0xeddc32;
-                pushableObject.setPushable(false);
-                console.log("=>(Game.vue:523) object", object);
-                object.tint = 0xeddc32;
-
-                this.doorGroup.children.entries.forEach(
-                    (entry) =>
-                        entry.data?.list?.removeEvent === this.getActiveLevel().number &&
-                        entry.disableBody(true, true)
-                );
-                this.getActiveLevel();
-            },
-            null,
-            this
-        );
-
-        this.physics.add.collider(
-            this.player,
-            this.cutSceneTriggerGroup,
-            this.triggerCutscene,
-            null,
-            this
-        );
-
-        this.physics.add.collider(this.player, this.wallLayer);
-
-        this.physics.add.collider(this.player, this.objectLayer);
-
-
-        this.physics.add.collider(
-            this.player,
-            this.winningPoints,
-            (sprite, rect) => {
-                this.detectCollisionDirection(sprite, rect);
-                this.checkForWin();
-            },
-            null,
-            this
-        );
-
-        this.physics.add.collider(
-            this.player,
-            this.rectangles,
-            this.detectCollisionDirection(),
-            this.processCallback
-        );
-    }
-
-    detectCollisionDirection() {
-        return (_player, _rectangles) => {
-            this.objectCollidedWith = _rectangles;
-            console.log(
-                "=>(Game.vue:569) this.objectCollidedWith",
-                this.objectCollidedWith
-            );
-            this.collided = true;
-            walkedBy = false;
-            if (!_player.body.blocked.none) {
-                if (!this.collisionSound.isPlaying) {
-                    console.log("=>(Game.vue:620) movePl");
-                    this.collisionSound.play();
-                }
-
-                if (_player.body.blocked.up) {
-                    console.log("=>(Game.vue:808) frontBlocked");
-                    // _player.setY(_player.y + 2);
-                    // _player.setVelocity(0);
-                    directionPlayer1.up.isClear = false;
-                    directionPlayer1.up.isMoving = false;
-                } else if (_player.body.blocked.down) {
-                    // TODO check setCoordinates for other directions
-                    // _player.setY(_player.y - 2);
-                    // _player.setVelocity(0);
-                    directionPlayer1.down.isClear = false;
-                    directionPlayer1.down.isMoving = false;
-                } else if (_player.body.blocked.right) {
-                    // _player.setX(_player.x - 2);
-                    // _player.setVelocity(0);
-                    directionPlayer1.right.isClear = false;
-                    directionPlayer1.right.isMoving = false;
-                } else {
-                    // _player.setX(_player.x + 2);
-                    // _player.setVelocity(0);
-                    directionPlayer1.left.isClear = false;
-                    directionPlayer1.left.isMoving = false;
-                }
-                // this.player.setVelocityX(0);
-                // this.player.setVelocityY(0);
-            }
-        };
-    }
-
-    createCursor() {
-        this.cursors = this.input.keyboard.createCursorKeys();
-    }
-
-    createSock() {
-        itemSock = this.physics.add.sprite(420, 2180, "star");
-        // itemSock.setTint(0x006db2);
-        itemSock.setScale(0.4);
-
-        this.physics.add.overlap(
-            this.player,
-            itemSock,
-            this.collectStar,
-            null,
-            this
-        );
-    }
-
-    createButtons() {
-        this.button = this.add.text(40, 600, "Back to Menu");
-        this.buttonUp = this.add.text(600, 400, "Increase Score");
-        this.buttonScan = this.add.text(600, 450, "Scan For Star");
-        this.button.setInteractive();
-        this.buttonUp.setInteractive().setVisible(false);
-        this.buttonScan.setInteractive().setVisible(true);
-        this.button
-            .on("pointerover", () => this.button.setStyle({fill: "#006db2"}))
-            .on("pointerout", () => this.button.setStyle({fill: "#fff"}))
-            .on("pointerdown", () => this.scene.start("PreloadScene"));
-
-        // this.buttonScan.on("pointerdown", () => {
-        //   objectToScanFor = itemSock;
-        //   if (this.objectIsScanned) {
-        //     if (this.checkIfObjectBlocksViewline(this.viewBlockingObjects)) {
-        //       // console.log("not in view");
-        //       this.scanLineGfx.setVisible(false);
-        //     } else {
-        //       this.scanLineGfx.setVisible(true);
-        //     }
-        //   }
-        // });
-
-        this.buttonUp.on("pointerdown", () => {
-            this.score += 10;
-            this.scoreText.setText("Score: " + score);
-            console.log(this.player);
-        });
-    }
-
-    createTileFrames(mapLayer) {
-        let map = mapLayer.tilemap;
-        let tileWidth = map.tileWidth;
-        let tileHeight = map.tileHeight;
-        mapLayer.forEachTile(function (tile) {
-            let tileWorldPos = mapLayer.tileToWorldXY(tile.x, tile.y);
-            if (tile.properties.collision) {
-                let rectangle = new Phaser.GameObjects.Rectangle(
-                    this,
-                    tileWorldPos.x + tileWidth / 2,
-                    tileWorldPos.y + tileHeight / 2,
-                    tileWidth,
-                    tileHeight
-                );
-                this.rectangles.add(rectangle);
-            }
-        }, this);
-    }
-
-    checkIfObjectBlocksViewline(gameObject) {
-        console.log("=>(Game.vue:1008) gameObject", gameObject);
-        if (gameObject.isParent) {
-            let intersects = gameObject
-                .getChildren()
-                .every(
-                    (element) =>
-                        Phaser.Geom.Intersects.LineToRectangle(
-                            this.scanLine,
-                            element.body
-                        ) === false
-                );
-            return !intersects;
-        }
-    }
-
-    processCallback(obj1, obj2) {
-        //  This function can perform your own additional checks on the 2 objects that collided.
-        //  For example, you could test for velocity, health, etc.
-        //  This function needs to return either true or false. If it returns true then collision carries on (separating the two objects).
-        //  If it returns false the collision is assumed to have failed and aborts, no further checks or separation happen.
-
-        if (obj1.body) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    prepareLevel(selectedLevel) {
-        console.log("=>(GameScenes.js:620) selectedLevel", selectedLevel);
-        this.isPreparingLevel = true;
-        // this.player.setVelocity(0);
-
-        this.cameras.main.fadeOut(800, 0, 0, 0);
-        this.cameras.main.once(
-            Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-            () => {
-                this.loadLevelCoordinates(selectedLevel);
-                this.player.setScale(1);
-                playerController.setState("idle");
-                this.getItemKeyForActiveLevel();
-                this.resetDirection();
-
-                this.cameras.main.fadeIn(800);
-            }
-        );
-        this.cameras.main.once(
-            Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
-            () => (this.isPreparingLevel = false)
-        );
-        console.log("=>(Game.vue:823) prepareLevel");
-    }
-
-    getItemKeyForActiveLevel() {
-        console.log("=>(Game.vue:1142) this.keyGroup", this.keyGroup);
-        itemKey = this.keyGroup.children.entries.find(
-            (keyItem) =>
-                keyItem.data?.list?.keyForLevel === this.getActiveLevel().number
-        );
-        console.log("=>(Game.vue:1143) itemKey", itemKey);
-    }
-
-    getActiveLevel() {
-        return this.levels.find((level) => level.isActive);
-    }
-
-    loadLevelCoordinates(selectedLevel) {
-        console.log("=>(GameScenes.js:620) selectedLevel", selectedLevel);
-        console.log("=>(Game.vue:837) loadLevelCoordinates", this.getActiveLevel());
-        let x;
-        let y;
-        this.levels.forEach((level) => {
-            // TODO selectedGameLevel is a string not number
-            level.number === selectedLevel
-                ? (level.isActive = true) && (x = level.x) && (y = level.y)
-                : (level.isActive = false);
-        });
-        this.cam = this.cameras.main;
-        this.cam.setBounds(
-            x * this.tileWidth,
-            y * this.tileHeight,
-            this.game.config.width,
-            this.game.config.height
-        );
-        this.physics.world.setBounds(
-            x * this.tileWidth - this.tileWidth, // bounds are one tile bigger than camera to trigger falling near bounds
-            y * this.tileHeight - this.tileHeight,
-            this.game.config.width + this.tileWidth * 2,
-            this.game.config.height + this.tileHeight * 2
-        );
-        this.levels.forEach((level) => {
-            level.isActive &&
-            this.player.setPosition(
-                level.playerStart.x * this.tileWidth + this.tileWidth / 2,
-                level.playerStart.y * this.tileHeight + this.tileHeight / 2
-            );
-        });
-    }
-
-    pushObject(player, object) {
-        console.log("=>(Game.vue:1143) player", player);
-        // if (itemConnected) {
-        //   object.setVelocity(0);
-        // } else {
-        // object.body.velocity = player.body.velocity;
-        // }
-    }
-
-    collectKey(player, key) {
-        if (Math.abs(player.x - key.x) < 10 && Math.abs(player.y - key.y) < 10) {
-            key.disableBody(true, true);
-            objectCollected = true;
-            this.player.setVelocity(0);
-            collectedItems.push(key);
-        }
+        setTimeout(() => {
+          player.setVelocity(0);
+          blockFunction = undefined;
+        }, 390); //390 um delay auszugleichen
         // this.resetDirection();
-        // this.player.setAcceleration(0);
-        // console.log("=>(Game.vue:1025) collectKey objectToScan");
+      }
     }
+  }
 
-    collectStar(player, star) {
-        star.disableBody(true, true);
-        this.cameras.main.fadeOut(3000, 0, 0, 0);
-        this.cameras.main.once(
-            Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-            (cam, effect) => {
-                this.time.delayedCall(2000, () => {
-                    this.scene.start("CutSceneFirstSock");
-                });
-            }
+  triggerCutscene(player, triggerPoint) {
+    directionPlayer1.up.isClear = false;
+    // this.scene.isPaused();
+    this.scene.start(triggerPoint.data.list.cutSceneName);
+  }
+
+  createWinningZones() {
+    this.winningPoints = this.physics.add.staticGroup();
+    this.winningPointLayer.forEach((object) => {
+      let obj = this.add.rectangle(
+        object.x,
+        object.y,
+        object.width,
+        object.height
+      );
+      obj.setOrigin(0);
+      this.winningPoints.add(obj);
+    });
+  }
+
+  //------------------------------------------------------------------------------------------------------------
+  //-------CREATE FUNCTIONS
+
+  createBlockingObjects(map) {
+    this.rectangles = this.physics.add.staticGroup();
+    this.createTileFrames(this.wallLayer);
+  }
+
+  createPlayer() {
+    console.log("=>(GameScenes.js:344) this", this);
+    this.player = this.physics.add.sprite(
+      this.game.config.width / 2,
+      this.game.config.height / 2,
+      "bot"
+    );
+    this.anims.createFromAseprite("bot");
+
+    // TODO set player mid to mid of tiles
+
+    this.player.body.setMaxSpeed(maxSpeed);
+    this.player.body.setCircle(20, 12, 28);
+    // this.player.body.setSize(32, 30, 100, 20);
+    // this.player.setOffset(16, 32);
+
+    this.player.setCollideWorldBounds(true);
+    this.player.body.onWorldBounds = true;
+
+    this.createCollider();
+  }
+
+  createCollider() {
+    this.physics.add.collider(this.player, this.pushableObjectsGroup);
+
+    this.physics.add.collider(
+      this.pushableObjectsGroup,
+      this.objectLayer,
+      (pushableObject, object) => {
+        this.player.setVelocity(0);
+        itemConnected = true;
+        pushableObject.tint = 0xeddc32;
+        pushableObject.setPushable(false);
+        console.log("=>(Game.vue:523) object", object);
+        object.tint = 0xeddc32;
+
+        this.doorGroup.children.entries.forEach(
+          (entry) =>
+            entry.data?.list?.removeEvent === this.getActiveLevel().number &&
+            entry.disableBody(true, true)
         );
-        objectCollected = true;
-        this.physics.pause();
-        this.scoreText.setVisible(true);
-    }
+        this.getActiveLevel();
+      },
+      null,
+      this
+    );
 
-    checkForWin(sprite, object) {
-        // const activeLevel = this.getActiveLevel();
-        this.updateLevels(this.getActiveLevel().number + 1);
-        console.log("=>(Game.vue:916) level finished");
-    }
+    this.physics.add.collider(
+      this.player,
+      this.cutSceneTriggerGroup,
+      this.triggerCutscene,
+      null,
+      this
+    );
 
-    // resetMovement() {
-//   directionPlayer1.right.isMoving = false;
-//   directionPlayer1.left.isMoving = false;
-//   directionPlayer1.up.isMoving = false;
-//   directionPlayer1.down.isMoving = false;
-//   directionPlayer1.toObject.isMoving = false;
-// }
+    this.physics.add.collider(this.player, this.wallLayer);
 
-    // TODO reset isClear when turning away
-    resetDirection() {
-        if (Object.keys(directionPlayer1).length > 0) {
-            console.log(directionPlayer1);
-            directionPlayer1.right.isClear = true;
-            directionPlayer1.right.isMoving = false;
-            directionPlayer1.left.isClear = true;
-            directionPlayer1.left.isMoving = false;
-            directionPlayer1.up.isClear = true;
-            directionPlayer1.up.isMoving = false;
-            directionPlayer1.down.isClear = true;
-            directionPlayer1.down.isMoving = false;
-            directionPlayer1.toObject.isClear = false;
-            directionPlayer1.toObject.isMoving = false;
-            // socket.emit("directionSelf", directionPlayer1)
+    this.physics.add.collider(this.player, this.objectLayer);
+
+    this.physics.add.collider(
+      this.player,
+      this.winningPoints,
+      (sprite, rect) => {
+        this.detectCollisionDirection(sprite, rect);
+        this.checkForWin();
+      },
+      null,
+      this
+    );
+
+    this.physics.add.collider(
+      this.player,
+      this.rectangles,
+      this.detectCollisionDirection(),
+      this.processCallback
+    );
+  }
+
+  detectCollisionDirection() {
+    return (_player, _rectangles) => {
+      this.objectCollidedWith = _rectangles;
+      console.log(
+        "=>(Game.vue:569) this.objectCollidedWith",
+        this.objectCollidedWith
+      );
+      this.collided = true;
+      walkedBy = false;
+      if (!_player.body.blocked.none) {
+        if (!this.collisionSound.isPlaying) {
+          console.log("=>(Game.vue:620) movePl");
+          this.collisionSound.play();
         }
-    }
 
-    playBackgroundSound(volume) {
-        if (!this.backgroundSound.isPlaying) {
-            this.backgroundSound.setVolume(volume).play();
-        }
-        this.backgroundSound.setVolume(volume);
-    }
-
-    checkIfTileIsSlowingDown() {
-        var tile = this.wallLayer.getTileAtWorldXY(
-            this.player.x,
-            this.player.y,
-            true
-        );
-        if (tile && tile.properties.slowingDown) {
-            // slow down the player
-            this.player.setMaxVelocity(maxSpeed / 2);
+        if (_player.body.blocked.up) {
+          console.log("=>(Game.vue:808) frontBlocked");
+          // _player.setY(_player.y + 2);
+          // _player.setVelocity(0);
+          directionPlayer1.up.isClear = false;
+          directionPlayer1.up.isMoving = false;
+        } else if (_player.body.blocked.down) {
+          // TODO check setCoordinates for other directions
+          // _player.setY(_player.y - 2);
+          // _player.setVelocity(0);
+          directionPlayer1.down.isClear = false;
+          directionPlayer1.down.isMoving = false;
+        } else if (_player.body.blocked.right) {
+          // _player.setX(_player.x - 2);
+          // _player.setVelocity(0);
+          directionPlayer1.right.isClear = false;
+          directionPlayer1.right.isMoving = false;
         } else {
-            this.player.setMaxVelocity(maxSpeed);
+          // _player.setX(_player.x + 2);
+          // _player.setVelocity(0);
+          directionPlayer1.left.isClear = false;
+          directionPlayer1.left.isMoving = false;
         }
-    }
+        // this.player.setVelocityX(0);
+        // this.player.setVelocityY(0);
+      }
+    };
+  }
 
-    // TODO Levelcheck for socket packages
-    update() {
-        this.checkIfTileIsSlowingDown();
+  createCursor() {
+    this.cursors = this.input.keyboard.createCursorKeys();
+  }
 
-        // if (!this.isPreparingLevel) {
-        //     sendDirectionToSocket();
-        // }
+  createSock() {
+    itemSock = this.physics.add.sprite(420, 2180, "star");
+    // itemSock.setTint(0x006db2);
+    itemSock.setScale(0.4);
 
-        if (Object.entries(state.directionSelf).length > 0) {
-            directionPlayer1 = toRaw(state.directionSelf);
-        }
+    this.physics.add.overlap(
+      this.player,
+      itemSock,
+      this.collectStar,
+      null,
+      this
+    );
+  }
 
+  createButtons() {
+    this.button = this.add.text(40, 600, "Back to Menu");
+    this.buttonUp = this.add.text(600, 400, "Increase Score");
+    this.buttonScan = this.add.text(600, 450, "Scan For Star");
+    this.button.setInteractive();
+    this.buttonUp.setInteractive().setVisible(false);
+    this.buttonScan.setInteractive().setVisible(true);
+    this.button
+      .on("pointerover", () => this.button.setStyle({ fill: "#006db2" }))
+      .on("pointerout", () => this.button.setStyle({ fill: "#fff" }))
+      .on("pointerdown", () => this.scene.start("PreloadScene"));
 
+    // this.buttonScan.on("pointerdown", () => {
+    //   objectToScanFor = itemSock;
+    //   if (this.objectIsScanned) {
+    //     if (this.checkIfObjectBlocksViewline(this.viewBlockingObjects)) {
+    //       // console.log("not in view");
+    //       this.scanLineGfx.setVisible(false);
+    //     } else {
+    //       this.scanLineGfx.setVisible(true);
+    //     }
+    //   }
+    // });
 
-        this.checkForScannedObject();
+    this.buttonUp.on("pointerdown", () => {
+      this.score += 10;
+      this.scoreText.setText("Score: " + score);
+      console.log(this.player);
+    });
+  }
 
-        this.updateScanGraphics();
-
-        this.checkIfObjectIsInScanDistance();
-
-        let distClosest;
-        let hypot;
-        if (this.player.active) {
-            if (this.objectCollidedWith?.active) {
-                distClosest = this.calculateClosestDistanceToBlockingObject();
-
-                hypot = this.calculateHypotenuseBetweenObjects(
-                    this.player,
-                    this.objectCollidedWith
-                );
-
-                this.checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot);
-
-                this.drawLineBetweenPlayerAndBlockingObject();
-            }
-
-            this.updateTexts(distClosest);
-        }
-
-        if (this.cursors.space.isDown) {
-            this.physics.pause();
-            this.objectCollidedWith = null;
-            this.scene.restart();
-        }
-
-        if (Object.keys(directionPlayer1).length > 0) {
-            this.movePlayer(this.player, directionPlayer1);
-        }
-    }
-
-
-
-    drawLineBetweenPlayerAndBlockingObject() {
-        this.gfx
-            .clear()
-            .lineStyle(2, 0xff3300)
-            .lineBetween(
-                this.objectCollidedWith?.x,
-                this.objectCollidedWith?.y,
-                this.player.body.center.x,
-                this.player.body.center.y
-            );
-    }
-
-    checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot) {
-        if (distClosest > hypot) {
-            console.log("=>(Game.vue:1526) distClosest", distClosest);
-            // console.log("clear");
-            directionPlayer1.left.isClear = true;
-            directionPlayer1.right.isClear = true;
-            directionPlayer1.down.isClear = true;
-            directionPlayer1.up.isClear = true;
-            // if (
-            //   this.player.body.x - this.player.body.prev.x !== 0 &&
-            //   (Math.abs(this.player.body.velocity.x) === maxSpeed )
-            // ) {
-            //   walkedBy = true;
-            //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-            //   this.player.setVelocity(0);
-            //   this.objectCollidedWith = null;
-            // } else if (
-            //   this.player.body.y - this.player.body.prev.y !== 0 &&
-            //   (Math.abs(this.player.body.velocity.y) === maxSpeed)
-            // ) {
-            //   walkedBy = true;
-            //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-            //   this.player.setVelocity(0);
-            //   this.objectCollidedWith = null;
-            // }
-            walkedBy = true;
-            console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-            this.player.setVelocity(0);
-            this.objectCollidedWith = null;
-        }
-    }
-
-    calculateHypotenuseBetweenObjects(player, object) {
-        return Math.hypot(
-            player.body.halfHeight + object.body.halfHeight,
-            player.body.halfWidth + object.body.halfWidth
+  createTileFrames(mapLayer) {
+    let map = mapLayer.tilemap;
+    let tileWidth = map.tileWidth;
+    let tileHeight = map.tileHeight;
+    mapLayer.forEachTile(function (tile) {
+      let tileWorldPos = mapLayer.tileToWorldXY(tile.x, tile.y);
+      if (tile.properties.collision) {
+        let rectangle = new Phaser.GameObjects.Rectangle(
+          this,
+          tileWorldPos.x + tileWidth / 2,
+          tileWorldPos.y + tileHeight / 2,
+          tileWidth,
+          tileHeight
         );
-    }
+        this.rectangles.add(rectangle);
+      }
+    }, this);
+  }
 
-    calculateClosestDistanceToBlockingObject() {
-        return Phaser.Math.RoundTo(
-            Phaser.Math.Distance.BetweenPoints(
-                this.objectCollidedWith,
-                this.player.body.center
-            ),
-            0
+  checkIfObjectBlocksViewline(gameObject) {
+    console.log("=>(Game.vue:1008) gameObject", gameObject);
+    if (gameObject.isParent) {
+      let intersects = gameObject
+        .getChildren()
+        .every(
+          (element) =>
+            Phaser.Geom.Intersects.LineToRectangle(
+              this.scanLine,
+              element.body
+            ) === false
         );
+      return !intersects;
+    }
+  }
+
+  processCallback(obj1, obj2) {
+    //  This function can perform your own additional checks on the 2 objects that collided.
+    //  For example, you could test for velocity, health, etc.
+    //  This function needs to return either true or false. If it returns true then collision carries on (separating the two objects).
+    //  If it returns false the collision is assumed to have failed and aborts, no further checks or separation happen.
+
+    if (obj1.body) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  prepareLevel(selectedLevel) {
+    console.log("=>(GameScenes.js:620) selectedLevel", selectedLevel);
+    this.isPreparingLevel = true;
+    // this.player.setVelocity(0);
+
+    this.cameras.main.fadeOut(800, 0, 0, 0);
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => {
+        this.setActiveLevel(selectedLevel);
+        this.loadLevelCoordinates();
+        this.player.setScale(1);
+        playerController.setState("idle");
+        this.getItemKeyForActiveLevel();
+        this.resetDirection();
+
+        this.cameras.main.fadeIn(800);
+      }
+    );
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
+      () => (this.isPreparingLevel = false)
+    );
+    console.log("=>(Game.vue:823) prepareLevel");
+  }
+
+  getItemKeyForActiveLevel() {
+    console.log("=>(Game.vue:1142) this.keyGroup", this.keyGroup);
+    itemKey = this.keyGroup.children.entries.find(
+      (keyItem) =>
+        keyItem.data?.list?.keyForLevel === this.getActiveLevel().number
+    );
+    console.log("=>(Game.vue:1143) itemKey", itemKey);
+  }
+
+  getActiveLevel() {
+    return this.levels.find((level) => level.isActive);
+  }
+  setActiveLevel(selectedLevel) {
+    this.getActiveLevel() && (this.getActiveLevel().isActive = false);
+    let lvl = this.levels.find((level) => level.number === selectedLevel);
+    lvl.isActive = true;
+  }
+
+  loadLevelCoordinates() {
+    /**
+     * @type { {
+     *     number: number,
+     *     name: string,
+     *     x: number,
+     *     y: number,
+     *     isActive: boolean,
+     *     playerStart: { "x": number, "y": number },
+     *     text: string
+     *   } } lvl
+     */
+    let lvl = this.getActiveLevel();
+    console.log("=>(GameScene.js:620) lvl", lvl.number);
+    this.cam = this.cameras.main;
+    this.cam.setBounds(
+      lvl.x * this.tileWidth,
+      lvl.y * this.tileHeight,
+      this.game.config.width,
+      this.game.config.height
+    );
+    this.physics.world.setBounds(
+      lvl.x * this.tileWidth - this.tileWidth, // bounds are one tile bigger than camera to trigger falling near bounds
+      lvl.y * this.tileHeight - this.tileHeight,
+      this.game.config.width + this.tileWidth * 2,
+      this.game.config.height + this.tileHeight * 2
+    );
+
+    this.player.setPosition(
+      lvl.playerStart.x * this.tileWidth + this.tileWidth / 2,
+      lvl.playerStart.y * this.tileHeight + this.tileHeight / 2
+    );
+  }
+
+  pushObject(player, object) {
+    console.log("=>(Game.vue:1143) player", player);
+    // if (itemConnected) {
+    //   object.setVelocity(0);
+    // } else {
+    // object.body.velocity = player.body.velocity;
+    // }
+  }
+
+  collectKey(player, key) {
+    if (Math.abs(player.x - key.x) < 10 && Math.abs(player.y - key.y) < 10) {
+      key.disableBody(true, true);
+      objectCollected = true;
+      this.player.setVelocity(0);
+      collectedItems.push(key);
+    }
+    // this.resetDirection();
+    // this.player.setAcceleration(0);
+    // console.log("=>(Game.vue:1025) collectKey objectToScan");
+  }
+
+  collectStar(player, star) {
+    star.disableBody(true, true);
+    this.cameras.main.fadeOut(3000, 0, 0, 0);
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      (cam, effect) => {
+        this.time.delayedCall(2000, () => {
+          this.scene.start("CutSceneFirstSock");
+        });
+      }
+    );
+    objectCollected = true;
+    this.physics.pause();
+    this.scoreText.setVisible(true);
+  }
+
+  checkForWin(sprite, object) {
+    // const activeLevel = this.getActiveLevel();
+    this.updateLevels(this.getActiveLevel().number + 1);
+    console.log("=>(Game.vue:916) level finished");
+  }
+
+  // resetMovement() {
+  //   directionPlayer1.right.isMoving = false;
+  //   directionPlayer1.left.isMoving = false;
+  //   directionPlayer1.up.isMoving = false;
+  //   directionPlayer1.down.isMoving = false;
+  //   directionPlayer1.toObject.isMoving = false;
+  // }
+
+  // TODO reset isClear when turning away
+  resetDirection() {
+    if (Object.keys(directionPlayer1).length > 0) {
+      console.log(directionPlayer1);
+      directionPlayer1.right.isClear = true;
+      directionPlayer1.right.isMoving = false;
+      directionPlayer1.left.isClear = true;
+      directionPlayer1.left.isMoving = false;
+      directionPlayer1.up.isClear = true;
+      directionPlayer1.up.isMoving = false;
+      directionPlayer1.down.isClear = true;
+      directionPlayer1.down.isMoving = false;
+      directionPlayer1.toObject.isClear = false;
+      directionPlayer1.toObject.isMoving = false;
+      // socket.emit("directionSelf", directionPlayer1)
+    }
+  }
+
+  playBackgroundSound(volume) {
+    if (!this.backgroundSound.isPlaying) {
+      this.backgroundSound.setVolume(volume).play();
+    }
+    this.backgroundSound.setVolume(volume);
+  }
+
+  checkIfTileIsSlowingDown() {
+    var tile = this.wallLayer.getTileAtWorldXY(
+      this.player.x,
+      this.player.y,
+      true
+    );
+    if (tile && tile.properties.slowingDown) {
+      // slow down the player
+      this.player.setMaxVelocity(maxSpeed / 2);
+    } else {
+      this.player.setMaxVelocity(maxSpeed);
+    }
+  }
+
+  // TODO Levelcheck for socket packages
+  update() {
+    this.checkIfTileIsSlowingDown();
+
+    // if (!this.isPreparingLevel) {
+    //     sendDirectionToSocket();
+    // }
+
+    if (Object.entries(state.directionSelf).length > 0) {
+      directionPlayer1 = toRaw(state.directionSelf);
     }
 
-    checkIfObjectIsInScanDistance() {
-        if (objectToScanFor) {
-            if (
-                Phaser.Geom.Intersects.CircleToRectangle(
-                    this.scanCircle,
-                    objectToScanFor
-                )
-            ) {
-                this.objectIsScanned = true;
-                this.scanGfx.lineStyle(2, 0xff0000);
-            } else {
-                this.objectIsScanned = false;
-            }
-        }
-    }
+    this.checkForScannedObject();
 
-    updateScanGraphics() {
-        console.log("=>(Game.vue:1453) objectToScanFor", objectToScanFor);
-        this.scanCircle.setPosition(
-            this.player.body.center.x,
-            this.player.body.center.y
+    this.updateScanGraphics();
+
+    this.checkIfObjectIsInScanDistance();
+
+    let distClosest;
+    let hypot;
+    if (this.player.active) {
+      if (this.objectCollidedWith?.active) {
+        distClosest = this.calculateClosestDistanceToBlockingObject();
+
+        hypot = this.calculateHypotenuseBetweenObjects(
+          this.player,
+          this.objectCollidedWith
         );
-        this.scanLine.setTo(
-            this.player.body.center.x,
-            this.player.body.center.y,
-            objectToScanFor?.x,
-            objectToScanFor?.y
-        );
-        this.scanAngle -= 0.04;
-        Phaser.Geom.Line.SetToAngle(
-            this.rotatingScanLine,
-            this.player.body.center.x,
-            this.player.body.center.y,
-            this.scanAngle,
-            200
-        );
 
-        this.scanGfx
-            .clear()
-            .strokeCircleShape(this.scanCircle)
-            .strokeLineShape(this.rotatingScanLine);
+        this.checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot);
 
-        this.scanLineGfx.clear().strokeLineShape(this.scanLine);
+        this.drawLineBetweenPlayerAndBlockingObject();
+      }
+
+      this.updateTexts(distClosest);
     }
 
-    checkForScannedObject() {
-        if (this.objectIsScanned) {
-            if (this.checkIfObjectBlocksViewline(this.viewBlockingObjects)) {
-                // console.log("not in view");
-                this.scanLineGfx.setVisible(false);
-                this.objectIsInSight = false;
-                directionPlayer1.toObject.isClear = false;
-            } else {
-                this.scanLineGfx.setVisible(true);
-                this.objectIsInSight = true;
-                directionPlayer1.toObject.isClear = true;
-            }
-        } else {
-            this.objectIsInSight = false;
-            this.scanLineGfx.setVisible(false);
-        }
+    if (this.cursors.space.isDown) {
+      this.physics.pause();
+      this.objectCollidedWith = null;
+      this.scene.restart();
     }
 
-    updateTexts(distClosest) {
-        this.scoreText.setText("Score: " + score);
-
-        if (Object.keys(directionPlayer1).length > 0) {
-            this.statusText.setText(
-                "down clear: " +
-                directionPlayer1.down.isClear +
-                "\n moving right: " +
-                directionPlayer1.right.isMoving +
-                "\nobject collected: " +
-                objectCollected +
-                "\nwalkedBy: " +
-                walkedBy +
-                "\nx: " +
-                this.player.body.prev.x +
-                " collided:" +
-                this.collided +
-                "\nobjectIsInSight: " +
-                directionPlayer1.toObject.isClear +
-                "\nmoveToObject: " +
-                directionPlayer1.toObject.isMoving +
-                "\nplayer.body.maxSpeed: " +
-                this.player.body.maxSpeed +
-                "\nplayerVelocity x: " +
-                this.player.body.velocity.x +
-                "\nisPreparingLevel: " +
-                this.isPreparingLevel +
-                "\ndistClosest: " +
-                distClosest
-            );
-        }
+    if (Object.keys(directionPlayer1).length > 0) {
+      this.movePlayer(this.player, directionPlayer1);
     }
+  }
 
-    movePlayer(player, dir) {
-        if (this.cursors.left.isDown || dir.left.isMoving) {
-            playerController.setState("moveLeft");
-        } else if (this.cursors.right.isDown || dir.right.isMoving) {
-            playerController.setState("moveRight");
-        } else if (this.cursors.up.isDown || dir.up.isMoving) {
-            playerController.setState("moveUp");
-        } else if (this.cursors.down.isDown || dir.down.isMoving) {
-            playerController.setState("moveDown");
-        }
+  drawLineBetweenPlayerAndBlockingObject() {
+    this.gfx
+      .clear()
+      .lineStyle(2, 0xff3300)
+      .lineBetween(
+        this.objectCollidedWith?.x,
+        this.objectCollidedWith?.y,
+        this.player.body.center.x,
+        this.player.body.center.y
+      );
+  }
+
+  checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot) {
+    if (distClosest > hypot) {
+      console.log("=>(Game.vue:1526) distClosest", distClosest);
+      // console.log("clear");
+      directionPlayer1.left.isClear = true;
+      directionPlayer1.right.isClear = true;
+      directionPlayer1.down.isClear = true;
+      directionPlayer1.up.isClear = true;
+      // if (
+      //   this.player.body.x - this.player.body.prev.x !== 0 &&
+      //   (Math.abs(this.player.body.velocity.x) === maxSpeed )
+      // ) {
+      //   walkedBy = true;
+      //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+      //   this.player.setVelocity(0);
+      //   this.objectCollidedWith = null;
+      // } else if (
+      //   this.player.body.y - this.player.body.prev.y !== 0 &&
+      //   (Math.abs(this.player.body.velocity.y) === maxSpeed)
+      // ) {
+      //   walkedBy = true;
+      //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+      //   this.player.setVelocity(0);
+      //   this.objectCollidedWith = null;
+      // }
+      walkedBy = true;
+      console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+      this.player.setVelocity(0);
+      this.objectCollidedWith = null;
     }
+  }
+
+  calculateHypotenuseBetweenObjects(player, object) {
+    return Math.hypot(
+      player.body.halfHeight + object.body.halfHeight,
+      player.body.halfWidth + object.body.halfWidth
+    );
+  }
+
+  calculateClosestDistanceToBlockingObject() {
+    return Phaser.Math.RoundTo(
+      Phaser.Math.Distance.BetweenPoints(
+        this.objectCollidedWith,
+        this.player.body.center
+      ),
+      0
+    );
+  }
+
+  checkIfObjectIsInScanDistance() {
+    if (objectToScanFor) {
+      if (
+        Phaser.Geom.Intersects.CircleToRectangle(
+          this.scanCircle,
+          objectToScanFor
+        )
+      ) {
+        this.objectIsScanned = true;
+        this.scanGfx.lineStyle(2, 0xff0000);
+      } else {
+        this.objectIsScanned = false;
+      }
+    }
+  }
+
+  updateScanGraphics() {
+    console.log("=>(Game.vue:1453) objectToScanFor", objectToScanFor);
+    this.scanCircle.setPosition(
+      this.player.body.center.x,
+      this.player.body.center.y
+    );
+    this.scanLine.setTo(
+      this.player.body.center.x,
+      this.player.body.center.y,
+      objectToScanFor?.x,
+      objectToScanFor?.y
+    );
+    this.scanAngle -= 0.04;
+    Phaser.Geom.Line.SetToAngle(
+      this.rotatingScanLine,
+      this.player.body.center.x,
+      this.player.body.center.y,
+      this.scanAngle,
+      200
+    );
+
+    this.scanGfx
+      .clear()
+      .strokeCircleShape(this.scanCircle)
+      .strokeLineShape(this.rotatingScanLine);
+
+    this.scanLineGfx.clear().strokeLineShape(this.scanLine);
+  }
+
+  checkForScannedObject() {
+    if (this.objectIsScanned) {
+      if (this.checkIfObjectBlocksViewline(this.viewBlockingObjects)) {
+        // console.log("not in view");
+        this.scanLineGfx.setVisible(false);
+        this.objectIsInSight = false;
+        directionPlayer1.toObject.isClear = false;
+      } else {
+        this.scanLineGfx.setVisible(true);
+        this.objectIsInSight = true;
+        directionPlayer1.toObject.isClear = true;
+      }
+    } else {
+      this.objectIsInSight = false;
+      this.scanLineGfx.setVisible(false);
+    }
+  }
+
+  updateTexts(distClosest) {
+    this.scoreText.setText("Score: " + score);
+
+    if (Object.keys(directionPlayer1).length > 0) {
+      this.statusText.setText(
+        "down clear: " +
+          directionPlayer1.down.isClear +
+          "\n moving right: " +
+          directionPlayer1.right.isMoving +
+          "\nobject collected: " +
+          objectCollected +
+          "\nwalkedBy: " +
+          walkedBy +
+          "\nx: " +
+          this.player.body.prev.x +
+          " collided:" +
+          this.collided +
+          "\nobjectIsInSight: " +
+          directionPlayer1.toObject.isClear +
+          "\nmoveToObject: " +
+          directionPlayer1.toObject.isMoving +
+          "\nplayer.body.maxSpeed: " +
+          this.player.body.maxSpeed +
+          "\nplayerVelocity x: " +
+          this.player.body.velocity.x +
+          "\nisPreparingLevel: " +
+          this.isPreparingLevel +
+          "\ndistClosest: " +
+          distClosest
+      );
+    }
+  }
+
+  movePlayer(player, dir) {
+    if (this.cursors.left.isDown || dir.left.isMoving) {
+      playerController.setState("moveLeft");
+    } else if (this.cursors.right.isDown || dir.right.isMoving) {
+      playerController.setState("moveRight");
+    } else if (this.cursors.up.isDown || dir.up.isMoving) {
+      playerController.setState("moveUp");
+    } else if (this.cursors.down.isDown || dir.down.isMoving) {
+      playerController.setState("moveDown");
+    }
+  }
 }
