@@ -11,14 +11,15 @@ export const state = reactive({
   roomID: "",
   rooms: [],
   selectedLevel: {
-    "number": 2,
-    "name": "Level 3",
-    "x": 3,
-    "y": 2,
-    "isActive": false,
-    "playerStart": { "x": 3, "y": 7 }
+    number: 2,
+    name: "Level 3",
+    x: 3,
+    y: 2,
+    isActive: false,
+    playerStart: { x: 3, y: 7 },
   },
-  activeScene: ""
+  activeScene: "",
+  levelFinished: { winner: false, loser: false },
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -66,6 +67,15 @@ socket.on("leaveRoom.info", () => console.log("Player left the room"));
 socket.on("playGame.response", (data) => {
   console.log("playGame.response", data);
   state.playGame = data;
+});
+
+socket.on("levelFinished.response", (data) => {
+  console.log("socket", data.text);
+  if (data.winner) {
+    state.levelFinished.winner = true;
+  } else {
+    state.levelFinished.loser = true;
+  }
 });
 
 socket.on("selectedLevel.response", (data) => {

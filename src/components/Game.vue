@@ -102,6 +102,7 @@ import chat from "@/game/chat.json";
 import multiplayerLevels from "@/game/levelsMultiplayer.json";
 import SoundControls from "@/components/SoundControls.vue";
 import { MultiplayerScene } from "@/game/scenes/MultiplayerScene";
+import {MultiplayerEndScene}  from "@/game/scenes/MultiplayerEndScene";
 import { SingleplayerScene } from "@/game/scenes/SingleplayerScene";
 // TODO licht/Strom anschalten
 // TODO schieben
@@ -251,7 +252,7 @@ export default {
       scene: [
         MenuScene,
         LobbyMenuScene,
-        TutorialMenuScene,
+        // TutorialMenuScene,
         CreditMenuScene,
         new MultiplayerScene(
           this.selectedLevel,
@@ -263,6 +264,7 @@ export default {
           levels,
           this.updateSelectedLevel
         ),
+        MultiplayerEndScene,
         PreloadScene,
         CutSceneFirstSock,
       ],

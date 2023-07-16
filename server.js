@@ -134,6 +134,11 @@ io.on("connection", function (socket) {
     console.log(roomList);
   });
 
+  socket.on("levelFinished", (data) => {
+    socket.to(data.roomId).emit("levelFinished.response", {text: "Du hast verloren", winner: false});
+    socket.emit("levelFinished.response", {text: "Du hast gewonnen", winner: true})
+  })
+
   socket.on("chat", (data) => {
     console.log(data);
     console.log(data.roomId);

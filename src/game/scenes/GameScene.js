@@ -64,10 +64,11 @@ export class GameScene extends Scene {
     this.scanAngle = 0;
     this.itemCollected = false;
     this.levelWon = false;
-    this.isPreparingLevel = false;
+    this.isPausingCodeExecution = false;
   }
 
   preload() {
+    // this.load.image('sky', sky);
     // this.load.image('sky', sky);
     this.load.spritesheet("tileset", tileset, {
       frameWidth: 64,
@@ -279,7 +280,7 @@ export class GameScene extends Scene {
 
   startDelayedBlockEvaluation() {
     intervalId = setInterval(
-      () => this.executeCodeWithGenerator(this.player, this.isPreparingLevel),
+      () => this.executeCodeWithGenerator(this.player, this.isPausingCodeExecution),
       0
     );
   }
@@ -562,10 +563,7 @@ export class GameScene extends Scene {
   }
 
   prepareLevel(selectedLevel) {
-    console.log("=>(GameScene.js:562) preparinglevelncdknckjdnkc", );
-    console.log("=>(GameScenes.js:621) selectedLevel", selectedLevel);
-    this.isPreparingLevel = true;
-    // this.player.setVelocity(0);
+    this.isPausingCodeExecution = true;
 
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once(
@@ -583,7 +581,7 @@ export class GameScene extends Scene {
     );
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
-      () => (this.isPreparingLevel = false)
+      () => (this.isPausingCodeExecution = false)
     );
     console.log("=>(Game.vue:823) prepareLevel");
   }
@@ -736,7 +734,7 @@ export class GameScene extends Scene {
   update() {
     this.checkIfTileIsSlowingDown();
 
-    // if (!this.isPreparingLevel) {
+    // if (!this.isPausingCodeExecution) {
     //     sendDirectionToSocket();
     // }
 
@@ -930,7 +928,7 @@ export class GameScene extends Scene {
           "\nplayerVelocity x: " +
           this.player.body.velocity.x +
           "\nisPreparingLevel: " +
-          this.isPreparingLevel +
+          this.isPausingCodeExecution +
           "\ndistClosest: " +
           distClosest
       );

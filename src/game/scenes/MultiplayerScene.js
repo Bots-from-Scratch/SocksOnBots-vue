@@ -7,7 +7,6 @@ let selectedGameLevel;
 let player2XY;
 let playerPosition = { x: 0, y: 0 };
 
-
 export class MultiplayerScene extends GameScene {
   constructor(selectedLevel, levels, updateSelectedLevel) {
     super({ key: "MultiplayerScene" });
@@ -42,6 +41,18 @@ export class MultiplayerScene extends GameScene {
 
   update() {
     super.update();
+console.log("=>(MultiplayerScene.js:45) state.levelFinished", state.levelFinished);
+    if ((state.levelFinished.winner || state.levelFinished.loser) && !this.isPausingCodeExecution ) {
+      this.isPausingCodeExecution = true;
+      this.cameras.main.fadeOut(800, 0, 0, 0);
+      this.cameras.main.once(
+          Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+          () => {
+            this.scene.start("MultiplayerEndScene");
+          }
+      );
+    }
+
     player2XY = toRaw(state.playerPosition);
     this.player2.setX(player2XY.x);
     this.player2.setY(player2XY.y);
@@ -49,30 +60,9 @@ export class MultiplayerScene extends GameScene {
     this.sendPlayerPositionToSocketServer(this.player);
   }
 
-  prepareLevel(selectedLevel) {
-    console.log("=>(GameScenes.js:620) selectedLevel Multiplayer", selectedLevel);
-    this.isPreparingLevel = true;
-    // this.player.setVelocity(0);
-
-    this.cameras.main.fadeOut(800, 0, 0, 0);
-    this.cameras.main.once(
-        Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-        () => {
-          this.setActiveLevel(selectedLevel);
-          this.loadLevelCoordinates(selectedLevel);
-          this.player.setScale(1);
-          this.playerController.setState("idle");
-          this.getItemKeyForActiveLevel();
-          this.resetDirection();
-
-          this.cameras.main.fadeIn(800);
-        }
-    );
-    this.cameras.main.once(
-        Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
-        () => (this.isPreparingLevel = false)
-    );
-    console.log("=>(Game.vue:823) prepareLevel");
+  checkForWin(sprite, object) {
+    socket.emit("levelFinished", { roomId: state.roomID });
+    console.log("=>(Game.vue:916) level finished");
   }
   sendPlayerPositionToSocketServer(player) {
     playerPosition.x = player.x;
