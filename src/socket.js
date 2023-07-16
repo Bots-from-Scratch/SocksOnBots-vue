@@ -10,7 +10,14 @@ export const state = reactive({
   direction: {},
   roomID: "",
   rooms: [],
-  selectedLevel: 0,
+  selectedLevel: {
+    "number": 2,
+    "name": "Level 3",
+    "x": 3,
+    "y": 2,
+    "isActive": false,
+    "playerStart": { "x": 3, "y": 7 }
+  },
   activeScene: ""
 });
 

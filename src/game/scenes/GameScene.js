@@ -158,6 +158,7 @@ export class GameScene extends Scene {
       this
     );
 
+
     this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
       fontSize: "32px",
       fill: "#fff",
@@ -402,6 +403,9 @@ export class GameScene extends Scene {
       this.winningPoints,
       (sprite, rect) => {
         this.detectCollisionDirection(sprite, rect);
+        // TODO fix winnig bug (collider doesnt stop)
+        sprite.x -= 1;
+        sprite.y++;
         this.checkForWin();
       },
       null,
@@ -488,7 +492,7 @@ export class GameScene extends Scene {
     this.button
       .on("pointerover", () => this.button.setStyle({ fill: "#006db2" }))
       .on("pointerout", () => this.button.setStyle({ fill: "#fff" }))
-      .on("pointerdown", () => this.scene.start("PreloadScene"));
+      .on("pointerdown", () => this.scene.start("MenuScene"));
 
     // this.buttonScan.on("pointerdown", () => {
     //   objectToScanFor = itemSock;
@@ -558,7 +562,8 @@ export class GameScene extends Scene {
   }
 
   prepareLevel(selectedLevel) {
-    console.log("=>(GameScenes.js:620) selectedLevel", selectedLevel);
+    console.log("=>(GameScene.js:562) preparinglevelncdknckjdnkc", );
+    console.log("=>(GameScenes.js:621) selectedLevel", selectedLevel);
     this.isPreparingLevel = true;
     // this.player.setVelocity(0);
 
@@ -585,6 +590,7 @@ export class GameScene extends Scene {
 
   getItemKeyForActiveLevel() {
     console.log("=>(Game.vue:1142) this.keyGroup", this.keyGroup);
+    console.log("=>(GameScene.js:589) this.getActiveLevel", this.getActiveLevel());
     itemKey = this.keyGroup.children.entries.find(
       (keyItem) =>
         keyItem.data?.list?.keyForLevel === this.getActiveLevel().number
@@ -597,6 +603,7 @@ export class GameScene extends Scene {
   }
   setActiveLevel(selectedLevel) {
     this.getActiveLevel() && (this.getActiveLevel().isActive = false);
+    this.selectedGameLevel = selectedLevel;
     let lvl = this.levels.find((level) => level.number === selectedLevel);
     lvl.isActive = true;
   }
@@ -661,6 +668,7 @@ export class GameScene extends Scene {
     this.cameras.main.fadeOut(3000, 0, 0, 0);
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       (cam, effect) => {
         this.time.delayedCall(2000, () => {
           this.scene.start("CutSceneFirstSock");
@@ -673,9 +681,8 @@ export class GameScene extends Scene {
   }
 
   checkForWin(sprite, object) {
-    // const activeLevel = this.getActiveLevel();
-    this.updateLevels(this.getActiveLevel().number + 1);
-    console.log("=>(Game.vue:916) level finished");
+    // this.updateLevels(this.getActiveLevel().number + 1);
+    console.log("=>(Game.vue:916) level finished GameScene");
   }
 
   // resetMovement() {

@@ -53,11 +53,19 @@
         @mouseover="isBlinking = false"
         :class="{ blink: isBlinking, 'stop-blink': !isBlinking }"
       >
-        <p v-if="state.activeScene === 'SingleplayerScene'" class="h-2 font-pixel text-xs">
+        <p
+          v-if="state.activeScene === 'SingleplayerScene'"
+          class="h-2 font-pixel text-xs"
+        >
           {{ levels.find((level) => level.number === selectedLevel).text }}
         </p>
-        <p v-if="state.activeScene === 'MultiplayerScene'" class="h-2 font-pixel text-xs">
-          {{ chatMessages.find((chat) => chat.id === selectedLevel)?.chatMessage }}
+        <p
+          v-if="state.activeScene === 'MultiplayerScene'"
+          class="h-2 font-pixel text-xs"
+        >
+          {{
+            chatMessages.find((chat) => chat.id === selectedLevel)?.chatMessage
+          }}
         </p>
       </div>
       <div class="pixel-border-small flex flex-row gap-8 bg-stone-800 p-4">
@@ -79,21 +87,9 @@
 
 <script>
 import * as Phaser from "phaser";
-import { Scene } from "phaser";
-import { computed, defineComponent, onMounted, ref, toRaw } from "vue";
-import bomb from "@/game/assets/bomb.png";
-import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
-import platform from "@/assets/platform.png";
-import star from "@/assets/socke.png";
-import botSpritesheet from "@/assets/animation.png";
-import botAnimationJson from "@/assets/animation.json";
-import bot_with_sock from "@/assets/Spritesheet.png";
-import world from "@/assets/BotsonsocksBIG.json";
+import { onMounted, ref } from "vue";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
-import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
-import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
-import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 import MenuScene from "@/game/scenes/MenuScene";
@@ -101,11 +97,10 @@ import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
 import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
 import CreditMenuScene from "@/game/scenes/CreditMenuScene";
 import PixelButton from "@/components/PixelButton.vue";
-import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
 import levels from "@/game/levels.json";
 import chat from "@/game/chat.json";
+import multiplayerLevels from "@/game/levelsMultiplayer.json";
 import SoundControls from "@/components/SoundControls.vue";
-import { GameScene } from "@/game/scenes/GameScene";
 import { MultiplayerScene } from "@/game/scenes/MultiplayerScene";
 import { SingleplayerScene } from "@/game/scenes/SingleplayerScene";
 // TODO licht/Strom anschalten
@@ -129,12 +124,12 @@ export default {
     antennaClicked: true,
     // workspace: Object,
   },
-  setup(props) {
+  setup(props, { emit }) {
     let game = ref(null);
     const isBlinking = ref(true);
     const playGameCounter = ref(0);
     const volumesRef = ref();
-    const selectedLevel = ref(state.selectedLevel);
+    const selectedLevel = ref(0);
     const isSelected = ref(false);
     const isPlayingRef = ref(state.playGame);
     const actScene = ref(null);
@@ -171,11 +166,16 @@ export default {
 
     const updateSelectedLevel = (newLevel) => {
       selectedLevel.value = newLevel;
+      selectLevel(newLevel)
+
     };
 
+    onMounted(() => emit("selectedLevel", selectedLevel.value));
     const selectLevel = (levelNumber) => {
       console.log("=>(Game.vue:126) selectLevel", levelNumber);
       selectedLevel.value = levelNumber;
+      emit("selectedLevel", selectedLevel.value);
+      activeScene().prepareLevel(selectedLevel.value);
       isSelected.value = !isSelected.value;
       isBlinking.value = true;
     };
@@ -201,7 +201,7 @@ export default {
   data() {
     return {
       levels: levels,
-      chatMessages: chat
+      chatMessages: chat,
     };
   },
 
@@ -228,16 +228,18 @@ export default {
         this.playGameCounter === 0 && this.runGame();
       },
     },
-    "state.selectedLevel": {
-      handler(newValue) {
-        selectedGameLevel = newValue;
-        this.$emit("selectedLevel", selectedGameLevel);
-        if (this.game) {
-          this.activeScene().prepareLevel(selectedGameLevel);
-        }
-      },
-      immediate: true,
-    },
+    // "state.selectedLevel": {
+    //   handler(newValue) {
+    //     selectedGameLevel = newValue;
+    //     this.$emit("selectedLevel", selectedGameLevel);
+    //     if (this.game) {
+    //       const lvl = levels.find((lvl) => lvl.number === this.selectedLevel);
+    //       console.log("=>(Game.vue:237) lvl", lvl);
+    //       this.activeScene().prepareLevel(lvl);
+    //     }
+    //   },
+    //   immediate: true,
+    // },
   },
 
   mounted() {
@@ -253,12 +255,12 @@ export default {
         CreditMenuScene,
         new MultiplayerScene(
           this.selectedLevel,
-          this.levels,
+          multiplayerLevels,
           this.updateSelectedLevel
         ),
         new SingleplayerScene(
           this.selectedLevel,
-          this.levels,
+          levels,
           this.updateSelectedLevel
         ),
         PreloadScene,
