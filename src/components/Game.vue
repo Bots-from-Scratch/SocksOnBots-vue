@@ -22,21 +22,20 @@
           class="pixel-border-small text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
           @click="selectLevel(level.number)"
           :class="[
-            selectedLevel === level.number ? 'bg-stone-300':
-            'bg-stone-500'
+            selectedLevel === level.number ? 'bg-stone-300' : 'bg-stone-500',
           ]"
         >
           {{ level.number }}
         </div>
       </div>
-      <GameControls ref="volumesRef" @volumeChange="controlSounds" />
-      <div class="pixel-border-small p-2 h-1/2 w-full bg-gray-300 overflow-scroll">
+      <SoundControls ref="volumesRef" @volumeChange="controlSounds" />
+      <div
+        class="pixel-border-small p-2 h-1/2 w-full bg-stone-300 overflow-scroll no-scrollbar"
+        @mouseover="isBlinking = false"
+        :class="{ blink: isBlinking, 'stop-blink': !isBlinking }"
+      >
         <p class="h-2 font-pixel text-xs">
-          Infotext zu den Levels gespeichert in JSONInfotext zu den Levels
-          gespeichert in JSONInfotext zu den Levels gespeichert in JSONInfotext
-          zu den Levels gespeichert in JSON Infotext zu den Levels gespeichert
-          in JSON Infotext zu den Levels gespeichert in JSON Infotext zu den
-          Levels gespeichert in JSON Infotext zu den Levels gespeichert in JSON
+          {{ levels.find((level) => level.number === selectedLevel).text }}
         </p>
       </div>
       <div class="pixel-border-small flex flex-row gap-8 bg-stone-800 p-4">
@@ -59,13 +58,13 @@
 <script>
 import * as Phaser from "phaser";
 import { Scene } from "phaser";
-import { computed, defineComponent, ref, toRaw } from "vue";
+import { computed, defineComponent, onMounted, ref, toRaw } from "vue";
 import bomb from "@/game/assets/bomb.png";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
-import botSpritesheet from "@/assets/Spritesheetnew.png";
-import botAnimationJson from "@/assets/Spritesheetnew.json";
+import botSpritesheet from "@/assets/animation.png";
+import botAnimationJson from "@/assets/animation.json";
 import bot_with_sock from "@/assets/Spritesheet.png";
 import world from "@/assets/BotsonsocksBIG.json";
 import PreloadScene from "@/game/scenes/PreloadScene";
@@ -79,10 +78,14 @@ import doorSound from "@/assets/sounds/Door/doorsound.mp3";
 import movingObjectSound from "@/assets/sounds/movingobject.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
-import LobbyScene from "@/game/scenes/LobbyScene";
-import GameControls from "@/components/GameControls.vue";
+import MenuScene from "@/game/scenes/MenuScene";
+import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
+import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
+import CreditMenuScene from "@/game/scenes/CreditMenuScene";
 import PixelButton from "@/components/PixelButton.vue";
-
+import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
+import levels from "@/game/levels.json";
+import SoundControls from "@/components/SoundControls.vue";
 // TODO licht/Strom anschalten
 // TODO schieben
 // TODO
@@ -90,7 +93,8 @@ import PixelButton from "@/components/PixelButton.vue";
 let activeScene = null;
 export default {
   name: "Game",
-  components: { PixelButton, GameControls },
+  components: { SoundControls, PixelButton },
+  expose: ["activeScene"],
   emits: {
     selectedLevel: null,
     playGamePressed: null,
@@ -105,15 +109,20 @@ export default {
   },
   setup(props) {
     let game = ref(null);
+    const isBlinking = ref(true);
     const playGameCounter = ref(0);
     const volumesRef = ref();
-    const  selectedLevel = ref(state.selectedLevel);
+    const selectedLevel = ref(state.selectedLevel);
     const isSelected = ref(false);
     const isPlayingRef = ref(state.playGame);
+    const actScene = ref(null);
     activeScene = () => {
-      return game.value.scene.getScenes(true)[0];
+      if (game.value) {
+        return game.value.scene.getScenes(true)[0];
+      } else {
+        console.warn("Game not loaded");
+      }
     };
-
     const controlSounds = (volume) => {
       let scene = activeScene();
       if (!scene.backgroundSound?.isPlaying) {
@@ -146,7 +155,9 @@ export default {
       console.log("=>(Game.vue:126) selectLevel", levelNumber);
       selectedLevel.value = levelNumber;
       isSelected.value = !isSelected.value;
+      isBlinking.value = true;
     };
+
     return {
       props,
       game,
@@ -161,85 +172,13 @@ export default {
       isSelected,
       isPlayingRef,
       volumesRef,
+      isBlinking,
     };
   },
 
   data() {
     return {
-      levels: [
-        {
-          number: 0,
-          name: "Level 1",
-          x: 3,
-          y: 28,
-          isActive: false,
-          playerStart: { x: 10, y: 36.8 },
-        },
-        {
-          number: 1,
-          name: "Level 2",
-          x: 3,
-          y: 15,
-          isActive: false,
-          playerStart: { x: 10, y: 23 },
-        },
-        {
-          number: 2,
-          name: "Level 3",
-          x: 3,
-          y: 2,
-          isActive: false,
-          playerStart: { x: 3, y: 7 },
-        },
-        {
-          number: 3,
-          name: "Level 4",
-          x: 23,
-          y: 2,
-          isActive: false,
-          playerStart: { x: 25, y: 3 },
-        },
-        {
-          number: 4,
-          name: "Level 5",
-          x: 24,
-          y: 15,
-          isActive: false,
-          playerStart: { x: 300, y: 600 },
-        },
-        {
-          number: 5,
-          name: "Level 6",
-          x: 22,
-          y: 28,
-          isActive: false,
-          playerStart: { x: 25, y: 29 },
-        },
-        {
-          number: 6,
-          name: "Level 7",
-          x: 42,
-          y: 2,
-          isActive: false,
-          playerStart: { x: 400, y: 800 },
-        },
-        {
-          number: 7,
-          name: "Level 8",
-          x: 42,
-          y: 15,
-          isActive: false,
-          playerStart: { x: 450, y: 900 },
-        },
-        {
-          number: 8,
-          name: "Level 9",
-          x: 42,
-          y: 28,
-          isActive: false,
-          playerStart: { x: 500, y: 1000 },
-        },
-      ],
+      levels: levels,
     };
   },
 
@@ -284,8 +223,7 @@ export default {
       parent: this.$refs.phaserGame,
       width: 960,
       height: 640,
-      scene: [
-        LobbyScene,
+      scene: [MenuScene,LobbyMenuScene,TutorialMenuScene, CreditMenuScene,
         new GameScene(
           this.selectedLevel,
           this.levels,
@@ -304,17 +242,14 @@ export default {
       pixelArt: true,
     };
     this.game = new Phaser.Game(gameConfig);
+
+    setTimeout(() => {state.activeScene = activeScene().scene.key; console.log("=>(Game.vue:241) state.activeScene", state.activeScene);}, 1000);
+
+
   },
 };
 
 let directionPlayer1 = {
-  right: { isClear: true, isMoving: false },
-  left: { isClear: true, isMoving: false },
-  up: { isClear: true, isMoving: false },
-  down: { isClear: true, isMoving: false },
-  toObject: { isClear: false, isMoving: false },
-};
-let directionPlayer2 = {
   right: { isClear: true, isMoving: false },
   left: { isClear: true, isMoving: false },
   up: { isClear: true, isMoving: false },
@@ -338,6 +273,8 @@ let player2XY;
 let blockFunction;
 let pushObject = true;
 let slowDownTimer;
+/** @type {PlayerController} */
+let playerController;
 
 function runBlocks(workspace) {
   console.log("runBlocks wurde aufgerufen.");
@@ -359,12 +296,7 @@ function sendDirectionToSocket() {
 }
 
 class GameScene extends Scene {
-  ROTATION_RIGHT = 0;
-  ROTATION_LEFT = 180;
-  ROTATION_UP = -90;
-  ROTATION_DOWN = 90;
   SCAN_DISTANCE = 200;
-  MAX_SPEED = 160;
 
   constructor(selectedLevel, levels, updateSelectedLevel) {
     super({ key: "GameScene" });
@@ -374,6 +306,8 @@ class GameScene extends Scene {
   }
 
   init() {
+    state.activeScene = this.scene.key;
+
     this.resetDirection();
 
     score = 0;
@@ -408,12 +342,12 @@ class GameScene extends Scene {
     this.load.image("ground", platform);
     this.load.image("star", star);
     this.load.image("bomb", bomb);
-    this.load.spritesheet("bot", botSpritesheet, {
-      frameWidth: 64,
-      frameHeight: 64,
-    });
+    // this.load.spritesheet("bot", botSpritesheet, {
+    //   frameWidth: 64,
+    //   frameHeight: 64,
+    // });
     // TODO load player from aseprite
-    // this.load.aseprite("bot", botSpritesheet, botAnimationJson);
+    this.load.aseprite("bot", botSpritesheet, botAnimationJson);
 
     this.load.spritesheet("bot_with_sock", bot_with_sock, {
       frameWidth: 64,
@@ -448,26 +382,6 @@ class GameScene extends Scene {
     this.objectLayer = map.createLayer("objects", tileset, 0, 0);
     this.winningPointLayer = map.getObjectLayer("WinningPointLayer")["objects"];
 
-    // this.cutSceneTriggers = map.createFromObjects("TriggerCutScenesLayer", {
-    //   classType: Phaser.Physics.Arcade.Sprite,
-    // });
-    // this.cutSceneTriggerGroup = this.physics.add.staticGroup();
-    // this.cutSceneTriggers.forEach((el) => this.cutSceneTriggerGroup.add(el));
-    //
-    // this.pushableObjects = map.createFromObjects("PushableObjectsLayer", {
-    //   classType: Phaser.Physics.Arcade.Sprite,
-    // });
-    // this.pushableObjectsGroup = this.physics.add.group();
-    // this.pushableObjects.forEach((el)=>this.pushableObjectsGroup.add(el));
-    //
-    // this.keys = map.createFromObjects("KeyLayer", {
-    //   classType: Phaser.Physics.Arcade.Sprite,
-    // });
-    // console.log("=>(Game.vue:436) this.keys", this.keys);
-    //
-    // this.keyGroup = this.physics.add.group();
-    // this.keys.forEach((key) => this.keyGroup.add(key));
-
     function createObjectsFromMapObjects(layerName, _this) {
       const objects = map.createFromObjects(layerName, {
         classType: Phaser.Physics.Arcade.Sprite,
@@ -492,16 +406,6 @@ class GameScene extends Scene {
     this.wallLayer.setCollisionByProperty({ collision: true });
     this.objectLayer.setCollisionByProperty({ collision: true });
     this.objectLayer.depth = 1;
-    // this.wallLayer.setCollisionFromCollisionGroup(true, true);
-    // this.wallLayer.renderDebug(this.add.graphics());
-
-    // for (let i = 0 ; i<105; i++) console.log(tileset.getTileCollisionGroup(i));
-
-    const collisionRect = new Phaser.Geom.Rectangle();
-
-    // let gidMapEntries = this.wallLayer.tileset[0].getTileData(0);
-    //
-    // for (const el of gidMapEntries) console.log(el[1]);
 
     map.setBaseTileSize(64, 64);
 
@@ -511,6 +415,10 @@ class GameScene extends Scene {
     this.createCursor();
     this.createSock();
     this.createButtons();
+
+    playerController = new PlayerController(this.player);
+
+    playerController.setState("idle");
 
     this.physics.add.overlap(
       this.player,
@@ -617,10 +525,6 @@ class GameScene extends Scene {
     this.collisionSound = this.sound.add("collision");
     this.backgroundSound = this.sound.add("backgroundSound");
     this.movingSound = this.sound.add("movingSound");
-    this.collectStarSound = this.sound.add("collectStarSound", { loop: false });
-    this.collectKeySound = this.sound.add("collectKeySound", { loop: false});
-    this.doorSound = this.sound.add("doorSound", { loop: false });
-    this.movingObjectSound = this.sound.add("movingObjectSound", { loop: true });
 
     this.prepareLevel();
   }
@@ -705,12 +609,13 @@ class GameScene extends Scene {
   }
 
   createPlayer() {
-    // this.player = this.physics.add.sprite(1664, 320, "bot").setScale(1.4);
     this.player = this.physics.add.sprite(
       gameConfig.width / 2,
       gameConfig.height / 2,
       "bot"
     );
+    this.anims.createFromAseprite("bot");
+
     this.player2 = this.physics.add
       .sprite(0, 0, "bot")
       .setScale(1.4)
@@ -727,12 +632,9 @@ class GameScene extends Scene {
       blendMode: "DARKEN",
     });
 
-    // particles.startFollow(this.player2,0,0,false);
-    // particles.explode(10, this.player2.x, this.player2.y);
     // TODO set player mid to mid of tiles
 
-    // this.player.body.bounce.set(1);
-    this.player.body.setMaxSpeed(this.MAX_SPEED);
+    this.player.body.setMaxSpeed(maxSpeed);
     this.player.body.setCircle(20, 12, 28);
     // this.player.body.setSize(32, 30, 100, 20);
     // this.player.setOffset(16, 32);
@@ -742,139 +644,17 @@ class GameScene extends Scene {
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
 
-    function createPlayerAnimation() {
-      this.anims.create({
-        key: "left",
-        frames: this.anims.generateFrameNumbers("bot", {
-          start: 24,
-          end: 29,
-        }),
-        frameRate: 10,
-        repeat: -1,
-      });
-
-      this.anims.create({
-        key: "turnToFront",
-        frames: this.anims.generateFrameNumbers("bot", { frames: [0] }),
-        frameRate: 10,
-      });
-
-      this.anims.create({
-        key: "turnToSide",
-        frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 2 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "leftToRight",
-        frames: this.anims.generateFrameNumbers("bot", {
-          frames: [6, 7, 0, 1, 2],
-        }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "right",
-        frames: this.anims.generateFrameNumbers("bot", {
-          start: 24,
-          end: 29,
-        }),
-        frameRate: 10,
-        repeat: -1,
-      });
-
-      this.anims.create({
-        key: "up",
-        frames: this.anims.generateFrameNumbers("bot", {
-          start: 32,
-          end: 37,
-        }),
-        frameRate: 5,
-        repeat: -1,
-      });
-
-      this.anims.create({
-        key: "down",
-        frames: this.anims.generateFrameNumbers("bot", { start: 8, end: 13 }),
-        frameRate: 2,
-        repeat: -1,
-      });
-
-      this.anims.create({
-        key: "leftToUp",
-        frames: this.anims.generateFrameNumbers("bot", { start: 6, end: 4 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "rightToUp",
-        frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 4 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "downToUp",
-        frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 4 }),
-        frameRate: 20,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "upToDown",
-        frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 0 }),
-        frameRate: 20,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "upToRight",
-        frames: this.anims.generateFrameNumbers("bot", { start: 4, end: 2 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "leftToDown",
-        frames: this.anims.generateFrameNumbers("bot", { frames: [6, 7, 0] }),
-        frameRate: 10,
-        repeat: 0,
-      });
-
-      this.anims.create({
-        key: "rightToDown",
-        frames: this.anims.generateFrameNumbers("bot", { start: 2, end: 0 }),
-        frameRate: 10,
-        repeat: 0,
-      });
-    }
-
     this.createCollider();
-
-    createPlayerAnimation.call(this);
   }
 
   createCollider() {
-    this.physics.add.collider(this.player, this.pushableObjectsGroup,
-        (player, pushableObject) => {
-          if (!itemConnected) {
-            this.movingObjectSound.setVolume(0.2).play();
-          } else {
-            this.movingObjectSound.stop();
-          }
-        });
+    this.physics.add.collider(this.player, this.pushableObjectsGroup);
 
     this.physics.add.collider(
       this.pushableObjectsGroup,
       this.objectLayer,
       (pushableObject, object) => {
         this.player.setVelocity(0);
-
-        this.movingObjectSound.stop();
-
         itemConnected = true;
         pushableObject.tint = 0xeddc32;
         pushableObject.setPushable(false);
@@ -974,7 +754,7 @@ class GameScene extends Scene {
   }
 
   createSock() {
-    itemSock = this.physics.add.sprite(640, 2250, "star");
+    itemSock = this.physics.add.sprite(420, 2180, "star");
     // itemSock.setTint(0x006db2);
     itemSock.setScale(0.4);
 
@@ -1076,6 +856,7 @@ class GameScene extends Scene {
       () => {
         this.loadLevelCoordinates();
         this.player.setScale(1);
+        playerController.setState("idle");
         this.getItemKeyForActiveLevel();
         this.resetDirection();
 
@@ -1215,132 +996,6 @@ class GameScene extends Scene {
     this.backgroundSound.setVolume(volume);
   }
 
-  movePlayerRight() {
-    console.log("=>(Game.vue:1553) movePlayerRight");
-
-    if (this.player.body.velocity.x <= 0) {
-      this.player.setVelocity(160, 0);
-      this.rotation = this.ROTATION_RIGHT;
-
-      this.playMoveSound();
-
-      this.time.delayedCall(
-        400,
-        function () {
-          // Delay of 400 by a velocity of 160 means a movement of 64 pixels (our tile size)
-          this.player.setVelocityX(0);
-
-          this.stopMoveSound();
-
-          console.log("1553Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  movePlayerLeft() {
-    if (this.player.body.velocity.x >= 0) {
-      this.player.setVelocity(-160, 0);
-      this.rotation = this.ROTATION_LEFT;
-      console.log("=>(Game.vue:1210) movePlayerLeft");
-
-      this.playMoveSound();
-
-      this.time.delayedCall(
-        400,
-        function () {
-          this.player.setVelocityX(0);
-
-          this.stopMoveSound();
-
-          console.log("1210Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  movePlayerUp() {
-    console.log("=>(Game.vue:1553) movePlayerUp");
-    if (this.player.body.velocity.y >= 0) {
-      this.player.setVelocity(0, -160);
-      this.rotation = this.ROTATION_UP;
-
-      this.playMoveSound();
-
-      this.time.delayedCall(
-        400,
-        function () {
-          this.player.setVelocityY(0);
-
-          this.stopMoveSound();
-
-          console.log("Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  movePlayerDown() {
-    if (this.player.body.velocity.y <= 0) {
-      this.player.setVelocity(0, 160);
-      this.rotation = this.ROTATION_DOWN;
-
-      this.playMoveSound();
-
-      this.time.delayedCall(
-        400,
-        function () {
-          this.player.setVelocityY(0);
-
-          this.stopMoveSound();
-
-          console.log("Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  playMoveSound() {
-    this.movingSound.setVolume(0.01).play();
-  }
-
-  stopMoveSound() {
-    this.movingSound.stop();
-  }
-
-  movePlayerToObject() {
-    if (directionPlayer1.toObject.isClear) {
-      // TODO calculate angle for velocityX,Y to move to object
-
-      // this.resetDirection();
-      console.log("=>(Game.vue:1388) movePlayerToObject");
-      // this.physics.accelerateToObject(player, objectToScanFor, 4000, 100, 100);
-      // this.physics.accelerateToObject(player, objectToScanFor);
-      this.player.setVelocityX(160);
-      this.time.delayedCall(
-        400,
-        function () {
-          this.player.setVelocity(0);
-          console.log("Bewegung abgeschlossen!");
-        },
-        [],
-        this
-      );
-    }
-  }
-
-  stopPlayer() {
-    this.player.setVelocity(0);
-  }
-
   checkIfTileIsSlowingDown() {
     var tile = this.wallLayer.getTileAtWorldXY(
       this.player.x,
@@ -1349,24 +1004,20 @@ class GameScene extends Scene {
     );
     if (tile && tile.properties.slowingDown) {
       // slow down the player
-      this.player.setMaxVelocity(this.MAX_SPEED / 2);
+      this.player.setMaxVelocity(maxSpeed / 2);
     } else {
-      this.player.setMaxVelocity(this.MAX_SPEED);
+      this.player.setMaxVelocity(maxSpeed);
     }
   }
 
   // TODO Levelcheck for socket packages
   update() {
-    // this.player.body.setMaxSpeed(160);
     this.checkIfTileIsSlowingDown();
 
     if (!this.isPreparingLevel) {
       sendDirectionToSocket();
     }
 
-    if (Object.entries(state.directionOpponent).length > 0) {
-      directionPlayer2 = toRaw(state.directionOpponent);
-    }
     if (Object.entries(state.directionSelf).length > 0) {
       directionPlayer1 = toRaw(state.directionSelf);
     }
@@ -1374,12 +1025,7 @@ class GameScene extends Scene {
     player2XY = toRaw(state.playerPosition);
     this.player2.setX(player2XY.x);
     this.player2.setY(player2XY.y);
-    playerPosition.x = this.player.x;
-    playerPosition.y = this.player.y;
-    socket.emit("playerXY", {
-      roomId: state.roomID,
-      playerPosition: playerPosition,
-    });
+    this.sendPlayerPositionToSocketServer(this.player);
 
     this.checkForScannedObject();
 
@@ -1393,7 +1039,10 @@ class GameScene extends Scene {
       if (this.objectCollidedWith?.active) {
         distClosest = this.calculateClosestDistanceToBlockingObject();
 
-        hypot = this.calculateHypotenuseBetweenObjects();
+        hypot = this.calculateHypotenuseBetweenObjects(
+          this.player,
+          this.objectCollidedWith
+        );
 
         this.checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot);
 
@@ -1411,8 +1060,16 @@ class GameScene extends Scene {
 
     if (Object.keys(directionPlayer1).length > 0) {
       this.movePlayer(this.player, directionPlayer1);
-      this.movePlayer(this.player2, directionPlayer2);
     }
+  }
+
+  sendPlayerPositionToSocketServer(player) {
+    playerPosition.x = player.x;
+    playerPosition.y = player.y;
+    socket.emit("playerXY", {
+      roomId: state.roomID,
+      playerPosition: playerPosition,
+    });
   }
 
   drawLineBetweenPlayerAndBlockingObject() {
@@ -1435,30 +1092,34 @@ class GameScene extends Scene {
       directionPlayer1.right.isClear = true;
       directionPlayer1.down.isClear = true;
       directionPlayer1.up.isClear = true;
-      if (
-        this.player.body.x - this.player.body.prev.x !== 0 &&
-        (this.rotation === 0 || this.rotation === 180)
-      ) {
-        walkedBy = true;
-        console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-        this.player.setVelocity(0);
-        this.objectCollidedWith = null;
-      } else if (
-        this.player.body.y - this.player.body.prev.y !== 0 &&
-        (this.rotation === 90 || this.rotation === -90)
-      ) {
-        walkedBy = true;
-        console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-        this.player.setVelocity(0);
-        this.objectCollidedWith = null;
-      }
+      // if (
+      //   this.player.body.x - this.player.body.prev.x !== 0 &&
+      //   (Math.abs(this.player.body.velocity.x) === maxSpeed )
+      // ) {
+      //   walkedBy = true;
+      //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+      //   this.player.setVelocity(0);
+      //   this.objectCollidedWith = null;
+      // } else if (
+      //   this.player.body.y - this.player.body.prev.y !== 0 &&
+      //   (Math.abs(this.player.body.velocity.y) === maxSpeed)
+      // ) {
+      //   walkedBy = true;
+      //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+      //   this.player.setVelocity(0);
+      //   this.objectCollidedWith = null;
+      // }
+      walkedBy = true;
+      console.log("=>(Game.vue:1553) walkedBy", walkedBy);
+      this.player.setVelocity(0);
+      this.objectCollidedWith = null;
     }
   }
 
-  calculateHypotenuseBetweenObjects() {
+  calculateHypotenuseBetweenObjects(player, object) {
     return Math.hypot(
-      this.player.body.halfHeight + this.objectCollidedWith.body.halfHeight,
-      this.player.body.halfWidth + this.objectCollidedWith.body.halfWidth
+      player.body.halfHeight + object.body.halfHeight,
+      player.body.halfWidth + object.body.halfWidth
     );
   }
 
@@ -1540,14 +1201,12 @@ class GameScene extends Scene {
 
     if (Object.keys(directionPlayer1).length > 0) {
       this.statusText.setText(
-        "right clear: " +
-          directionPlayer1.right.isClear +
+        "down clear: " +
+          directionPlayer1.down.isClear +
           "\n moving right: " +
           directionPlayer1.right.isMoving +
           "\nobject collected: " +
           objectCollected +
-          " body.angle: " +
-          this.player.body.angle +
           "\nwalkedBy: " +
           walkedBy +
           "\nx: " +
@@ -1571,87 +1230,17 @@ class GameScene extends Scene {
   }
 
   movePlayer(player, dir) {
-    if (this.rotation === this.ROTATION_LEFT) {
-      player.flipX = true;
-      player.anims.playAfterRepeat("left");
-    } else if (this.rotation === this.ROTATION_RIGHT) {
-      player.flipX = false;
-      player.anims.playAfterRepeat("right");
-    } else if (this.rotation === this.ROTATION_UP) {
-      player.flipX = false;
-      player.anims.playAfterRepeat("up");
-    } else if (this.rotation === this.ROTATION_DOWN) {
-      player.flipX = false;
-      player.anims.playAfterRepeat("down");
-    }
-
     if (this.cursors.left.isDown || dir.left.isMoving) {
-      if (this.rotation !== this.ROTATION_LEFT) {
-        player.anims.play("turnToSide", true);
-      }
-      this.rotation = this.ROTATION_LEFT;
-      this.movePlayerLeft();
-      // player.setVelocityX(-160);
-      // player.setVelocityY(0);
-      // this.resetDirection();
+      playerController.setState("moveLeft");
     } else if (this.cursors.right.isDown || dir.right.isMoving) {
-      if (this.rotation !== this.ROTATION_RIGHT) {
-        if (this.rotation === this.ROTATION_LEFT) {
-          player.anims.play("leftToRight");
-        } else if (this.rotation === this.ROTATION_UP) {
-          player.anims.play("upToRight");
-        } else if (this.rotation === this.ROTATION_DOWN) {
-          player.anims.play("turnToSide");
-        }
-      }
-      this.rotation = this.ROTATION_RIGHT;
-      // this.movingSound.setVolume(0).play();
-      this.movePlayerRight();
-      // player.setVelocityX(160);
-      // player.setVelocityY(0);
-      // this.resetDirection();
+      playerController.setState("moveRight");
     } else if (this.cursors.up.isDown || dir.up.isMoving) {
-      if (this.rotation !== this.ROTATION_UP) {
-        if (this.rotation === this.ROTATION_LEFT) {
-          player.anims.play("leftToUp");
-        } else if (this.rotation === this.ROTATION_RIGHT) {
-          player.anims.play("rightToUp");
-        } else if (this.rotation === this.ROTATION_DOWN) {
-          player.anims.play("downToUp");
-        }
-      }
-      this.rotation = this.ROTATION_UP;
-      this.movePlayerUp();
-      // this.resetDirection();
+      playerController.setState("moveUp");
     } else if (this.cursors.down.isDown || dir.down.isMoving) {
-      if (this.rotation !== this.ROTATION_DOWN) {
-        if (this.rotation === this.ROTATION_LEFT) {
-          player.anims.play("leftToDown");
-        } else if (this.rotation === this.ROTATION_RIGHT) {
-          player.anims.play("rightToDown");
-        } else if (this.rotation === this.ROTATION_UP) {
-          player.anims.play("upToDown");
-        }
-      }
-      this.rotation = this.ROTATION_DOWN;
-      this.movePlayerDown();
-      // this.resetDirection();
-    } else {
-      // player.setVelocityY(0);
-    }
-    // playGame = false;
-    if (dir.toObject.isClear && dir.toObject.isMoving) {
-      // TODO check if it could bug
-      this.resetDirection();
-      console.log("=>(Game.vue:1388) objectToScanFor");
-      // this.physics.accelerateToObject(player, objectToScanFor, 4000, 100, 100);
-      // this.physics.accelerateToObject(player, objectToScanFor);
-      player.setVelocityX(160);
+      playerController.setState("moveDown");
     }
   }
 }
-
-// export { GameScene };
 </script>
 
 <style>
@@ -1700,4 +1289,26 @@ class GameScene extends Scene {
     background-position: 50% 0, 60% 50%;
   }
 }
+
+@keyframes blink {
+  0% {
+    background-color: #f5f5f4;
+  }
+  50% {
+    background-color: #a8a29e;
+  }
+  100% {
+    background-color: #f5f5f4;
+  }
+}
+
+.blink {
+  animation: blink 1s infinite;
+}
+
+.stop-blink {
+  animation: none;
+}
+
+
 </style>

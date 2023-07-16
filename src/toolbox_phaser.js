@@ -48,10 +48,31 @@ export var toolboxJson = {
         {
           kind: "BLOCK",
           type: "logic_boolean",
-        }, {
-        kind: "BLOCK",
-          type: "bool_connected"
-        }
+        },
+        {
+          kind: "BLOCK",
+          type: "bool_connected",
+        },
+        {
+          kind: "BLOCK",
+          type: "bool_sighted",
+        },
+        {
+          kind: "BLOCK",
+          type: "direction_blocked",
+        },
+        {
+          kind: "BLOCK",
+          type: "direction_clear",
+        },
+        {
+          kind: "BLOCK",
+          type: "walked_around",
+        },
+        {
+          kind: "BLOCK",
+          type: "object_collected",
+        },
       ],
     },
     {
@@ -171,8 +192,13 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Variables",
-      custom: "VARIABLE",
       colour: "%{BKY_VARIABLES_HUE}",
+      contents: [
+        {
+          kind: "BLOCK",
+          type: "object_sock",
+        },
+      ],
     },
     {
       kind: "CATEGORY",
@@ -182,41 +208,19 @@ export var toolboxJson = {
     },
     {
       kind: "CATEGORY",
-      name: "Phaser",
+      name: "Aktionen",
       colour: "%{BKY_LOOPS_HUE}",
       contents: [
         {
           kind: "BLOCK",
-          type: "direction_blocked",
-        },
-        {
-          kind: "BLOCK",
-          type: "direction_clear",
-        },
-        {
-          kind: "BLOCK",
           type: "move_player",
         },
-        {
-          kind: "BLOCK",
-          type: "bool_sighted",
-        },
+
         {
           kind: "BLOCK",
           type: "scan_for_object",
         },
-        {
-          kind: "BLOCK",
-          type: "object_sock",
-        },
-        {
-          kind: "BLOCK",
-          type: "walked_around",
-        },
-        {
-          kind: "BLOCK",
-          type: "object_collected",
-        },
+
         {
           kind: "BLOCK",
           type: "break",

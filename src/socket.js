@@ -11,6 +11,7 @@ export const state = reactive({
   roomID: "",
   rooms: [],
   selectedLevel: 0,
+  activeScene: ""
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
