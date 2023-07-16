@@ -72,8 +72,10 @@ import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
 import collectStarSound from "@/assets/sounds/PUNKTE/POINT2.mp3";
+import collectKeySound from "@/assets/sounds/PUNKTE/POINT3.mp3";
 import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
+import doorSound from "@/assets/sounds/Door/doorsound.mp3";
 import { socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 import LobbyScene from "@/game/scenes/LobbyScene";
@@ -421,6 +423,8 @@ class GameScene extends Scene {
     this.load.audio("backgroundSound", bgSound);
     this.load.audio("movingSound", movingSound);
     this.load.audio("collectStarSound", collectStarSound);
+    this.load.audio("collectKeySound", collectKeySound);
+    this.load.audio("doorSound", doorSound);
   }
 
   create() {
@@ -612,6 +616,8 @@ class GameScene extends Scene {
     this.backgroundSound = this.sound.add("backgroundSound");
     this.movingSound = this.sound.add("movingSound");
     this.collectStarSound = this.sound.add("collectStarSound", { loop: false });
+    this.collectKeySound = this.sound.add("collectKeySound", { loop: false});
+    this.doorSound = this.sound.add("doorSound", { loop: false });
 
     this.prepareLevel();
   }
@@ -1126,6 +1132,7 @@ class GameScene extends Scene {
 
   collectKey(player, key) {
     if (Math.abs(player.x - key.x) < 10 && Math.abs(player.y - key.y) < 10) {
+      this.collectKeySound.setVolume(0.5).play();
       key.disableBody(true, true);
       objectCollected = true;
       this.player.setVelocity(0);
@@ -1155,6 +1162,9 @@ class GameScene extends Scene {
 
   checkForWin(sprite, object) {
     // const activeLevel = this.getActiveLevel();
+
+    this.doorSound.setVolume(0.5).play();
+
     this.updateLevels(this.getActiveLevel().number + 1);
     console.log("=>(Game.vue:916) level finished");
   }
