@@ -13,6 +13,8 @@ const io = require("socket.io")(http, {
 });
 const path = require("path");
 const { data } = require("autoprefixer");
+const levelTutorial = require(path.join(__dirname, "lvl-tut.json"));
+
 const roomList = [
   { name: "Room1", connects: 0 },
   { name: "Room2", connects: 0 },
@@ -29,11 +31,14 @@ app.get("/", (req, res) => {
   res.send("<h1>Server running</h1>");
 });
 
+app.get("/level-tut", (req, res) => {
+  res.json(getRandomLevel(levelTutorial));
+});
+
 io.on("connection", function (socket) {
   console.log("A user with ID: " + socket.id + " connected");
 
   socket.on("disconnect", function () {
-
     console.log("A user with ID: " + socket.id + " disconnected");
   });
 
@@ -92,16 +97,26 @@ io.on("connection", function (socket) {
     //TODO Check if room exist
     console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
-    console.log("=>(server.js:42) io.rooms", io.sockets.adapter.rooms.get(newRoomConnect));
-    console.log("=>(server.js:42) io.rooms", io.sockets.adapter.rooms.get(newRoomConnect)?.size);
+    console.log(
+      "=>(server.js:42) io.rooms",
+      io.sockets.adapter.rooms.get(newRoomConnect)
+    );
+    console.log(
+      "=>(server.js:42) io.rooms",
+      io.sockets.adapter.rooms.get(newRoomConnect)?.size
+    );
 
     for (let i = 0; i < roomList.length; i++) {
       if (roomList[i].name === newRoomConnect) {
-        if (io.sockets.adapter.rooms.get(newRoomConnect)?.size < 2 || !io.sockets.adapter.rooms.get(newRoomConnect)?.size) {
+        if (
+          io.sockets.adapter.rooms.get(newRoomConnect)?.size < 2 ||
+          !io.sockets.adapter.rooms.get(newRoomConnect)?.size
+        ) {
           socket.join(newRoomConnect);
           console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
-          roomList[i].connects = io.sockets.adapter.rooms.get(newRoomConnect)?.size;
+          roomList[i].connects =
+            io.sockets.adapter.rooms.get(newRoomConnect)?.size;
           socket.emit("joinedRoom", newRoomConnect);
           socket
             .to(newRoomConnect)
@@ -110,7 +125,7 @@ io.on("connection", function (socket) {
           console.log("Rooms client is in:", socket.rooms);
         } // TODO else emit room voll
         else {
-          socket.emit("connectRoom.error", "Room at max size")
+          socket.emit("connectRoom.error", "Room at max size");
         }
         break;
       }
@@ -135,6 +150,16 @@ io.on("connection", function (socket) {
 
 function printTime() {
   return new Date().toLocaleTimeString("DE-de");
+}
+
+/**
+ * Generiert aus einem Array aus JSON-Einträgen eine
+ * @param {json} levels Ein Array aus JSONs
+ * @returns Eine JSON
+ */
+function getRandomLevel(levels) {
+  let index = Math.floor(Math.random() * levels.length);
+  return levels[index];
 }
 
 http.listen(3010, () => {
