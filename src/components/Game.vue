@@ -15,7 +15,10 @@
       </transition>
     </div>
     <div class="flex flex-col pixel-border-8 gap-8 basis-1/4 bg-stone-700 p-4">
-      <div class="grid grid-cols-3 gap-x-8 gap-y-4">
+      <div
+        v-if="state.activeScene === 'SingleplayerScene'"
+        class="grid grid-cols-3 gap-x-8 gap-y-4"
+      >
         <div
           v-for="level in levels"
           :key="level.number"
@@ -28,14 +31,33 @@
           {{ level.number }}
         </div>
       </div>
+      <div
+        v-else-if="state.activeScene === 'MultiplayerScene'"
+        class="grid grid-cols-3 gap-x-8 gap-y-4"
+      >
+        <div
+          v-for="message in chatMessages"
+          :key="message.id"
+          class="pixel-border-small text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
+          @click="selectLevel(message.id)"
+          :class="[
+            selectedLevel === message.id ? 'bg-stone-300' : 'bg-stone-500',
+          ]"
+        >
+          {{ message.icon }}
+        </div>
+      </div>
       <SoundControls ref="volumesRef" @volumeChange="controlSounds" />
       <div
         class="pixel-border-small p-2 h-1/2 w-full bg-stone-300 overflow-scroll no-scrollbar"
         @mouseover="isBlinking = false"
         :class="{ blink: isBlinking, 'stop-blink': !isBlinking }"
       >
-        <p class="h-2 font-pixel text-xs">
+        <p v-if="state.activeScene === 'SingleplayerScene'" class="h-2 font-pixel text-xs">
           {{ levels.find((level) => level.number === selectedLevel).text }}
+        </p>
+        <p v-if="state.activeScene === 'MultiplayerScene'" class="h-2 font-pixel text-xs">
+          {{ chatMessages.find((chat) => chat.id === selectedLevel)?.chatMessage }}
         </p>
       </div>
       <div class="pixel-border-small flex flex-row gap-8 bg-stone-800 p-4">
@@ -81,6 +103,7 @@ import CreditMenuScene from "@/game/scenes/CreditMenuScene";
 import PixelButton from "@/components/PixelButton.vue";
 import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
 import levels from "@/game/levels.json";
+import chat from "@/game/chat.json";
 import SoundControls from "@/components/SoundControls.vue";
 import { GameScene } from "@/game/scenes/GameScene";
 import { MultiplayerScene } from "@/game/scenes/MultiplayerScene";
@@ -178,6 +201,7 @@ export default {
   data() {
     return {
       levels: levels,
+      chatMessages: chat
     };
   },
 
