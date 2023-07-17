@@ -62,9 +62,17 @@
         <p
           v-if="state.activeScene === 'MultiplayerScene'"
           class="h-2 font-pixel text-xs"
-        >
+        >{{"Du befindest dich in: " + state.room.id}}
           {{
             chatMessages.find((chat) => chat.id === selectedLevel)?.chatMessage
+          }}
+        </p>
+        <p
+          v-if="state.activeScene === 'LobbyMenuScene'"
+          class="h-2 font-pixel text-xs"
+        >
+          {{
+            "Wähle einen Raum aus um gegen einen anderen Spieler anzutreten?"
           }}
         </p>
       </div>
@@ -159,7 +167,7 @@ export default {
     const playGame = () => {
       socket.emit(
         "playGame",
-        { playGame: true, roomId: state.roomID },
+        { playGame: true, roomId: state.room.id },
         () => {}
       );
       runGame();
@@ -171,7 +179,7 @@ export default {
 
     };
     onUnmounted(() => {
-      if (state.roomID) {
+      if (state.room.id) {
         leaveRoom();
       }
       state.activeScene = null;
@@ -223,7 +231,7 @@ export default {
      */
     selectedLevel() {
       socket.emit("selectedLevel", {
-        roomId: state.roomID,
+        roomId: state.room.id,
         level: this.selectedLevel,
       });
       // this.activeScene.scene.restart();

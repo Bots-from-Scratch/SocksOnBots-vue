@@ -14,6 +14,10 @@ class LobbyMenuScene extends Scene {
   constructor() {
     super("LobbyMenuScene");
   }
+
+  init() {
+    state.activeScene = this.scene.key;
+  }
   preload() {
     this.load.image("background", background);
     this.load.image("horizon", horizon);
@@ -91,7 +95,7 @@ class LobbyMenuScene extends Scene {
       let roomButtonEntry = this.createButton(
         widthGame / 2,
         bodyStartPoint + 60 + i * 54,
-        room,
+        i + 1,
         textStyle,
         true
       );
@@ -128,13 +132,13 @@ class LobbyMenuScene extends Scene {
   generateRooms(size) {
     let temp = [];
     for (let i = 0; i < size; i++) {
-      temp.push("Room" + (i + 1));
+      temp.push("Room " + (i + 1));
     }
     return temp;
   }
 
   // TODO Versuche Button Creation auszulagern
-  createButton(x, y, text, scene, isGame) {
+  createButton(x, y, roomId, scene, isGame) {
     let button = this.add
       .sprite(x, y, "button")
       .setScrollFactor(0)
@@ -146,12 +150,11 @@ class LobbyMenuScene extends Scene {
       .on("pointerup", () => {
         button.play({ key: "hover" });
         if (isGame) {
-          state.roomID = text;
-          connectRoom(text);
-          let room = state.rooms.find(room => room.name === text)
-          if (room.connects <2) {
-
-          this.scene.start("MultiplayerScene");
+          state.roomID = roomId;
+          connectRoom(roomId);
+          let room = state.rooms.find((room) => room.id === roomId);
+          if (room.connects < 2) {
+            this.scene.start("MultiplayerScene");
           }
         } else {
           // this.scene.stop(this.scene);
@@ -160,7 +163,7 @@ class LobbyMenuScene extends Scene {
       });
 
     const buttonText = this.add
-      .text(0, 0, text, {
+      .text(0, 0, "Raum " + roomId, {
         fontSize: "16px",
         fill: "#000000",
         fontFamily: "Pixel",

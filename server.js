@@ -16,15 +16,16 @@ const { data } = require("autoprefixer");
 const levelTutorial = require(path.join(__dirname, "lvl-tut.json"));
 
 const roomList = [
-  { name: "Room1", connects: 0 },
-  { name: "Room2", connects: 0 },
-  { name: "Room3", connects: 0 },
-  { name: "Room4", connects: 0 },
-  { name: "Room5", connects: 0 },
-  { name: "Room6", connects: 0 },
-  { name: "Room7", connects: 0 },
-  { name: "Room8", connects: 0 },
+  { id: 1, name: "Room1", connects: 0 },
+  { id: 2, name: "Room2", connects: 0 },
+  { id: 3, name: "Room3", connects: 0 },
+  { id: 4, name: "Room4", connects: 0 },
+  { id: 5, name: "Room5", connects: 0 },
+  { id: 6, name: "Room6", connects: 0 },
+  { id: 7, name: "Room7", connects: 0 },
+  { id: 8, name: "Room8", connects: 0 },
 ];
+
 app.get("/", (req, res) => {
   res.send("<h1>Server running</h1>");
 });
@@ -81,7 +82,7 @@ io.on("connection", function (socket) {
 
   socket.on("leaveRoom", (roomId) => {
     roomList.forEach((room) => {
-      if (room.name === roomId) {
+      if (room.id === roomId) {
         socket.leave(roomId);
         // room.connects--;
       }
@@ -89,8 +90,8 @@ io.on("connection", function (socket) {
     socket.to(roomId).emit("leaveRoom.info");
     console.log("after leave Rooms:", socket.rooms);
     roomList.forEach((room) => {
-      if (room.name === roomId && io.sockets.adapter.rooms.get(room.name)) {
-        room.connects = io.sockets.adapter.rooms.get(room.name).size;
+      if (room.id === roomId && io.sockets.adapter.rooms.get(room.id)) {
+        room.connects = io.sockets.adapter.rooms.get(room.id).size;
       } else room.connects = 0;
     });
   });
@@ -98,6 +99,7 @@ io.on("connection", function (socket) {
   socket.on("connectRoom", (newRoomConnect) => {
     //TODO Check, if room < 2, then join
     //TODO Check if room exist
+    console.log("=>(server.js:103) newRoomConnect", newRoomConnect);
     console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
     console.log(
@@ -110,7 +112,7 @@ io.on("connection", function (socket) {
     );
 
     for (let i = 0; i < roomList.length; i++) {
-      if (roomList[i].name === newRoomConnect) {
+      if (roomList[i].id === newRoomConnect) {
         if (
           io.sockets.adapter.rooms.get(newRoomConnect)?.size < 2 ||
           !io.sockets.adapter.rooms.get(newRoomConnect)?.size

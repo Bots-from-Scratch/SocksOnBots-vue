@@ -122,7 +122,7 @@ onMounted(() => {
 let antennaClicked = ref(false);
 
 onUnmounted(() => {
-  if (state.roomID) {
+  if (state.room.id) {
     leaveRoom();
   }
   state.activeScene = null;

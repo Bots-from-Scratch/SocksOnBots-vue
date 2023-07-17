@@ -8,12 +8,14 @@ import horizon from "@/assets/horizon_menuBG.png";
 import city from "@/assets/city_menuBG.png";
 import buttonAnimJson from "@/assets/buttons.json";
 import buttonAnimPNG from "@/assets/buttons.png";
+import {state} from "@/socket";
 
 class MenuScene extends Scene {
   constructor() {
     super("MenuScene");
   }
-
+  init() {
+    state.activeScene = this.scene.key;}
   preload() {
     this.load.image("background", background);
     this.load.image("horizon", horizon);

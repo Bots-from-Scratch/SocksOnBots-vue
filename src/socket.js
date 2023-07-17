@@ -9,6 +9,7 @@ export const state = reactive({
   directionOpponent: {},
   direction: {},
   roomID: "",
+  room: { id: null, connects: 0 },
   rooms: [],
   selectedLevel: {
     number: 2,
@@ -59,7 +60,7 @@ socket.on("connectRoom.error", (error) => {
 });
 
 socket.on("joinedRoom", (data) => {
-  state.roomID = data;
+  state.room.id = data;
 });
 
 socket.on("leaveRoom.info", () => console.log("Player left the room"));
@@ -118,19 +119,18 @@ export function disconnect() {
 // }
 
 export function connectRoom(roomName) {
-  if (!state.roomID) {
-    state.roomID = roomName;
-    socket.emit("connectRoom", state.roomID);
-    console.log("connected to Room", state.roomID);
+  if (!state.room.id) {
+    state.room.id = roomName;
+    socket.emit("connectRoom", state.room.id);
+    console.log("connected to Room", state.room.id);
   } else {
-    socket.emit("leaveRoom", state.roomID);
-    state.roomID = roomName;
-    socket.emit("connectRoom", state.roomID);
-
+    socket.emit("leaveRoom", state.room.id);
+    state.room.id = roomName;
+    socket.emit("connectRoom", state.room.id);
   }
 }
 
 export function leaveRoom() {
-  socket.emit("leaveRoom", state.roomID);
-  state.roomID = "";
+  socket.emit("leaveRoom", state.room.id);
+  state.room.id = null;
 }
