@@ -20,7 +20,7 @@ export class MultiplayerScene extends GameScene {
   create() {
     super.create();
 
-    this.prepareLevel(state.room.rndLvl.number);
+    this.prepareLevel(state.room.rndLvl?.number);
     state.room.rndLvl = null;
     state.playGame = false;
 
