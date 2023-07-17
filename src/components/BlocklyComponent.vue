@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, shallowRef, watch } from "vue";
+import {computed, onMounted, onUnmounted, ref, shallowRef, watch} from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
 import { useLocalStorage } from "@vueuse/core";
@@ -17,7 +17,6 @@ let playGameCounter = 0;
 let store = useLocalStorage("userBlocks", null);
 defineExpose({ workspace });
 
-Blockly.registry.unregister('theme', 'dark');
 Blockly.Theme.defineTheme('dark', {
   'base': Blockly.Themes.Classic,
   'componentStyles': {
@@ -60,6 +59,17 @@ const blocklyOptions = {
   },
   theme: 'dark'
 };
+
+onUnmounted(()=>{
+  console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
+  Blockly.registry.unregister('theme', 'dark');
+  Blockly.registry.unregister('renderer', 'customRenderer');
+
+  console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
+
+
+
+})
 
 onMounted(() => {
   const options = props.options || {};
