@@ -9,6 +9,7 @@ import horizon from "@/assets/horizon_menuBG.png";
 import city from "@/assets/city_menuBG.png";
 import buttonAnimJson from "@/assets/buttons.json";
 import buttonAnimPNG from "@/assets/buttons.png";
+import hoverSound from "@/assets/sounds/Click/CLICK2.mp3";
 
 class LobbyMenuScene extends Scene {
   constructor() {
@@ -22,10 +23,11 @@ class LobbyMenuScene extends Scene {
     this.load.image("background", background);
     this.load.image("horizon", horizon);
     this.load.image("city", city);
-
     this.load.image("logo", logo);
 
     this.load.aseprite("button", buttonAnimPNG, buttonAnimJson);
+
+    this.load.audio("hoverSound", hoverSound);
   }
 
   create() {
@@ -34,6 +36,8 @@ class LobbyMenuScene extends Scene {
     const bodyStartPoint = 130;
 
     this.add.image(widthGame, heightGame, "background").setScrollFactor(0);
+
+    this.hoverSound = this.sound.add("hoverSound");
 
     this.input.on("pointermove", (pointer) => {
       console.log(pointer.x);
@@ -147,7 +151,10 @@ class LobbyMenuScene extends Scene {
       .sprite(x, y, "button")
       .setScrollFactor(0)
       .setInteractive()
-      .on("pointerover", () => button.play({ key: "hover" }))
+      .on("pointerover", () => {
+        button.play({ key: "hover" });
+        this.hoverSound.play();
+      })
       .on("pointerout", () => button.play({ key: "idle" }))
       .on("pointerdown", () => button.play({ key: "click" }))
       .on("pointerdown", () => {})

@@ -7,12 +7,16 @@ import botSpritesheet from "@/assets/animation.png";
 import botAnimationJson from "@/assets/animation.json";
 import bot_with_sock from "@/assets/Spritesheet.png";
 import world from "@/assets/BotsonsocksBIG.json";
-import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
-import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
-import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
 import Phaser, { Scene } from "phaser";
 import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
 import { toRaw } from "vue";
+import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
+import collectStarSound from "@/assets/sounds/PUNKTE/POINT2.mp3";
+import collectKeySound from "@/assets/sounds/PUNKTE/POINT3.mp3";
+import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
+import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
+import doorSound from "@/assets/sounds/Door/doorsound.mp3";
+import movingObjectSound from "@/assets/sounds/movingobject.mp3";
 
 let directionPlayer1 = {
   right: { isClear: true, isMoving: false },
@@ -92,6 +96,10 @@ export class GameScene extends Scene {
     this.load.audio("collision", collisionSound);
     this.load.audio("backgroundSound", bgSound);
     this.load.audio("movingSound", movingSound);
+    this.load.audio("collectStarSound", collectStarSound);
+    this.load.audio("collectKeySound", collectKeySound);
+    this.load.audio("doorSound", doorSound);
+    this.load.audio("movingObjectSound", movingObjectSound);
   }
 
   create() {
@@ -257,6 +265,10 @@ export class GameScene extends Scene {
     this.collisionSound = this.sound.add("collision");
     this.backgroundSound = this.sound.add("backgroundSound");
     this.movingSound = this.sound.add("movingSound");
+    this.collectStarSound = this.sound.add("collectStarSound");
+    this.collectKeySound = this.sound.add("collectKeySound");
+    this.doorSound = this.sound.add("doorSound");
+    this.movingObjectSound = this.sound.add("movingObjectSound");
 
     this.prepareLevel(this.selectedGameLevel);
   }
@@ -363,13 +375,18 @@ export class GameScene extends Scene {
   }
 
   createCollider() {
-    this.physics.add.collider(this.player, this.pushableObjectsGroup);
+    this.physics.add.collider(this.player, this.pushableObjectsGroup, () => {
+      if (!itemConnected) {
+        this.movingObjectSound.play();
+      }
+    });
 
     this.physics.add.collider(
       this.pushableObjectsGroup,
       this.objectLayer,
       (pushableObject, object) => {
         this.player.setVelocity(0);
+        this.movingObjectSound.stop();
         itemConnected = true;
         pushableObject.tint = 0xeddc32;
         pushableObject.setPushable(false);
@@ -651,6 +668,7 @@ export class GameScene extends Scene {
 
   collectKey(player, key) {
     if (Math.abs(player.x - key.x) < 10 && Math.abs(player.y - key.y) < 10) {
+      this.collectKeySound.play();
       key.disableBody(true, true);
       objectCollected = true;
       this.player.setVelocity(0);
@@ -663,6 +681,7 @@ export class GameScene extends Scene {
 
   collectStar(player, star) {
     star.disableBody(true, true);
+    this.collectStarSound.play();
     this.cameras.main.fadeOut(3000, 0, 0, 0);
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
@@ -680,6 +699,7 @@ export class GameScene extends Scene {
 
   checkForWin(sprite, object) {
     // this.updateLevels(this.getActiveLevel().number + 1);
+    this.doorSound.play();
     console.log("=>(Game.vue:916) level finished GameScene");
   }
 

@@ -27,7 +27,7 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Logic",
-      colour: "%{BKY_LOGIC_HUE}",
+      colour: "#eb6c4b",
       contents: [
         {
           kind: "BLOCK",
@@ -78,7 +78,7 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Loops",
-      colour: "%{BKY_LOOPS_HUE}",
+      colour: "#ffc84f",
       contents: [
         {
           kind: "BLOCK",
@@ -101,7 +101,7 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Math",
-      colour: "%{BKY_MATH_HUE}",
+      colour: "#eb6c4b",
       contents: [
         {
           kind: "BLOCK",
@@ -192,7 +192,7 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Variables",
-      colour: "%{BKY_VARIABLES_HUE}",
+      colour: "#ffc84f",
       contents: [
         {
           kind: "BLOCK",
@@ -209,7 +209,7 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Aktionen",
-      colour: "%{BKY_LOOPS_HUE}",
+      colour: "#eb6c4b",
       contents: [
         {
           kind: "BLOCK",

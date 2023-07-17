@@ -6,7 +6,7 @@ Blockly.common.defineBlocksWithJsonArray([
         "type": "walked_around",
         "message0": "Walked Around",
         "output": "Boolean",
-        "colour": 230,
+        "colour": "#502828",
         "tooltip": "If player walked around obstacle, this returns true",
         "helpUrl": ""
     }

@@ -6,7 +6,7 @@ Blockly.common.defineBlocksWithJsonArray([
     type: "object_collected",
     message0: "Object collected",
     output: "Boolean",
-    colour: 230,
+    colour: "#502828",
     tooltip: "",
     helpUrl: "",
   },

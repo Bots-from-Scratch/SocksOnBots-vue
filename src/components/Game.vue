@@ -105,7 +105,6 @@ import { leaveRoom, socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 import MenuScene from "@/game/scenes/MenuScene";
 import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
-import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
 import CreditMenuScene from "@/game/scenes/CreditMenuScene";
 import PixelButton from "@/components/PixelButton.vue";
 import levels from "@/game/levels.json";
@@ -159,6 +158,11 @@ export default {
       }
       scene.backgroundSound?.setVolume(parseInt(volume.music) / 200);
       scene.collisionSound?.setVolume(parseInt(volume.sound) / 200);
+      scene.movingSound?.setVolume(parseInt(volume.sound) / 400);
+      scene.collectStarSound?.setVolume(parseInt(volume.sound) / 200);
+      scene.collectKeySound?.setVolume(parseInt(volume.sound) / 200);
+      scene.doorSound?.setVolume(parseInt(volume.sound) / 200);
+      scene.movingObjectSound?.setVolume(parseInt(volume.sound) / 200);
     };
 
     const runGame = () => {
@@ -168,6 +172,8 @@ export default {
     };
 
     const playGame = () => {
+      if (activeScene() === "MultiplayerScene") {
+
       socket.emit(
         "playGame",
         { playGame: true, roomId: state.room.id },
@@ -175,6 +181,7 @@ export default {
       );
       // this.isPlayingRef = !this.isPlayingRef
       !state.playGame && runGame();
+      } else {runGame()}
     };
 
     const updateSelectedLevel = (newLevel) => {

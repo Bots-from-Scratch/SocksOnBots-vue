@@ -6,6 +6,7 @@ import { useLocalStorage } from "@vueuse/core";
 import PixelButton from "@/components/PixelButton.vue";
 import { socket, state } from "@/socket";
 import {toolboxJson} from "@/toolbox_phaser";
+import {CustomRenderer} from "@/renderer/CustomRenderer";
 
 const emit = defineEmits(["playGamePressed", "workspaceFromBlockly"]);
 const props = defineProps(["options", "selectedLevel"]);
@@ -36,6 +37,7 @@ Blockly.Theme.defineTheme('dark', {
 })
 
 const blocklyOptions = {
+  renderer: "customRenderer",
   toolbox: toolboxJson,
   collapse: true,
   comments: true,
@@ -64,6 +66,8 @@ onMounted(() => {
   if (!options.toolbox) {
     options.toolbox = blocklyToolbox.value;
   }
+
+  Blockly.blockRendering.register("customRenderer", CustomRenderer);
 
   workspace.value = Blockly.inject(blocklyDiv.value, blocklyOptions);
 
