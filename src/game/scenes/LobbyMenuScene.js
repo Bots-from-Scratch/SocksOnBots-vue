@@ -119,7 +119,6 @@ class LobbyMenuScene extends Scene {
   update() {
     // console.log(state.rooms);
     // this.roomSizes[3].setText("1/2");
-    socket.emit("listRooms");
     console.log(state.rooms);
     this.roomSizes.forEach((roomSize, index) => {
       roomSize.setText(state.rooms.at(index).connects + "/" + this.maxRoomSize);
@@ -149,7 +148,11 @@ class LobbyMenuScene extends Scene {
         if (isGame) {
           state.roomID = text;
           connectRoom(text);
+          let room = state.rooms.find(room => room.name === text)
+          if (room.connects <2) {
+
           this.scene.start("MultiplayerScene");
+          }
         } else {
           // this.scene.stop(this.scene);
           this.scene.start(scene);

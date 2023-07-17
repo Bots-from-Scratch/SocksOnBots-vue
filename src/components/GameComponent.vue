@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import BlocklyComponent from "@/components/BlocklyComponent.vue";
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import {onDeactivated, onMounted, onUnmounted, ref, watch} from "vue";
 import { toolboxJson } from "@/toolbox_phaser.js";
-import { state } from "@/socket";
+import { leaveRoom, state } from "@/socket";
 import RangeSlider from "@/components/RangeSlider.vue";
 import Game from "@/components/Game.vue";
 import { useLocalStorage } from "@vueuse/core";
@@ -121,7 +121,12 @@ onMounted(() => {
 
 let antennaClicked = ref(false);
 
-onUnmounted(() => state.activeScene = null);
+onUnmounted(() => {
+  if (state.roomID) {
+    leaveRoom();
+  }
+  state.activeScene = null;
+});
 </script>
 
 <template>
@@ -154,7 +159,10 @@ onUnmounted(() => state.activeScene = null);
       />
       <transition name="blockly">
         <BlocklyComponent
-          v-if="state.activeScene === 'SingleplayerScene' || state.activeScene === 'MultiplayerScene'"
+          v-if="
+            state.activeScene === 'SingleplayerScene' ||
+            state.activeScene === 'MultiplayerScene'
+          "
           class="pixel-border-8 bg-gray-600 p-4 w-full h-[32rem] shrink grow-0"
           id="blockly"
           :options="blocklyOptions"

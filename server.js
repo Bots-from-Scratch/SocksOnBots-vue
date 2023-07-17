@@ -24,8 +24,6 @@ const roomList = [
   { name: "Room6", connects: 0 },
   { name: "Room7", connects: 0 },
   { name: "Room8", connects: 0 },
-  { name: "Room9", connects: 0 },
-  { name: "Room10", connects: 0 },
 ];
 app.get("/", (req, res) => {
   res.send("<h1>Server running</h1>");
@@ -85,11 +83,16 @@ io.on("connection", function (socket) {
     roomList.forEach((room) => {
       if (room.name === roomId) {
         socket.leave(roomId);
-        room.connects--;
+        // room.connects--;
       }
     });
     socket.to(roomId).emit("leaveRoom.info");
     console.log("after leave Rooms:", socket.rooms);
+    roomList.forEach((room) => {
+      if (room.name === roomId && io.sockets.adapter.rooms.get(room.name)) {
+        room.connects = io.sockets.adapter.rooms.get(room.name).size;
+      } else room.connects = 0;
+    });
   });
 
   socket.on("connectRoom", (newRoomConnect) => {
@@ -135,9 +138,15 @@ io.on("connection", function (socket) {
   });
 
   socket.on("levelFinished", (data) => {
-    socket.to(data.roomId).emit("levelFinished.response", {text: "Du hast verloren", winner: false});
-    socket.emit("levelFinished.response", {text: "Du hast gewonnen", winner: true})
-  })
+    socket.to(data.roomId).emit("levelFinished.response", {
+      text: "Du hast verloren",
+      winner: false,
+    });
+    socket.emit("levelFinished.response", {
+      text: "Du hast gewonnen",
+      winner: true,
+    });
+  });
 
   socket.on("chat", (data) => {
     console.log(data);

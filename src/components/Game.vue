@@ -87,10 +87,10 @@
 
 <script>
 import * as Phaser from "phaser";
-import { onMounted, ref } from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
-import { socket, state } from "@/socket";
+import {leaveRoom, socket, state} from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 import MenuScene from "@/game/scenes/MenuScene";
 import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
@@ -170,7 +170,12 @@ export default {
       selectLevel(newLevel)
 
     };
-
+    onUnmounted(() => {
+      if (state.roomID) {
+        leaveRoom();
+      }
+      state.activeScene = null;
+    });
     onMounted(() => emit("selectedLevel", selectedLevel.value));
     const selectLevel = (levelNumber) => {
       console.log("=>(Game.vue:126) selectLevel", levelNumber);

@@ -91,8 +91,8 @@ socket.on("direction", (data) => {
 });
 
 socket.on("listRooms.response", (data) => {
-  // console.log(state.rooms);
   state.rooms = data;
+  console.log("state.rooms", state.rooms);
 });
 
 export function connect() {
@@ -103,16 +103,34 @@ export function disconnect() {
   socket.disconnect();
 }
 
-export function connectRoom(roomName) {
-  if (state.roomID) {
-    console.log("disconnected from Room", state.roomID);
-    socket.emit("leaveRoom", state.roomID);
-    state.roomID = "";
-  }
+// export function connectRoom(roomName) {
+//   if (state.roomID) {
+//     console.log("disconnected from Room", state.roomID);
+//     socket.emit("leaveRoom", state.roomID);
+//     state.roomID = "";
+//   }
+//
+//   if (!state.roomID) {
+//     state.roomID = roomName;
+//     socket.emit("connectRoom", state.roomID);
+//     console.log("connected to Room", state.roomID);
+//   }
+// }
 
+export function connectRoom(roomName) {
   if (!state.roomID) {
     state.roomID = roomName;
     socket.emit("connectRoom", state.roomID);
     console.log("connected to Room", state.roomID);
+  } else {
+    socket.emit("leaveRoom", state.roomID);
+    state.roomID = roomName;
+    socket.emit("connectRoom", state.roomID);
+
   }
+}
+
+export function leaveRoom() {
+  socket.emit("leaveRoom", state.roomID);
+  state.roomID = "";
 }
