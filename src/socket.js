@@ -9,7 +9,7 @@ export const state = reactive({
   directionOpponent: {},
   direction: {},
   roomID: "",
-  room: { id: null, connects: 0 },
+  room: { id: null, connects: 0, rndLvl: null},
   rooms: [],
   selectedLevel: {
     number: 2,
@@ -92,6 +92,11 @@ socket.on("levelFinished.response", (data) => {
   }
 });
 
+socket.on("nextLevel.response", (rndLvl)=>{
+  console.log("=>(socket.js:97) nextLevel.response", rndLvl);
+  state.room.rndLvl = rndLvl
+})
+
 socket.on("selectedLevel.response", (data) => {
   state.selectedLevel = data;
 });
@@ -150,6 +155,12 @@ export function leaveRoom() {
   state.levelFinished.playerDisconnected = false;
   state.levelFinished.winner = false;
   state.levelFinished.loser = false;
+}
+
+export function resetFinishedLevelObject() {
+  state.levelFinished.winner = false;
+  state.levelFinished.loser = false;
+  state.levelFinished.playerDisconnected = false;
 }
 
 setInterval(()=>console.log("12state.room", state.room), 1000)

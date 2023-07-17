@@ -1,8 +1,9 @@
 import { Scene } from "phaser";
 import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
-import {leaveRoom, state} from "@/socket";
+import {leaveRoom, resetFinishedLevelObject, socket, state} from "@/socket";
 import buttonAnimPNG from "@/assets/buttons.png";
 import buttonAnimJson from "@/assets/buttons.json";
+import {MultiplayerScene} from "@/game/scenes/MultiplayerScene";
 
 export class MultiplayerEndScene extends Scene {
   constructor() {
@@ -61,7 +62,7 @@ export class MultiplayerEndScene extends Scene {
           760,
           550,
           "Weiterspielen",
-          ""
+          "Weiter"
       );
 
       this.buttonBackToMenu = this.createButton(
@@ -79,6 +80,12 @@ export class MultiplayerEndScene extends Scene {
           leaveRoom();
           this.scene.start("LobbyMenuScene");
       }
+
+      if (state.room.rndLvl) {
+          this.scene.start("MultiplayerScene");
+          resetFinishedLevelObject();
+      }
+
   }
 
     createButton(x, y, text, scene) {
@@ -92,10 +99,14 @@ export class MultiplayerEndScene extends Scene {
             .on("pointerup", () => {
                 button.play({ key: "hover" });
                 // this.scene.stop(this.scene);
+                if (scene === "Weiter") {
+                    socket.emit("nextLevel", state.room.id);
+                }
+
                 if (scene==="LobbyMenuScene") {
                     leaveRoom();
-                }
                 this.scene.start(scene);
+                }
             });
 
         const buttonText = this.add

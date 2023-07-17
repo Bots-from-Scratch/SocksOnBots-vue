@@ -14,17 +14,22 @@ const io = require("socket.io")(http, {
 const path = require("path");
 const { data } = require("autoprefixer");
 const levelTutorial = require(path.join(__dirname, "lvl-tut.json"));
+const levelsMultiplayer = require(path.join(
+  __dirname,
+  "src/game/levelsMultiplayer.json"
+));
 
 const roomList = [
-  { id: 1, name: "Room1", connects: 0 },
-  { id: 2, name: "Room2", connects: 0 },
-  { id: 3, name: "Room3", connects: 0 },
-  { id: 4, name: "Room4", connects: 0 },
-  { id: 5, name: "Room5", connects: 0 },
-  { id: 6, name: "Room6", connects: 0 },
-  { id: 7, name: "Room7", connects: 0 },
-  { id: 8, name: "Room8", connects: 0 },
+  { id: 1, name: "Room1", connects: 0, nextLvlCounter: 0 },
+  { id: 2, name: "Room2", connects: 0, nextLvlCounter: 0 },
+  { id: 3, name: "Room3", connects: 0, nextLvlCounter: 0 },
+  { id: 4, name: "Room4", connects: 0, nextLvlCounter: 0 },
+  { id: 5, name: "Room5", connects: 0, nextLvlCounter: 0 },
+  { id: 6, name: "Room6", connects: 0, nextLvlCounter: 0 },
+  { id: 7, name: "Room7", connects: 0, nextLvlCounter: 0 },
+  { id: 8, name: "Room8", connects: 0, nextLvlCounter: 0 },
 ];
+
 
 app.get("/", (req, res) => {
   res.send("<h1>Server running</h1>");
@@ -34,14 +39,31 @@ app.get("/level-tut", (req, res) => {
   res.json(getRandomLevel(levelTutorial));
 });
 
+function emitRandomLevel(roomId) {
+  roomList[roomId - 1].nextLvlCounter++;
+  if (roomList[roomId - 1].nextLvlCounter === 2) {
+    const rndLvl = getRandomLevel(levelsMultiplayer);
+    io.in(roomId).emit("nextLevel.response", rndLvl);
+    roomList[roomId - 1].nextLvlCounter = 0;
+  }
+}
+
 io.on("connection", function (socket) {
   console.log("A user with ID: " + socket.id + " connected");
 
   socket.on("disconnect", function () {
     console.log("A user with ID: " + socket.id + " disconnected");
     updateRoomList();
-    if (socket.roomId && io.sockets.adapter.rooms.get(socket.roomId)?.size > 0) {
-      socket.to(socket.roomId).emit('leaveRoom.info', io.sockets.adapter.rooms.get(socket.roomId)?.size);
+    if (
+      socket.roomId &&
+      io.sockets.adapter.rooms.get(socket.roomId)?.size > 0
+    ) {
+      socket
+        .to(socket.roomId)
+        .emit(
+          "leaveRoom.info",
+          io.sockets.adapter.rooms.get(socket.roomId)?.size
+        );
     }
     console.log("after disconnect roomList", roomList);
   });
@@ -127,6 +149,8 @@ io.on("connection", function (socket) {
           !io.sockets.adapter.rooms.get(newRoomConnect)?.size
         ) {
           socket.join(newRoomConnect);
+          emitRandomLevel(newRoomConnect);
+
           socket.roomId = newRoomConnect;
           console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
@@ -161,6 +185,10 @@ io.on("connection", function (socket) {
       text: "Du hast gewonnen",
       winner: true,
     });
+  });
+
+  socket.on("nextLevel", (roomId) => {
+    emitRandomLevel(roomId);
   });
 
   socket.on("chat", (data) => {
