@@ -41,15 +41,28 @@ export class MultiplayerScene extends GameScene {
 
   update() {
     super.update();
-console.log("=>(MultiplayerScene.js:45) state.levelFinished", state.levelFinished);
-    if ((state.levelFinished.winner || state.levelFinished.loser) && !this.isPausingCodeExecution ) {
+    console.log(
+      "=>(MultiplayerScene.js:45) state.levelFinished",
+      state.levelFinished
+    );
+    if (
+      (state.levelFinished.winner ||
+        state.levelFinished.loser ||
+        state.levelFinished.playerDisconnected) &&
+      !this.isPausingCodeExecution
+    ) {
       this.isPausingCodeExecution = true;
       this.cameras.main.fadeOut(800, 0, 0, 0);
       this.cameras.main.once(
-          Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-          () => {
+        Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+        () => {
+          if (state.levelFinished.playerDisconnected) {
+            this.scene.start("LobbyMenuScene");
+            state.levelFinished.playerDisconnected = false;
+          } else {
             this.scene.start("MultiplayerEndScene");
           }
+        }
       );
     }
 

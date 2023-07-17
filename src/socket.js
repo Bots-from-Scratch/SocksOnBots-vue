@@ -20,7 +20,7 @@ export const state = reactive({
     playerStart: { x: 3, y: 7 },
   },
   activeScene: "",
-  levelFinished: { winner: false, loser: false },
+  levelFinished: { winner: false, loser: false, playerDisconnected: false },
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -59,11 +59,21 @@ socket.on("connectRoom.error", (error) => {
   console.log(error);
 });
 
-socket.on("joinedRoom", (data) => {
-  state.room.id = data;
+socket.on("joinedRoom.response", (data) => {
+  state.room.id = data.roomId;
+  state.room.connects = data.connects;
 });
 
-socket.on("leaveRoom.info", () => console.log("Player left the room"));
+socket.on("playerJoinedRoom.info", (data) => {
+  state.room.connects = data;
+});
+
+socket.on("leaveRoom.info", (connects) => {
+  state.levelFinished.playerDisconnected = true;
+  console.log("=>(socket.js:74) connects12state", connects);
+state.room.connects = connects;
+  console.log("Player left the room, remaining connects: ", connects);
+});
 
 socket.on("playGame.response", (data) => {
   console.log("playGame.response", data);
@@ -133,4 +143,7 @@ export function connectRoom(roomName) {
 export function leaveRoom() {
   socket.emit("leaveRoom", state.room.id);
   state.room.id = null;
+  state.room.connects = 0;
 }
+
+setInterval(()=>console.log("12state.room", state.room), 1000)

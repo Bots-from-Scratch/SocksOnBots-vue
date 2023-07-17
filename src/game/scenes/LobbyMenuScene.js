@@ -127,6 +127,10 @@ class LobbyMenuScene extends Scene {
     this.roomSizes.forEach((roomSize, index) => {
       roomSize.setText(state.rooms.at(index).connects + "/" + this.maxRoomSize);
     });
+
+    if (state.room.id && state.rooms.at(state.room.id-1).connects === 2) {
+      this.scene.start("MultiplayerScene");
+    }
   }
 
   generateRooms(size) {
@@ -154,7 +158,6 @@ class LobbyMenuScene extends Scene {
           connectRoom(roomId);
           let room = state.rooms.find((room) => room.id === roomId);
           if (room.connects < 2) {
-            this.scene.start("MultiplayerScene");
           }
         } else {
           // this.scene.stop(this.scene);

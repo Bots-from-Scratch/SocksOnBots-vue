@@ -62,7 +62,8 @@
         <p
           v-if="state.activeScene === 'MultiplayerScene'"
           class="h-2 font-pixel text-xs"
-        >{{"Du befindest dich in: " + state.room.id}}
+        >
+          {{ "Du befindest dich in Raum " + state.room.id }}
           {{
             chatMessages.find((chat) => chat.id === selectedLevel)?.chatMessage
           }}
@@ -72,7 +73,9 @@
           class="h-2 font-pixel text-xs"
         >
           {{
-            "Wähle einen Raum aus um gegen einen anderen Spieler anzutreten?"
+            state.room.connects === 1
+              ? "Warte auf Spieler"
+              : "Wähle einen Raum aus um gegen einen anderen Spieler anzutreten?"
           }}
         </p>
       </div>
@@ -95,10 +98,10 @@
 
 <script>
 import * as Phaser from "phaser";
-import {onMounted, onUnmounted, ref} from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
-import {leaveRoom, socket, state} from "@/socket";
+import { leaveRoom, socket, state } from "@/socket";
 import { javascriptGenerator } from "blockly/javascript";
 import MenuScene from "@/game/scenes/MenuScene";
 import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
@@ -110,7 +113,7 @@ import chat from "@/game/chat.json";
 import multiplayerLevels from "@/game/levelsMultiplayer.json";
 import SoundControls from "@/components/SoundControls.vue";
 import { MultiplayerScene } from "@/game/scenes/MultiplayerScene";
-import {MultiplayerEndScene}  from "@/game/scenes/MultiplayerEndScene";
+import { MultiplayerEndScene } from "@/game/scenes/MultiplayerEndScene";
 import { SingleplayerScene } from "@/game/scenes/SingleplayerScene";
 // TODO licht/Strom anschalten
 // TODO schieben
@@ -175,8 +178,7 @@ export default {
 
     const updateSelectedLevel = (newLevel) => {
       selectedLevel.value = newLevel;
-      selectLevel(newLevel)
-
+      selectLevel(newLevel);
     };
     onUnmounted(() => {
       if (state.room.id) {

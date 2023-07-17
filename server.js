@@ -84,15 +84,22 @@ io.on("connection", function (socket) {
     roomList.forEach((room) => {
       if (room.id === roomId) {
         socket.leave(roomId);
+        if (io.sockets.adapter.rooms.get(roomId)?.size > 0) {
+          socket
+            .to(roomId)
+            .emit("leaveRoom.info", io.sockets.adapter.rooms.get(roomId).size);
+        }
+
         // room.connects--;
       }
     });
-    socket.to(roomId).emit("leaveRoom.info");
     console.log("after leave Rooms:", socket.rooms);
     roomList.forEach((room) => {
       if (room.id === roomId && io.sockets.adapter.rooms.get(room.id)) {
         room.connects = io.sockets.adapter.rooms.get(room.id).size;
-      } else room.connects = 0;
+      } else {
+        room.connects = 0;
+      }
     });
   });
 
@@ -122,10 +129,13 @@ io.on("connection", function (socket) {
 
           roomList[i].connects =
             io.sockets.adapter.rooms.get(newRoomConnect)?.size;
-          socket.emit("joinedRoom", newRoomConnect);
+          socket.emit("joinedRoom.response", {
+            roomId: newRoomConnect,
+            connects: roomList[i].connects,
+          });
           socket
             .to(newRoomConnect)
-            .emit("chatMessage", "User joined the room at " + printTime());
+            .emit("playerJoinedRoom.info", roomList[i].connects);
           console.log(newRoomConnect);
           console.log("Rooms client is in:", socket.rooms);
         } // TODO else emit room voll
