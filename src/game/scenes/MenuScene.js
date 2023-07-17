@@ -9,12 +9,14 @@ import city from "@/assets/city_menuBG.png";
 import buttonAnimJson from "@/assets/buttons.json";
 import buttonAnimPNG from "@/assets/buttons.png";
 import hoverSound from "@/assets/sounds/Click/CLICK2.mp3";
+import {state} from "@/socket";
 
 class MenuScene extends Scene {
   constructor() {
     super("MenuScene");
   }
-
+  init() {
+    state.activeScene = this.scene.key;}
   preload() {
     this.load.image("background", background);
     this.load.image("horizon", horizon);
@@ -30,7 +32,7 @@ class MenuScene extends Scene {
     const widthGame = this.scale.width;
     const heightGame = this.scale.height;
 
-    console.log("=>(MenuScene.js:31) ", heightGame);
+    // console.log("=>(MenuScene.js:31) ", heightGame);
 
     this.add.image(widthGame, heightGame, "background").setScrollFactor(0);
 
@@ -38,7 +40,7 @@ class MenuScene extends Scene {
 
     // this.cam = this.cameras.main.setBounds(0, 0, widthGame*4.5 , heightGame*4.5 );
     this.input.on("pointermove", (pointer) => {
-      console.log(pointer.x);
+      // console.log(pointer.x);
       this.cameras.main.startFollow(pointer, true, 0.1);
     });
     // this.centerX = this.scale.width / 2;
@@ -94,7 +96,7 @@ class MenuScene extends Scene {
       450,
       250,
       "Tutorial",
-      "TutorialMenuScene"
+      "SingleplayerScene"
     );
 
     this.buttonMultiplayer = this.createButton(

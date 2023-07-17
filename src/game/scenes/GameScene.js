@@ -1,351 +1,43 @@
-<template>
-  <div
-    class="flex flex-row gap-16 justify-between pixel-border-16 w-full p-12 pl-14 bg-gray-600 mx-auto my-4"
-  >
-    <div
-      ref="phaserGame"
-      class="game-container relative pixel-border-16 w-full"
-      id="gameCanvas"
-    >
-      <transition>
-        <div
-          v-if="antennaClicked"
-          class="noise absolute w-full h-full bg-black top-0 left-0"
-        ></div>
-      </transition>
-    </div>
-    <div class="flex flex-col pixel-border-8 gap-8 basis-1/4 bg-stone-700 p-4">
-      <div
-        v-if="state.activeScene === 'SingleplayerScene'"
-        class="grid grid-cols-3 gap-x-8 gap-y-4"
-      >
-        <div
-          v-for="level in levels"
-          :key="level.number"
-          class="pixel-border-small text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
-          @click="selectLevel(level.number)"
-          :class="[
-            selectedLevel === level.number ? 'bg-stone-300' : 'bg-stone-500',
-          ]"
-        >
-          {{ level.number }}
-        </div>
-      </div>
-      <div
-        v-else-if="state.activeScene === 'MultiplayerScene'"
-        class="grid grid-cols-3 gap-x-8 gap-y-4"
-      >
-        <div
-          v-for="message in chatMessages"
-          :key="message.id"
-          class="pixel-border-small text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
-          @click="selectLevel(message.id)"
-          :class="[
-            selectedLevel === message.id ? 'bg-stone-300' : 'bg-stone-500',
-          ]"
-        >
-          {{ message.icon }}
-        </div>
-      </div>
-      <SoundControls ref="volumesRef" @volumeChange="controlSounds" />
-      <div
-        class="pixel-border-small p-2 h-1/2 w-full bg-stone-300 overflow-scroll no-scrollbar"
-        @mouseover="isBlinking = false"
-        :class="{ blink: isBlinking, 'stop-blink': !isBlinking }"
-      >
-        <p
-          v-if="state.activeScene === 'SingleplayerScene'"
-          class="h-2 font-pixel text-xs"
-        >
-          {{ levels.find((level) => level.number === selectedLevel).text }}
-        </p>
-        <p
-          v-if="state.activeScene === 'MultiplayerScene'"
-          class="h-2 font-pixel text-xs"
-        >
-          {{ "Du befindest dich in Raum " + state.room.id }}
-          {{
-            chatMessages.find((chat) => chat.id === selectedLevel)?.chatMessage
-          }}
-        </p>
-        <p
-          v-if="state.activeScene === 'LobbyMenuScene'"
-          class="h-2 font-pixel text-xs"
-        >
-          {{
-            state.room.connects === 0
-              ? "Wähle einen Raum aus um gegen einen anderen Spieler anzutreten?"
-              : "Warte auf Spieler"
-          }}
-        </p>
-      </div>
-      <div class="pixel-border-small flex flex-row gap-8 bg-stone-800 p-4">
-        <PixelButton class="w-1/2" text="Play" @click="playGame" />
-        <div class="flex flex-col gap-3">
-          <div
-            class="pixel-border-small h-3 aspect-square text-white"
-            :class="[isPlayingRef ? 'bg-emerald-400' : 'bg-emerald-800']"
-          ></div>
-          <div
-            class="pixel-border-small h-3 aspect-square bg-red-800 text-white"
-            :class="[!isPlayingRef ? 'bg-red-400' : 'bg-red-800']"
-          ></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script>
-import * as Phaser from "phaser";
-import { onMounted, onUnmounted, ref } from "vue";
-import PreloadScene from "@/game/scenes/PreloadScene";
-import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
-import { leaveRoom, socket, state } from "@/socket";
+import { socket, state } from "@/socket";
+import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
+import platform from "@/assets/platform.png";
+import star from "@/assets/socke.png";
+import bomb from "@/game/assets/bomb.png";
+import botSpritesheet from "@/assets/animation.png";
+import botAnimationJson from "@/assets/animation.json";
+import bot_with_sock from "@/assets/Spritesheet.png";
+import world from "@/assets/BotsonsocksBIG.json";
 import collisionSound from "@/assets/sounds/HIT/HIT3.mp3";
-import collectStarSound from "@/assets/sounds/PUNKTE/POINT2.mp3";
-import collectKeySound from "@/assets/sounds/PUNKTE/POINT3.mp3";
 import bgSound from "@/assets/sounds/AdhesiveWombat - 8 Bit Adventure.mp3";
 import movingSound from "@/assets/sounds/Fahrgeräusche_dumpf.mp3";
-import doorSound from "@/assets/sounds/Door/doorsound.mp3";
-import movingObjectSound from "@/assets/sounds/movingobject.mp3";
-import { socket, state } from "@/socket";
-import { javascriptGenerator } from "blockly/javascript";
-import MenuScene from "@/game/scenes/MenuScene";
-import LobbyMenuScene from "@/game/scenes/LobbyMenuScene";
-import TutorialMenuScene from "@/game/scenes/TutorialMenuScene";
-import CreditMenuScene from "@/game/scenes/CreditMenuScene";
-import PixelButton from "@/components/PixelButton.vue";
-import levels from "@/game/levels.json";
-import chat from "@/game/chat.json";
-import multiplayerLevels from "@/game/levelsMultiplayer.json";
-import SoundControls from "@/components/SoundControls.vue";
-import { MultiplayerScene } from "@/game/scenes/MultiplayerScene";
-import { MultiplayerEndScene } from "@/game/scenes/MultiplayerEndScene";
-import { SingleplayerScene } from "@/game/scenes/SingleplayerScene";
-// TODO licht/Strom anschalten
-// TODO schieben
-// TODO
+import Phaser, { Scene } from "phaser";
+import PlayerController, { maxSpeed } from "@/game/states/PlayerController";
+import { toRaw } from "vue";
 
-let activeScene = null;
-export default {
-  name: "Game",
-  components: { SoundControls, PixelButton },
-  expose: ["activeScene"],
-  emits: {
-    selectedLevel: null,
-    playGamePressed: null,
-  },
-  props: {
-    // directionPlayer1: String,
-    playGames: Boolean,
-    // volume: Object,
-    blocklyWorkspace: Object,
-    antennaClicked: true,
-    // workspace: Object,
-  },
-  setup(props, { emit }) {
-    let game = ref(null);
-    const isBlinking = ref(true);
-    const playGameCounter = ref(0);
-    const volumesRef = ref();
-    const selectedLevel = ref(0);
-    const isSelected = ref(false);
-    const isPlayingRef = ref(state.playGame);
-    const actScene = ref(null);
-    activeScene = () => {
-      if (game.value) {
-        return game.value.scene.getScenes(true)[0];
-      } else {
-        console.warn("Game not loaded");
-      }
-    };
-    const controlSounds = (volume) => {
-      let scene = activeScene();
-      if (!scene.backgroundSound?.isPlaying) {
-        scene.backgroundSound?.play();
-      }
-      scene.backgroundSound?.setVolume(parseInt(volume.music) / 200);
-      scene.collisionSound?.setVolume(parseInt(volume.sound) / 200);
-      scene.movingSound?.setVolume(parseInt(volume.sound) / 400);
-      scene.collectStarSound?.setVolume(parseInt(volume.sound) / 200);
-      scene.collectKeySound?.setVolume(parseInt(volume.sound) / 200);
-      scene.doorSound?.setVolume(parseInt(volume.sound) / 200);
-      scene.movingObjectSound?.setVolume(parseInt(volume.sound) / 200);
-    };
-
-    const runGame = () => {
-      runBlocks(props.blocklyWorkspace.value);
-      controlSounds(volumesRef.value.volume);
-      playGameCounter.value++;
-    };
-
-    const playGame = () => {
-      socket.emit(
-        "playGame",
-        { playGame: true, roomId: state.room.id },
-        () => {}
-      );
-      // this.isPlayingRef = !this.isPlayingRef
-      !state.playGame && runGame();
-    };
-
-    const updateSelectedLevel = (newLevel) => {
-      selectedLevel.value = newLevel;
-      selectLevel(newLevel);
-    };
-    onUnmounted(() => {
-      if (state.room.id) {
-        leaveRoom();
-      }
-      state.activeScene = null;
-      activeScene()?.sys.game.destroy(true);
-    });
-    onMounted(() => emit("selectedLevel", selectedLevel.value));
-    const selectLevel = (levelNumber) => {
-      console.log("=>(Game.vue:126) selectLevel", levelNumber);
-      selectedLevel.value = levelNumber;
-      emit("selectedLevel", selectedLevel.value);
-      activeScene().prepareLevel(selectedLevel.value);
-      isSelected.value = !isSelected.value;
-      isBlinking.value = true;
-    };
-
-    return {
-      props,
-      game,
-      runGame,
-      controlSounds,
-      activeScene,
-      updateSelectedLevel,
-      selectedLevel,
-      playGame,
-      playGameCounter,
-      selectLevel,
-      isSelected,
-      isPlayingRef,
-      volumesRef,
-      isBlinking,
-    };
-  },
-
-  data() {
-    return {
-      levels: levels,
-      chatMessages: chat,
-    };
-  },
-
-  computed: {
-    state() {
-      return state;
-    },
-  },
-
-  watch: {
-    /**
-     * Beschreibung von selectedLevel
-     */
-    selectedLevel() {
-      socket.emit("selectedLevel", {
-        roomId: state.room.id,
-        level: this.selectedLevel,
-      });
-      // this.activeScene.scene.restart();
-    },
-    "state.playGame": {
-      handler() {
-        this.isPlayingRef = !this.isPlayingRef;
-        this.runGame();
-      },
-    },
-    // "state.selectedLevel": {
-    //   handler(newValue) {
-    //     selectedGameLevel = newValue;
-    //     this.$emit("selectedLevel", selectedGameLevel);
-    //     if (this.game) {
-    //       const lvl = levels.find((lvl) => lvl.number === this.selectedLevel);
-    //       console.log("=>(Game.vue:237) lvl", lvl);
-    //       this.activeScene().prepareLevel(lvl);
-    //     }
-    //   },
-    //   immediate: true,
-    // },
-  },
-
-  mounted() {
-    gameConfig = {
-      type: Phaser.AUTO,
-      parent: this.$refs.phaserGame,
-      width: 960,
-      height: 640,
-      scene: [
-        MenuScene,
-        LobbyMenuScene,
-        // TutorialMenuScene,
-        CreditMenuScene,
-        new MultiplayerScene(
-          this.selectedLevel,
-          multiplayerLevels,
-          this.updateSelectedLevel
-        ),
-        new SingleplayerScene(
-          this.selectedLevel,
-          levels,
-          this.updateSelectedLevel
-        ),
-        MultiplayerEndScene,
-        PreloadScene,
-        CutSceneFirstSock,
-      ],
-      physics: {
-        default: "arcade",
-        arcade: {
-          debug: true,
-        },
-      },
-      input: { mouse: { preventDefaultWheel: false } },
-      pixelArt: true,
-    };
-    this.game = new Phaser.Game(gameConfig);
-
-    setTimeout(() => {
-      state.activeScene = activeScene().scene.key;
-      console.log("=>(Game.vue:241) state.activeScene", state.activeScene);
-    }, 1000);
-  },
+let directionPlayer1 = {
+  right: { isClear: true, isMoving: false },
+  left: { isClear: true, isMoving: false },
+  up: { isClear: true, isMoving: false },
+  down: { isClear: true, isMoving: false },
+  toObject: { isClear: false, isMoving: false },
 };
 
-let gameConfig;
-let selectedGameLevel;
-
-function runBlocks(workspace) {
-  console.log("runBlocks wurde aufgerufen.");
-  javascriptGenerator.STATEMENT_PREFIX = "highlightBlock(%1);\n";
-  javascriptGenerator.addReservedWords("highlightBlock");
-  const highlightBlock = (id) => {
-    workspace.highlightBlock(id);
-  };
-  const code = javascriptGenerator.workspaceToCode(workspace);
-  activeScene().createGeneratorFunction(code, highlightBlock, activeScene());
-}
-
-function sendDirectionToSocket() {
-  socket.emit("directionSelf", {
-    roomId: state.roomID,
-    directionSelf: directionPlayer1,
-  });
-}
-
-class GameScene extends Scene {
+let objectToScanFor;
+let itemSock;
+let itemKey;
+let walkedBy;
+let objectCollected;
+let collectedItems = [];
+let intervalId;
+let itemConnected;
+let score;
+let blockFunction;
+let pushObject = true;
+let slowDownTimer;
+/** @type {PlayerController} */
+let playerController;
+export class GameScene extends Scene {
   SCAN_DISTANCE = 200;
-
-  constructor(selectedLevel, levels, updateSelectedLevel) {
-    super({ key: "GameScene" });
-    selectedGameLevel = selectedLevel;
-    this.levels = levels;
-    this.updateLevels = updateSelectedLevel;
-  }
 
   init() {
     state.activeScene = this.scene.key;
@@ -372,10 +64,11 @@ class GameScene extends Scene {
     this.scanAngle = 0;
     this.itemCollected = false;
     this.levelWon = false;
-    this.isPreparingLevel = false;
+    this.isPausingCodeExecution = false;
   }
 
   preload() {
+    // this.load.image('sky', sky);
     // this.load.image('sky', sky);
     this.load.spritesheet("tileset", tileset, {
       frameWidth: 64,
@@ -399,10 +92,6 @@ class GameScene extends Scene {
     this.load.audio("collision", collisionSound);
     this.load.audio("backgroundSound", bgSound);
     this.load.audio("movingSound", movingSound);
-    this.load.audio("collectStarSound", collectStarSound);
-    this.load.audio("collectKeySound", collectKeySound);
-    this.load.audio("doorSound", doorSound);
-    this.load.audio("movingObjectSound", movingObjectSound);
   }
 
   create() {
@@ -469,6 +158,7 @@ class GameScene extends Scene {
       null,
       this
     );
+
 
     this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
       fontSize: "32px",
@@ -567,12 +257,8 @@ class GameScene extends Scene {
     this.collisionSound = this.sound.add("collision");
     this.backgroundSound = this.sound.add("backgroundSound");
     this.movingSound = this.sound.add("movingSound");
-    this.collectStarSound = this.sound.add("collectStarSound");
-    this.collectKeySound = this.sound.add("collectKeySound");
-    this.doorSound = this.sound.add("doorSound");
-    this.movingObjectSound = this.sound.add("movingObjectSound");
 
-    this.prepareLevel();
+    this.prepareLevel(this.selectedGameLevel);
   }
 
   createViewBlockingObjectGroup() {
@@ -581,11 +267,11 @@ class GameScene extends Scene {
 
   createGeneratorFunction(code, highlightBlock, _this) {
     const blockGenerator = eval(`
-      (function* () {
-        console.log("eval.new");
-        ${code};
-        console.log("eval.new.finished");
-      })`);
+            (function* () {
+                console.log("eval.new");
+                ${code};
+                console.log("eval.new.finished");
+            })`);
 
     blockFunction = blockGenerator();
 
@@ -594,7 +280,7 @@ class GameScene extends Scene {
 
   startDelayedBlockEvaluation() {
     intervalId = setInterval(
-      () => this.executeCodeWithGenerator(this.player, this.isPreparingLevel),
+      () => this.executeCodeWithGenerator(this.player, this.isPausingCodeExecution),
       0
     );
   }
@@ -655,28 +341,13 @@ class GameScene extends Scene {
   }
 
   createPlayer() {
+    console.log("=>(GameScenes.js:344) this", this);
     this.player = this.physics.add.sprite(
-      gameConfig.width / 2,
-      gameConfig.height / 2,
+      this.game.config.width / 2,
+      this.game.config.height / 2,
       "bot"
     );
     this.anims.createFromAseprite("bot");
-
-    this.player2 = this.physics.add
-      .sprite(0, 0, "bot")
-      .setScale(1.4)
-      .setAlpha(0.1)
-      .setTint(0x006db2);
-
-    this.add.particles(0, 0, "bomb", {
-      angle: { min: 0, max: 360 },
-      speed: 50,
-      tint: "#ffffff",
-      follow: this.player2,
-      scale: 5,
-      alpha: 0.02,
-      blendMode: "DARKEN",
-    });
 
     // TODO set player mid to mid of tiles
 
@@ -685,8 +356,6 @@ class GameScene extends Scene {
     // this.player.body.setSize(32, 30, 100, 20);
     // this.player.setOffset(16, 32);
 
-    this.player2.setCircle(20, 12, 28);
-
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
 
@@ -694,18 +363,13 @@ class GameScene extends Scene {
   }
 
   createCollider() {
-    this.physics.add.collider(this.player, this.pushableObjectsGroup, (player, pushableObject) => {
-      if (!itemConnected) {
-        this.movingObjectSound.play();
-      }
-    });
+    this.physics.add.collider(this.player, this.pushableObjectsGroup);
 
     this.physics.add.collider(
       this.pushableObjectsGroup,
       this.objectLayer,
       (pushableObject, object) => {
         this.player.setVelocity(0);
-        this.movingObjectSound.stop();
         itemConnected = true;
         pushableObject.tint = 0xeddc32;
         pushableObject.setPushable(false);
@@ -735,13 +399,14 @@ class GameScene extends Scene {
 
     this.physics.add.collider(this.player, this.objectLayer);
 
-    this.physics.add.collider(this.player2, this.rectangles);
-
     this.physics.add.collider(
       this.player,
       this.winningPoints,
       (sprite, rect) => {
         this.detectCollisionDirection(sprite, rect);
+        // TODO fix winnig bug (collider doesnt stop)
+        sprite.x -= 1;
+        sprite.y++;
         this.checkForWin();
       },
       null,
@@ -828,7 +493,7 @@ class GameScene extends Scene {
     this.button
       .on("pointerover", () => this.button.setStyle({ fill: "#006db2" }))
       .on("pointerout", () => this.button.setStyle({ fill: "#fff" }))
-      .on("pointerdown", () => this.scene.start("PreloadScene"));
+      .on("pointerdown", () => this.scene.start("MenuScene"));
 
     // this.buttonScan.on("pointerdown", () => {
     //   objectToScanFor = itemSock;
@@ -897,14 +562,14 @@ class GameScene extends Scene {
     }
   }
 
-  prepareLevel() {
-    this.isPreparingLevel = true;
-    // this.player.setVelocity(0);
+  prepareLevel(selectedLevel) {
+    this.isPausingCodeExecution = true;
 
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       () => {
+        this.setActiveLevel(selectedLevel);
         this.loadLevelCoordinates();
         this.player.setScale(1);
         playerController.setState("idle");
@@ -916,13 +581,14 @@ class GameScene extends Scene {
     );
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
-      () => (this.isPreparingLevel = false)
+      () => (this.isPausingCodeExecution = false)
     );
     console.log("=>(Game.vue:823) prepareLevel");
   }
 
   getItemKeyForActiveLevel() {
     console.log("=>(Game.vue:1142) this.keyGroup", this.keyGroup);
+    console.log("=>(GameScene.js:589) this.getActiveLevel", this.getActiveLevel());
     itemKey = this.keyGroup.children.entries.find(
       (keyItem) =>
         keyItem.data?.list?.keyForLevel === this.getActiveLevel().number
@@ -933,37 +599,45 @@ class GameScene extends Scene {
   getActiveLevel() {
     return this.levels.find((level) => level.isActive);
   }
+  setActiveLevel(selectedLevel) {
+    this.getActiveLevel() && (this.getActiveLevel().isActive = false);
+    this.selectedGameLevel = selectedLevel;
+    let lvl = this.levels.find((level) => level.number === selectedLevel);
+    lvl.isActive = true;
+  }
 
   loadLevelCoordinates() {
-    console.log("=>(Game.vue:837) loadLevelCoordinates");
-    let x;
-    let y;
-    this.levels.forEach((level) => {
-      // TODO selectedGameLevel is a string not number
-      level.number === parseInt(selectedGameLevel)
-        ? (level.isActive = true) && (x = level.x) && (y = level.y)
-        : (level.isActive = false);
-    });
+    /**
+     * @type { {
+     *     number: number,
+     *     name: string,
+     *     x: number,
+     *     y: number,
+     *     isActive: boolean,
+     *     playerStart: { "x": number, "y": number },
+     *     text: string
+     *   } } lvl
+     */
+    let lvl = this.getActiveLevel();
+    console.log("=>(GameScene.js:620) lvl", lvl.number);
     this.cam = this.cameras.main;
     this.cam.setBounds(
-      x * this.tileWidth,
-      y * this.tileHeight,
-      gameConfig.width,
-      gameConfig.height
+      lvl.x * this.tileWidth,
+      lvl.y * this.tileHeight,
+      this.game.config.width,
+      this.game.config.height
     );
     this.physics.world.setBounds(
-      x * this.tileWidth - this.tileWidth, // bounds are one tile bigger than camera to trigger falling near bounds
-      y * this.tileHeight - this.tileHeight,
-      gameConfig.width + this.tileWidth * 2,
-      gameConfig.height + this.tileHeight * 2
+      lvl.x * this.tileWidth - this.tileWidth, // bounds are one tile bigger than camera to trigger falling near bounds
+      lvl.y * this.tileHeight - this.tileHeight,
+      this.game.config.width + this.tileWidth * 2,
+      this.game.config.height + this.tileHeight * 2
     );
-    this.levels.forEach((level) => {
-      level.isActive &&
-        this.player.setPosition(
-          level.playerStart.x * this.tileWidth + this.tileWidth / 2,
-          level.playerStart.y * this.tileHeight + this.tileHeight / 2
-        );
-    });
+
+    this.player.setPosition(
+      lvl.playerStart.x * this.tileWidth + this.tileWidth / 2,
+      lvl.playerStart.y * this.tileHeight + this.tileHeight / 2
+    );
   }
 
   pushObject(player, object) {
@@ -977,7 +651,6 @@ class GameScene extends Scene {
 
   collectKey(player, key) {
     if (Math.abs(player.x - key.x) < 10 && Math.abs(player.y - key.y) < 10) {
-      this.collectKeySound.play();
       key.disableBody(true, true);
       objectCollected = true;
       this.player.setVelocity(0);
@@ -990,9 +663,9 @@ class GameScene extends Scene {
 
   collectStar(player, star) {
     star.disableBody(true, true);
-    this.collectStarSound.play();
     this.cameras.main.fadeOut(3000, 0, 0, 0);
     this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       (cam, effect) => {
         this.time.delayedCall(2000, () => {
@@ -1006,12 +679,8 @@ class GameScene extends Scene {
   }
 
   checkForWin(sprite, object) {
-    // const activeLevel = this.getActiveLevel();
-
-    this.doorSound.play();
-
-    this.updateLevels(this.getActiveLevel().number + 1);
-    console.log("=>(Game.vue:916) level finished");
+    // this.updateLevels(this.getActiveLevel().number + 1);
+    console.log("=>(Game.vue:916) level finished GameScene");
   }
 
   // resetMovement() {
@@ -1065,18 +734,13 @@ class GameScene extends Scene {
   update() {
     this.checkIfTileIsSlowingDown();
 
-    if (!this.isPreparingLevel) {
-      sendDirectionToSocket();
-    }
+    // if (!this.isPausingCodeExecution) {
+    //     sendDirectionToSocket();
+    // }
 
     if (Object.entries(state.directionSelf).length > 0) {
       directionPlayer1 = toRaw(state.directionSelf);
     }
-
-    player2XY = toRaw(state.playerPosition);
-    this.player2.setX(player2XY.x);
-    this.player2.setY(player2XY.y);
-    this.sendPlayerPositionToSocketServer(this.player);
 
     this.checkForScannedObject();
 
@@ -1112,15 +776,6 @@ class GameScene extends Scene {
     if (Object.keys(directionPlayer1).length > 0) {
       this.movePlayer(this.player, directionPlayer1);
     }
-  }
-
-  sendPlayerPositionToSocketServer(player) {
-    playerPosition.x = player.x;
-    playerPosition.y = player.y;
-    socket.emit("playerXY", {
-      roomId: state.roomID,
-      playerPosition: playerPosition,
-    });
   }
 
   drawLineBetweenPlayerAndBlockingObject() {
@@ -1273,7 +928,7 @@ class GameScene extends Scene {
           "\nplayerVelocity x: " +
           this.player.body.velocity.x +
           "\nisPreparingLevel: " +
-          this.isPreparingLevel +
+          this.isPausingCodeExecution +
           "\ndistClosest: " +
           distClosest
       );
@@ -1292,72 +947,3 @@ class GameScene extends Scene {
     }
   }
 }
-</script>
-
-<style>
-.game-container > canvas {
-  width: 100%;
-}
-
-.pixel-border-small {
-  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
-    0 4px 0 0 black;
-}
-
-.pixel-border-8 {
-  box-shadow: -8px 0 0 0 black, 8px 0 0 0 black, 0 -8px 0 0 black,
-    0 8px 0 0 black;
-}
-
-.pixel-border-16 {
-  box-shadow: -16px 0 0 0 black, 16px 0 0 0 black, 0 -16px 0 0 black,
-    0 16px 0 0 black;
-}
-
-.highlighted {
-  filter: drop-shadow(0 0 0.5rem crimson);
-}
-
-.v-enter-active,
-.v-leave-active {
-  transition: all 0.5s;
-}
-.v-enter-to {
-  transform: scale(1);
-  background-color: whitesmoke;
-}
-
-.noise {
-  background: repeating-radial-gradient(#000 0 0.0001%, #fff 0 0.0002%) 50% 0/2500px
-      2500px,
-    repeating-conic-gradient(#000 0 0.0001%, #fff 0 0.0002%) 60% 60%/2500px
-      2500px;
-  background-blend-mode: difference;
-  animation: b 0.2s infinite alternate;
-}
-@keyframes b {
-  100% {
-    background-position: 50% 0, 60% 50%;
-  }
-}
-
-@keyframes blink {
-  0% {
-    background-color: #f5f5f4;
-  }
-  50% {
-    background-color: #a8a29e;
-  }
-  100% {
-    background-color: #f5f5f4;
-  }
-}
-
-.blink {
-  animation: blink 1s infinite;
-}
-
-.stop-blink {
-  animation: none;
-}
-</style>

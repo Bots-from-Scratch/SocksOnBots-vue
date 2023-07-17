@@ -14,19 +14,23 @@ const io = require("socket.io")(http, {
 const path = require("path");
 const { data } = require("autoprefixer");
 const levelTutorial = require(path.join(__dirname, "lvl-tut.json"));
+const levelsMultiplayer = require(path.join(
+  __dirname,
+  "src/game/levelsMultiplayer.json"
+));
 
 const roomList = [
-  { name: "Room1", connects: 0 },
-  { name: "Room2", connects: 0 },
-  { name: "Room3", connects: 0 },
-  { name: "Room4", connects: 0 },
-  { name: "Room5", connects: 0 },
-  { name: "Room6", connects: 0 },
-  { name: "Room7", connects: 0 },
-  { name: "Room8", connects: 0 },
-  { name: "Room9", connects: 0 },
-  { name: "Room10", connects: 0 },
+  { id: 1, name: "Room1", connects: 0, nextLvlCounter: 0 },
+  { id: 2, name: "Room2", connects: 0, nextLvlCounter: 0 },
+  { id: 3, name: "Room3", connects: 0, nextLvlCounter: 0 },
+  { id: 4, name: "Room4", connects: 0, nextLvlCounter: 0 },
+  { id: 5, name: "Room5", connects: 0, nextLvlCounter: 0 },
+  { id: 6, name: "Room6", connects: 0, nextLvlCounter: 0 },
+  { id: 7, name: "Room7", connects: 0, nextLvlCounter: 0 },
+  { id: 8, name: "Room8", connects: 0, nextLvlCounter: 0 },
 ];
+
+
 app.get("/", (req, res) => {
   res.send("<h1>Server running</h1>");
 });
@@ -35,14 +39,35 @@ app.get("/level-tut", (req, res) => {
   res.json(getRandomLevel(levelTutorial));
 });
 
+function emitRandomLevel(roomId) {
+  roomList[roomId - 1].nextLvlCounter++;
+  if (roomList[roomId - 1].nextLvlCounter === 2) {
+    const rndLvl = getRandomLevel(levelsMultiplayer);
+    io.in(roomId).emit("nextLevel.response", rndLvl);
+    roomList[roomId - 1].nextLvlCounter = 0;
+  }
+}
+
 io.on("connection", function (socket) {
   console.log("A user with ID: " + socket.id + " connected");
 
   socket.on("disconnect", function () {
     console.log("A user with ID: " + socket.id + " disconnected");
+    updateRoomList();
+    if (
+      socket.roomId &&
+      io.sockets.adapter.rooms.get(socket.roomId)?.size > 0
+    ) {
+      socket
+        .to(socket.roomId)
+        .emit(
+          "leaveRoom.info",
+          io.sockets.adapter.rooms.get(socket.roomId)?.size
+        );
+    }
+    console.log("after disconnect roomList", roomList);
   });
-
-  console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
+  // console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
   socket.on("foo", (data) => {
     socket.broadcast.emit("foo", data);
@@ -82,20 +107,31 @@ io.on("connection", function (socket) {
   });
 
   socket.on("leaveRoom", (roomId) => {
-    roomList.forEach((room) => {
-      if (room.name === roomId) {
-        socket.leave(roomId);
-        // room.connects--;
-      }
-    });
-    socket.to(roomId).emit("leaveRoom.info");
+    console.log("=>(server.js:106) leaveRoom roomId", roomId);
+    socket.leave(roomId);
+    if (io.sockets.adapter.rooms.get(roomId)?.size > 0) {
+      socket
+        .to(roomId)
+        .emit("leaveRoom.info", io.sockets.adapter.rooms.get(roomId).size);
+    }
+    console.log(
+      "=>(server.js:40)after leave io.rooms",
+      io.sockets.adapter.rooms
+    );
+
+    // room.connects--;
+    updateRoomList();
+
+    console.log("=>(server.js:93)after leave roomList", roomList);
+
     console.log("after leave Rooms:", socket.rooms);
   });
 
   socket.on("connectRoom", (newRoomConnect) => {
     //TODO Check, if room < 2, then join
     //TODO Check if room exist
-    console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
+    console.log("=>(server.js:103) newRoomConnect", newRoomConnect);
+    // console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
     console.log(
       "=>(server.js:42) io.rooms",
@@ -107,20 +143,26 @@ io.on("connection", function (socket) {
     );
 
     for (let i = 0; i < roomList.length; i++) {
-      if (roomList[i].name === newRoomConnect) {
+      if (roomList[i].id === newRoomConnect) {
         if (
           io.sockets.adapter.rooms.get(newRoomConnect)?.size < 2 ||
           !io.sockets.adapter.rooms.get(newRoomConnect)?.size
         ) {
           socket.join(newRoomConnect);
+          emitRandomLevel(newRoomConnect);
+
+          socket.roomId = newRoomConnect;
           console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
           roomList[i].connects =
             io.sockets.adapter.rooms.get(newRoomConnect)?.size;
-          socket.emit("joinedRoom", newRoomConnect);
+          socket.emit("joinedRoom.response", {
+            roomId: newRoomConnect,
+            connects: roomList[i].connects,
+          });
           socket
             .to(newRoomConnect)
-            .emit("chatMessage", "User joined the room at " + printTime());
+            .emit("playerJoinedRoom.info", roomList[i].connects);
           console.log(newRoomConnect);
           console.log("Rooms client is in:", socket.rooms);
         } // TODO else emit room voll
@@ -132,6 +174,21 @@ io.on("connection", function (socket) {
     }
 
     console.log(roomList);
+  });
+
+  socket.on("levelFinished", (data) => {
+    socket.to(data.roomId).emit("levelFinished.response", {
+      text: "Du hast verloren",
+      winner: false,
+    });
+    socket.emit("levelFinished.response", {
+      text: "Du hast gewonnen",
+      winner: true,
+    });
+  });
+
+  socket.on("nextLevel", (roomId) => {
+    emitRandomLevel(roomId);
   });
 
   socket.on("chat", (data) => {
@@ -160,6 +217,20 @@ function printTime() {
 function getRandomLevel(levels) {
   let index = Math.floor(Math.random() * levels.length);
   return levels[index];
+}
+
+function updateRoomList() {
+  roomList.forEach((room) => {
+    if (io.sockets.adapter.rooms.get(room.id)) {
+      console.log(
+        "=>(server.js:99) ",
+        io.sockets.adapter.rooms.get(room.id).size
+      );
+      room.connects = io.sockets.adapter.rooms.get(room.id).size;
+    } else {
+      room.connects = 0;
+    }
+  });
 }
 
 http.listen(3010, () => {
