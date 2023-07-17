@@ -172,16 +172,17 @@ export default {
     };
 
     const playGame = () => {
-      if (activeScene() === "MultiplayerScene") {
-
-      socket.emit(
-        "playGame",
-        { playGame: true, roomId: state.room.id },
-        () => {}
-      );
-      // this.isPlayingRef = !this.isPlayingRef
-      !state.playGame && runGame();
-      } else {runGame()}
+      if (state.activeScene === "MultiplayerScene") {
+        socket.emit(
+          "playGame",
+          { playGame: true, roomId: state.room.id },
+          () => {}
+        );
+        // this.isPlayingRef = !this.isPlayingRef
+        !state.playGame && runGame();
+      } else if (state.activeScene === "SingleplayerScene") {
+        runGame();
+      }
     };
 
     const updateSelectedLevel = (newLevel) => {

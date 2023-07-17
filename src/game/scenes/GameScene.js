@@ -45,7 +45,9 @@ export class GameScene extends Scene {
 
   init() {
     state.activeScene = this.scene.key;
-
+    blockFunction = null;
+    itemConnected = false;
+    objectToScanFor = null;
     this.resetDirection();
 
     score = 0;
@@ -62,7 +64,7 @@ export class GameScene extends Scene {
 
     this.objectIsScanned = false;
     this.objectCollidedWith = {};
-    this.viewBlockingObjects = undefined;
+    // this.viewBlockingObjects = undefined;
     objectToScanFor = undefined;
     this.objectIsInSight = false;
     this.scanAngle = 0;
@@ -166,7 +168,6 @@ export class GameScene extends Scene {
       null,
       this
     );
-
 
     this.scoreText = this.add.text(700, 50, "Score: " + this.score, {
       fontSize: "32px",
@@ -292,7 +293,8 @@ export class GameScene extends Scene {
 
   startDelayedBlockEvaluation() {
     intervalId = setInterval(
-      () => this.executeCodeWithGenerator(this.player, this.isPausingCodeExecution),
+      () =>
+        this.executeCodeWithGenerator(this.player, this.isPausingCodeExecution),
       0
     );
   }
@@ -592,20 +594,25 @@ export class GameScene extends Scene {
         playerController.setState("idle");
         this.getItemKeyForActiveLevel();
         this.resetDirection();
-
+        this.init();
         this.cameras.main.fadeIn(800);
       }
     );
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
-      () => (this.isPausingCodeExecution = false)
+      () => {
+        this.isPausingCodeExecution = false;
+      }
     );
     console.log("=>(Game.vue:823) prepareLevel");
   }
 
   getItemKeyForActiveLevel() {
     console.log("=>(Game.vue:1142) this.keyGroup", this.keyGroup);
-    console.log("=>(GameScene.js:589) this.getActiveLevel", this.getActiveLevel());
+    console.log(
+      "=>(GameScene.js:589) this.getActiveLevel",
+      this.getActiveLevel()
+    );
     itemKey = this.keyGroup.children.entries.find(
       (keyItem) =>
         keyItem.data?.list?.keyForLevel === this.getActiveLevel().number
@@ -790,6 +797,8 @@ export class GameScene extends Scene {
     if (this.cursors.space.isDown) {
       this.physics.pause();
       this.objectCollidedWith = null;
+      console.log("=>(GameScene.js:796) Phaser.Game", this.backgroundSound);
+      this.backgroundSound.stop();
       this.scene.restart();
     }
 
@@ -947,6 +956,8 @@ export class GameScene extends Scene {
           this.player.body.maxSpeed +
           "\nplayerVelocity x: " +
           this.player.body.velocity.x +
+          "\nplayerVelocity y: " +
+          this.player.body.velocity.y +
           "\nisPreparingLevel: " +
           this.isPausingCodeExecution +
           "\ndistClosest: " +
