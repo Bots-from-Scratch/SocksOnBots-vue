@@ -47,11 +47,13 @@ io.on("connection", function (socket) {
 
   socket.on("disconnect", function () {
     console.log("A user with ID: " + socket.id + " disconnected");
+
+
     updateRoomList();
     if (
       socket.roomId &&
       io.sockets.adapter.rooms.get(socket.roomId)?.size > 0
-    ) {
+    ) {roomList[socket.roomId-1].nextLvlCounter = 0;
       socket
         .to(socket.roomId)
         .emit(
@@ -114,6 +116,7 @@ io.on("connection", function (socket) {
     );
 
     // room.connects--;
+    roomList[roomId-1].nextLvlCounter = 0;
     updateRoomList();
 
     console.log("=>(server.js:93)after leave roomList", roomList);

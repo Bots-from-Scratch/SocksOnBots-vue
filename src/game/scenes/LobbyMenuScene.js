@@ -31,6 +31,10 @@ class LobbyMenuScene extends Scene {
   }
 
   create() {
+    if (state.room.id) {
+      socket.emit("nextLevel", state.room.id)
+    }
+
     const widthGame = this.scale.width;
     const heightGame = this.scale.height;
     const bodyStartPoint = 130;
