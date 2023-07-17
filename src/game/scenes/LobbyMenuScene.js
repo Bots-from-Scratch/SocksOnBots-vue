@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import { state } from "@/socket";
+import { socket, state } from "@/socket";
 import { connectRoom } from "../../socket";
 import { textStyle } from "../utils";
 
@@ -13,6 +13,10 @@ import buttonAnimPNG from "@/assets/buttons.png";
 class LobbyMenuScene extends Scene {
   constructor() {
     super("LobbyMenuScene");
+  }
+
+  init() {
+    state.activeScene = this.scene.key;
   }
   preload() {
     this.load.image("background", background);
@@ -91,7 +95,7 @@ class LobbyMenuScene extends Scene {
       let roomButtonEntry = this.createButton(
         widthGame / 2,
         bodyStartPoint + 60 + i * 54,
-        room,
+        i + 1,
         textStyle,
         true
       );
@@ -100,6 +104,7 @@ class LobbyMenuScene extends Scene {
       // this.playButton_lvl_1.setInteractive()
       // this.playButton_lvl_1.on('pointerover', () => this.playButton_lvl_1.setStyle({ fill: '#006db2' })).on('pointerout', () => this.playButton_lvl_1.setStyle({ fill: '#fff' })).on('pointerdown', () => this.scene.start('GameScene_Level_1'));
     });
+    this.maxRoomSize = 2;
     this.roomSizes = [];
     for (let i = 0; i < this.roomButtons.length; i++) {
       this.roomSizes.push(
@@ -107,7 +112,7 @@ class LobbyMenuScene extends Scene {
           .text(
             widthGame / 2 + 180,
             bodyStartPoint + 60 + i * 54,
-            "0/2",
+            "0/" + this.maxRoomSize,
             textStyle
           )
           .setScrollFactor(0, 0)
@@ -117,19 +122,27 @@ class LobbyMenuScene extends Scene {
 
   update() {
     // console.log(state.rooms);
-    this.roomSizes[3].setText("1/2");
+    // this.roomSizes[3].setText("1/2");
+    console.log(state.rooms);
+    this.roomSizes.forEach((roomSize, index) => {
+      roomSize.setText(state.rooms.at(index).connects + "/" + this.maxRoomSize);
+    });
+
+    if (state.room.id && state.rooms.at(state.room.id-1).connects === 2) {
+      this.scene.start("MultiplayerScene");
+    }
   }
 
   generateRooms(size) {
     let temp = [];
     for (let i = 0; i < size; i++) {
-      temp.push("Room" + (i + 1));
+      temp.push("Room " + (i + 1));
     }
     return temp;
   }
 
   // TODO Versuche Button Creation auszulagern
-  createButton(x, y, text, scene, isGame) {
+  createButton(x, y, roomId, scene, isGame) {
     let button = this.add
       .sprite(x, y, "button")
       .setScrollFactor(0)
@@ -141,9 +154,11 @@ class LobbyMenuScene extends Scene {
       .on("pointerup", () => {
         button.play({ key: "hover" });
         if (isGame) {
-          state.roomID = text;
-          connectRoom(text);
-          this.scene.start("GameScene");
+          state.roomID = roomId;
+          connectRoom(roomId);
+          let room = state.rooms.find((room) => room.id === roomId);
+          if (room.connects < 2) {
+          }
         } else {
           // this.scene.stop(this.scene);
           this.scene.start(scene);
@@ -151,7 +166,7 @@ class LobbyMenuScene extends Scene {
       });
 
     const buttonText = this.add
-      .text(0, 0, text, {
+      .text(0, 0, "Raum " + roomId, {
         fontSize: "16px",
         fill: "#000000",
         fontFamily: "Pixel",
