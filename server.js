@@ -85,7 +85,7 @@ io.on("connection", function (socket) {
     roomList.forEach((room) => {
       if (room.name === roomId) {
         socket.leave(roomId);
-        // room.connects--;
+        room.connects--;
       }
     });
     socket.to(roomId).emit("leaveRoom.info");

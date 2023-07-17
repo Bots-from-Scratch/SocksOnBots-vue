@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import { state } from "@/socket";
+import { socket, state } from "@/socket";
 import { connectRoom } from "../../socket";
 import { textStyle } from "../utils";
 
@@ -100,6 +100,7 @@ class LobbyMenuScene extends Scene {
       // this.playButton_lvl_1.setInteractive()
       // this.playButton_lvl_1.on('pointerover', () => this.playButton_lvl_1.setStyle({ fill: '#006db2' })).on('pointerout', () => this.playButton_lvl_1.setStyle({ fill: '#fff' })).on('pointerdown', () => this.scene.start('GameScene_Level_1'));
     });
+    this.maxRoomSize = 2;
     this.roomSizes = [];
     for (let i = 0; i < this.roomButtons.length; i++) {
       this.roomSizes.push(
@@ -107,7 +108,7 @@ class LobbyMenuScene extends Scene {
           .text(
             widthGame / 2 + 180,
             bodyStartPoint + 60 + i * 54,
-            "0/2",
+            "0/" + this.maxRoomSize,
             textStyle
           )
           .setScrollFactor(0, 0)
@@ -117,7 +118,12 @@ class LobbyMenuScene extends Scene {
 
   update() {
     // console.log(state.rooms);
-    this.roomSizes[3].setText("1/2");
+    // this.roomSizes[3].setText("1/2");
+    socket.emit("listRooms");
+    console.log(state.rooms);
+    this.roomSizes.forEach((roomSize, index) => {
+      roomSize.setText(state.rooms.at(index).connects + "/" + this.maxRoomSize);
+    });
   }
 
   generateRooms(size) {

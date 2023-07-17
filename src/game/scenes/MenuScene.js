@@ -28,13 +28,13 @@ class MenuScene extends Scene {
     const widthGame = this.scale.width;
     const heightGame = this.scale.height;
 
-    console.log("=>(MenuScene.js:31) ", heightGame);
+    // console.log("=>(MenuScene.js:31) ", heightGame);
 
     this.add.image(widthGame, heightGame, "background").setScrollFactor(0);
 
     // this.cam = this.cameras.main.setBounds(0, 0, widthGame*4.5 , heightGame*4.5 );
     this.input.on("pointermove", (pointer) => {
-      console.log(pointer.x);
+      // console.log(pointer.x);
       this.cameras.main.startFollow(pointer, true, 0.1);
     });
     // this.centerX = this.scale.width / 2;
