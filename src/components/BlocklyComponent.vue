@@ -5,6 +5,8 @@ import "@/blocks/move_player";
 import { useLocalStorage } from "@vueuse/core";
 import PixelButton from "@/components/PixelButton.vue";
 import { socket, state } from "@/socket";
+import {toolboxJson} from "@/toolbox_phaser";
+import {CustomRenderer} from "@/renderer/CustomRenderer";
 
 const emit = defineEmits(["playGamePressed", "workspaceFromBlockly"]);
 const props = defineProps(["options", "selectedLevel"]);
@@ -15,13 +17,59 @@ let playGameCounter = 0;
 let store = useLocalStorage("userBlocks", null);
 defineExpose({ workspace });
 
+Blockly.registry.unregister('theme', 'dark');
+Blockly.Theme.defineTheme('dark', {
+  'base': Blockly.Themes.Classic,
+  'componentStyles': {
+    'workspaceBackgroundColour': '#1e1f22',
+    'toolboxBackgroundColour': 'blackBackground',
+    'toolboxForegroundColour': '#fff',
+    'flyoutBackgroundColour': '#252526',
+    'flyoutForegroundColour': '#ccc',
+    'flyoutOpacity': 1,
+    'scrollbarColour': '#797979',
+    'insertionMarkerColour': '#fff',
+    'insertionMarkerOpacity': 0.3,
+    'scrollbarOpacity': 0.4,
+    'cursorColour': '#d0d0d0',
+    'blackBackground': '#2b2d30',
+  },
+})
+
+const blocklyOptions = {
+  renderer: "customRenderer",
+  toolbox: toolboxJson,
+  collapse: true,
+  comments: true,
+  disable: true,
+  maxBlocks: Infinity,
+  trashcan: true,
+  horizontalLayout: false,
+  toolboxPosition: "start",
+  css: true,
+  media: "https://blockly-demo.appspot.com/static/media/",
+  rtl: false,
+  scrollbars: true,
+  sounds: true,
+  oneBasedIndex: true,
+  grid: {
+    spacing: 25,
+    length: 3,
+    colour: "#393b40",
+    snap: true,
+  },
+  theme: 'dark'
+};
+
 onMounted(() => {
   const options = props.options || {};
   if (!options.toolbox) {
     options.toolbox = blocklyToolbox.value;
   }
 
-  workspace.value = Blockly.inject(blocklyDiv.value, options);
+  Blockly.blockRendering.register("customRenderer", CustomRenderer);
+
+  workspace.value = Blockly.inject(blocklyDiv.value, blocklyOptions);
 
   emit("workspaceFromBlockly", workspace);
 

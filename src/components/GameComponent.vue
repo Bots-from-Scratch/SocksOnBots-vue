@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import BlocklyComponent from "@/components/BlocklyComponent.vue";
-import { onMounted, ref, watch } from "vue";
+import {onDeactivated, onMounted, onUnmounted, ref, watch} from "vue";
 import { toolboxJson } from "@/toolbox_phaser.js";
-import { state } from "@/socket";
+import { leaveRoom, state } from "@/socket";
 import RangeSlider from "@/components/RangeSlider.vue";
 import Game from "@/components/Game.vue";
 import { useLocalStorage } from "@vueuse/core";
@@ -120,6 +120,13 @@ onMounted(() => {
 });
 
 let antennaClicked = ref(false);
+
+onUnmounted(() => {
+  if (state.room.id) {
+    leaveRoom();
+  }
+  state.activeScene = null;
+});
 </script>
 
 <template>
@@ -128,11 +135,14 @@ let antennaClicked = ref(false);
       class="flex flex-col items-center justify-center relative wobble-top-on-hover w-max h-max left-3/4"
       @click="antennaClicked = !antennaClicked"
     >
-      <div class="flex flex-col items-center mt-8" :class="{ 'rotate-[120deg] translate-y-20 translate-x-12': antennaClicked }">
+      <div
+        class="flex flex-col items-center mt-8"
+        :class="{
+          'rotate-[120deg] translate-y-20 translate-x-12': antennaClicked,
+        }"
+      >
         <div class="pixel-border-small mb-1 w-8 h-8 bg-stone-500"></div>
-        <div
-          class="pixel-border-small-top w-2 h-16 bg-stone-500"
-        ></div>
+        <div class="pixel-border-small-top w-2 h-16 bg-stone-500"></div>
       </div>
       <div class="pixel-border-small-bottom w-2 h-24 bg-stone-500"></div>
     </div>
@@ -145,21 +155,34 @@ let antennaClicked = ref(false);
         ref="game"
         :antennaClicked="antennaClicked"
         @selectedLevel="levelSelected"
+        class="z-10"
       />
-
-      <BlocklyComponent
-        class="w-full h-96 shrink grow-0"
-        id="blockly"
-        :options="blocklyOptions"
-        :selectedLevel="selectedLevel"
-        ref="blockly"
-        @workspaceFromBlockly="sendBlocklyWorkspaceToGame"
-      />
+      <transition name="blockly">
+        <BlocklyComponent
+          v-if="
+            state.activeScene === 'SingleplayerScene' ||
+            state.activeScene === 'MultiplayerScene'
+          "
+          class="pixel-border-8 bg-gray-600 p-4 w-full h-[32rem] shrink grow-0"
+          id="blockly"
+          :options="blocklyOptions"
+          :selectedLevel="selectedLevel"
+          ref="blockly"
+          @workspaceFromBlockly="sendBlocklyWorkspaceToGame"
+      /></transition>
     </div>
   </div>
 </template>
 
 <style scoped>
+.blockly-enter-active,
+.blockly-leave-active {
+  transition: all 0.5s;
+}
+.blockly-enter-from {
+  transform: translateY(-50%);
+}
+
 .wobble-top-on-hover {
   //display: inline-block;
   vertical-align: middle;
@@ -187,6 +210,11 @@ let antennaClicked = ref(false);
   box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 0 0 0 black, 0 0 0 0 black;
 }
 .pixel-border-small {
-  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black, 0 4px 0 0 black;
+  box-shadow: -4px 0 0 0 black, 4px 0 0 0 black, 0 -4px 0 0 black,
+    0 4px 0 0 black;
+}
+.pixel-border-8 {
+  box-shadow: -8px 0 0 0 black, 8px 0 0 0 black, 0 -8px 0 0 black,
+    0 8px 0 0 black;
 }
 </style>

@@ -9,8 +9,18 @@ export const state = reactive({
   directionOpponent: {},
   direction: {},
   roomID: "",
+  room: { id: null, connects: 0, rndLvl: null},
   rooms: [],
-  selectedLevel: 0,
+  selectedLevel: {
+    number: 2,
+    name: "Level 3",
+    x: 3,
+    y: 2,
+    isActive: false,
+    playerStart: { x: 3, y: 7 },
+  },
+  activeScene: "",
+  levelFinished: { winner: false, loser: false, playerDisconnected: false },
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -26,6 +36,8 @@ export const socket = io(URL, {
 socket.on("connect", () => {
   console.log("connectMethod");
   state.connected = true;
+  state.room.id = null;
+  state.room.connects = 0;
 });
 
 socket.on("disconnect", () => {
@@ -49,16 +61,41 @@ socket.on("connectRoom.error", (error) => {
   console.log(error);
 });
 
-socket.on("joinedRoom", (data) => {
-  state.roomID = data;
+socket.on("joinedRoom.response", (data) => {
+  state.room.id = data.roomId;
+  state.room.connects = data.connects;
 });
 
-socket.on("leaveRoom.info", () => console.log("Player left the room"));
+socket.on("playerJoinedRoom.info", (data) => {
+  state.room.connects = data;
+});
+
+socket.on("leaveRoom.info", (connects) => {
+  state.levelFinished.playerDisconnected = true;
+  console.log("=>(socket.js:74) connects12state", connects);
+state.room.connects = connects;
+  console.log("Player left the room, remaining connects: ", connects);
+});
 
 socket.on("playGame.response", (data) => {
   console.log("playGame.response", data);
   state.playGame = data;
+  console.log("=>(socket.js:83) state.playGame", state.playGame);
 });
+
+socket.on("levelFinished.response", (data) => {
+  console.log("socket", data.text);
+  if (data.winner) {
+    state.levelFinished.winner = true;
+  } else {
+    state.levelFinished.loser = true;
+  }
+});
+
+socket.on("nextLevel.response", (rndLvl)=>{
+  console.log("=>(socket.js:97) nextLevel.response", rndLvl);
+  state.room.rndLvl = rndLvl
+})
 
 socket.on("selectedLevel.response", (data) => {
   state.selectedLevel = data;
@@ -73,8 +110,8 @@ socket.on("direction", (data) => {
 });
 
 socket.on("listRooms.response", (data) => {
-  // console.log(state.rooms);
   state.rooms = data;
+  console.log("state.rooms", state.rooms);
 });
 
 export function connect() {
@@ -85,16 +122,45 @@ export function disconnect() {
   socket.disconnect();
 }
 
-export function connectRoom(roomName) {
-  if (state.roomID) {
-    console.log("disconnected from Room", state.roomID);
-    socket.emit("leaveRoom", state.roomID);
-    state.roomID = "";
-  }
+// export function connectRoom(roomName) {
+//   if (state.roomID) {
+//     console.log("disconnected from Room", state.roomID);
+//     socket.emit("leaveRoom", state.roomID);
+//     state.roomID = "";
+//   }
+//
+//   if (!state.roomID) {
+//     state.roomID = roomName;
+//     socket.emit("connectRoom", state.roomID);
+//     console.log("connected to Room", state.roomID);
+//   }
+// }
 
-  if (!state.roomID) {
-    state.roomID = roomName;
-    socket.emit("connectRoom", state.roomID);
-    console.log("connected to Room", state.roomID);
+export function connectRoom(roomName) {
+  if (!state.room.id) {
+    state.room.id = roomName;
+    socket.emit("connectRoom", state.room.id);
+    console.log("connected to Room", state.room.id);
+  } else {
+    socket.emit("leaveRoom", state.room.id);
+    state.room.id = roomName;
+    socket.emit("connectRoom", state.room.id);
   }
 }
+
+export function leaveRoom() {
+  socket.emit("leaveRoom", state.room.id);
+  state.room.id = null;
+  state.room.connects = 0;
+  state.levelFinished.playerDisconnected = false;
+  state.levelFinished.winner = false;
+  state.levelFinished.loser = false;
+}
+
+export function resetFinishedLevelObject() {
+  state.levelFinished.winner = false;
+  state.levelFinished.loser = false;
+  state.levelFinished.playerDisconnected = false;
+}
+
+setInterval(()=>console.log("12state.room", state.room), 1000)

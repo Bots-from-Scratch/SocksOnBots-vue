@@ -169,6 +169,8 @@ class GameScene_Level_4 extends Scene {
     createPlatforms() {
         this.platforms = this.physics.add.staticGroup();
 
+        this.platforms.preload();
+
         // this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
         this.platforms.create(512, 128, 'ground').setScale(0.66, 8.1).setAlpha(0).refreshBody();
         //
@@ -182,7 +184,7 @@ class GameScene_Level_4 extends Scene {
         // this.platforms.setTint(0x000bbb);
     }
 
-    createPlayer() {
+     createPlayer() {
         this.player = this.physics.add.sprite(150, 150, 'bot').setScale(1.4);
         console.log(this.player);
         if (this.level === 4) {

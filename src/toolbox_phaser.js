@@ -27,7 +27,7 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Logic",
-      colour: "%{BKY_LOGIC_HUE}",
+      colour: "#eb6c4b",
       contents: [
         {
           kind: "BLOCK",
@@ -48,16 +48,37 @@ export var toolboxJson = {
         {
           kind: "BLOCK",
           type: "logic_boolean",
-        }, {
-        kind: "BLOCK",
-          type: "bool_connected"
-        }
+        },
+        {
+          kind: "BLOCK",
+          type: "bool_connected",
+        },
+        {
+          kind: "BLOCK",
+          type: "bool_sighted",
+        },
+        {
+          kind: "BLOCK",
+          type: "direction_blocked",
+        },
+        {
+          kind: "BLOCK",
+          type: "direction_clear",
+        },
+        {
+          kind: "BLOCK",
+          type: "walked_around",
+        },
+        {
+          kind: "BLOCK",
+          type: "object_collected",
+        },
       ],
     },
     {
       kind: "CATEGORY",
       name: "Loops",
-      colour: "%{BKY_LOOPS_HUE}",
+      colour: "#ffc84f",
       contents: [
         {
           kind: "BLOCK",
@@ -80,7 +101,7 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Math",
-      colour: "%{BKY_MATH_HUE}",
+      colour: "#eb6c4b",
       contents: [
         {
           kind: "BLOCK",
@@ -171,8 +192,13 @@ export var toolboxJson = {
     {
       kind: "CATEGORY",
       name: "Variables",
-      custom: "VARIABLE",
-      colour: "%{BKY_VARIABLES_HUE}",
+      colour: "#ffc84f",
+      contents: [
+        {
+          kind: "BLOCK",
+          type: "object_sock",
+        },
+      ],
     },
     {
       kind: "CATEGORY",
@@ -182,41 +208,19 @@ export var toolboxJson = {
     },
     {
       kind: "CATEGORY",
-      name: "Phaser",
-      colour: "%{BKY_LOOPS_HUE}",
+      name: "Aktionen",
+      colour: "#eb6c4b",
       contents: [
-        {
-          kind: "BLOCK",
-          type: "direction_blocked",
-        },
-        {
-          kind: "BLOCK",
-          type: "direction_clear",
-        },
         {
           kind: "BLOCK",
           type: "move_player",
         },
-        {
-          kind: "BLOCK",
-          type: "bool_sighted",
-        },
+
         {
           kind: "BLOCK",
           type: "scan_for_object",
         },
-        {
-          kind: "BLOCK",
-          type: "object_sock",
-        },
-        {
-          kind: "BLOCK",
-          type: "walked_around",
-        },
-        {
-          kind: "BLOCK",
-          type: "object_collected",
-        },
+
         {
           kind: "BLOCK",
           type: "break",
