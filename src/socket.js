@@ -36,6 +36,8 @@ export const socket = io(URL, {
 socket.on("connect", () => {
   console.log("connectMethod");
   state.connected = true;
+  state.room.id = null;
+  state.room.connects = 0;
 });
 
 socket.on("disconnect", () => {

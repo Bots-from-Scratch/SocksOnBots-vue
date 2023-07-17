@@ -39,9 +39,13 @@ io.on("connection", function (socket) {
 
   socket.on("disconnect", function () {
     console.log("A user with ID: " + socket.id + " disconnected");
+    updateRoomList();
+    if (socket.roomId && io.sockets.adapter.rooms.get(socket.roomId)?.size > 0) {
+      socket.to(socket.roomId).emit('leaveRoom.info', io.sockets.adapter.rooms.get(socket.roomId)?.size);
+    }
+    console.log("after disconnect roomList", roomList);
   });
-
-  console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
+  // console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
   socket.on("foo", (data) => {
     socket.broadcast.emit("foo", data);
@@ -81,33 +85,31 @@ io.on("connection", function (socket) {
   });
 
   socket.on("leaveRoom", (roomId) => {
-    roomList.forEach((room) => {
-      if (room.id === roomId) {
-        socket.leave(roomId);
-        if (io.sockets.adapter.rooms.get(roomId)?.size > 0) {
-          socket
-            .to(roomId)
-            .emit("leaveRoom.info", io.sockets.adapter.rooms.get(roomId).size);
-        }
+    console.log("=>(server.js:106) leaveRoom roomId", roomId);
+    socket.leave(roomId);
+    if (io.sockets.adapter.rooms.get(roomId)?.size > 0) {
+      socket
+        .to(roomId)
+        .emit("leaveRoom.info", io.sockets.adapter.rooms.get(roomId).size);
+    }
+    console.log(
+      "=>(server.js:40)after leave io.rooms",
+      io.sockets.adapter.rooms
+    );
 
-        // room.connects--;
-      }
-    });
+    // room.connects--;
+    updateRoomList();
+
+    console.log("=>(server.js:93)after leave roomList", roomList);
+
     console.log("after leave Rooms:", socket.rooms);
-    roomList.forEach((room) => {
-      if (room.id === roomId && io.sockets.adapter.rooms.get(room.id)) {
-        room.connects = io.sockets.adapter.rooms.get(room.id).size;
-      } else {
-        room.connects = 0;
-      }
-    });
   });
 
   socket.on("connectRoom", (newRoomConnect) => {
     //TODO Check, if room < 2, then join
     //TODO Check if room exist
     console.log("=>(server.js:103) newRoomConnect", newRoomConnect);
-    console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
+    // console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
     console.log(
       "=>(server.js:42) io.rooms",
@@ -125,6 +127,7 @@ io.on("connection", function (socket) {
           !io.sockets.adapter.rooms.get(newRoomConnect)?.size
         ) {
           socket.join(newRoomConnect);
+          socket.roomId = newRoomConnect;
           console.log("=>(server.js:40) io.rooms", io.sockets.adapter.rooms);
 
           roomList[i].connects =
@@ -186,6 +189,20 @@ function printTime() {
 function getRandomLevel(levels) {
   let index = Math.floor(Math.random() * levels.length);
   return levels[index];
+}
+
+function updateRoomList() {
+  roomList.forEach((room) => {
+    if (io.sockets.adapter.rooms.get(room.id)) {
+      console.log(
+        "=>(server.js:99) ",
+        io.sockets.adapter.rooms.get(room.id).size
+      );
+      room.connects = io.sockets.adapter.rooms.get(room.id).size;
+    } else {
+      room.connects = 0;
+    }
+  });
 }
 
 http.listen(3010, () => {
