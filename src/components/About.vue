@@ -45,7 +45,7 @@ const getAnimationClass = (index) => {
 <template>
   <div>
     <div class="p-8">
-      <h2 class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4">Team</h2>
+      <h2 class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4 text-center">Die kreativen Schöpfer von 'Socks on Bots' - Einblick in das Team und die Sockenkünstler!</h2>
       <div class="container mx-auto flex justify-center gap-20 my-32">
         <div
           v-for="(member, index) in team"
