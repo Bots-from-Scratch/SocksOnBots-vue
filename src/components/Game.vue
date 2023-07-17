@@ -186,7 +186,7 @@ export default {
         leaveRoom();
       }
       state.activeScene = null;
-      activeScene().sys.game.destroy(true)
+      activeScene()?.sys.game.destroy(true);
     });
     onMounted(() => emit("selectedLevel", selectedLevel.value));
     const selectLevel = (levelNumber) => {
