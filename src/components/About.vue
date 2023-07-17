@@ -44,47 +44,85 @@ const getAnimationClass = (index) => {
 
 <template>
   <div>
-  <div class="p-8">
-    <h2 class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4">
-        Team
-      </h2>
-    <div class="container mx-auto flex justify-center gap-20 my-32">
-      <div
-        v-for="(member, index) in team"
-        :key="member.name"
-        :class="getAnimationClass(index)"
-      >
-        <PixelCard :member="member" />
+    <div class="p-8">
+      <h2 class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4">Team</h2>
+      <div class="container mx-auto flex justify-center gap-20 my-32">
+        <div
+          v-for="(member, index) in team"
+          :key="member.name"
+          :class="getAnimationClass(index)"
+        >
+          <PixelCard :member="member" />
+        </div>
       </div>
     </div>
+
+    <div class="p-8">
+    <h2 class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4 text-center">Projektbeschreibung</h2>
     </div>
 
+    <div class="bg-[#c06c1c] p-8 flex items-center">
+      <div class="w-1/2">
+        <h2 class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4">
+          Webbasiertes Multiplayerspiel mit Code-Steuerung
+        </h2>
+        <p class="font-pixel text-gray-800 mb-8">
+          Socks on Bots soll ein webbasiertes Multiplayerspiel werden, in der in
+          einer Wettkampfumgebung Spieler gegeneinander antreten und ihre
+          Spielfiguren mit Hilfe von vorgefertigten Codeblöcken steuern können.
+        </p>
+      </div>
+      <div class="w-1/2 flex justify-end">
+        <img
+          src="/src/assets/Gameplay.png"
+          alt="Spielansicht mit Blöcken"
+          class="w-full"
+        />
+      </div>
+    </div>
 
-    <div class="bg-[#c06c1c] p-8">
-      <h2 class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4">
-        Projektbeschreibung
-      </h2>
-      <p class="font-pixel text-gray-800 mb-8">
-        Socks on Bots ist ein webbasiertes Multiplayerspiel, in der in einer
-        Wettkampfumgebung Spieler gegeneinander antreten und ihre Spielfiguren
-        mit Hilfe von vorgefertigten Codeblöcken steuern können. Die Spieler
-        bauen die Bewegungsabläufe mit Blöcken, welche einzelne Befehle
-        enthalten, z.B. Bewegungen oder Fähigkeiten wie Scannen, aber auch
-        programmatische Beschreibungen wie Schleifen oder Bedingungen. Im
-        Multiplayermodus treten maximal 2 Spielern online gegeneinander an und
-        versuchen, eine höhere Punktzahl als der Gegner zu erreichen. Dabei
-        können die Spieler einem Raum beitreten und gegeneinander antreten. Beim
-        Start des Spiels sehen beide Spieler die Map und die Aufgabe, die in
-        dieser Map zu erledigen ist. Anhand dessen werden dann die Blöcke
-        aneinandergereiht und so die Befehle an den Roboter definiert. Nach
-        Ablauf der Zeit oder wenn beide Spieler bereit sind, startet die zweite
-        Phase und die Roboter können in einer Map – gekennzeichnet durch
-        unterschiedliche Farben – von beiden Spielern gleichzeitig beim
-        Ausführen der Befehle beobachtet werden. Die Runde endet, wenn ein
-        Roboter als erster die Aufgabe komplett erledigt hat oder wenn alle
-        Befehle beider Spielfiguren ausgeführt wurden. Dann werden die Punkte
-        der beiden Teams verglichen und das Gewinnerteam ermittelt.
-      </p>
+    <div class="p-8 flex items-center">
+      <div class="w-1/2 flex justify-start">
+        <img
+          src="/src/assets/Gameplay.png"
+          alt="Bild von Lobby wahl"
+          class="w-full"
+        />
+      </div>
+      <div class="w-1/2">
+        <h2
+          class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4 text-right"
+        >
+          Die Lobby wahl
+        </h2>
+        <p class="font-pixel text-gray-800 mb-8 text-right">
+          Im Multiplayermodus treten maximal 2 Spielern online gegeneinander an
+          und versuchen, eine höhere Punktzahl als der Gegner zu erreichen.
+          Dabei treten sie in beliebigen Räumen bei und warten bis der Raum 2
+          Spieler erreicht hat. Dann wird die Map geladen.
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-[#c06c1c] p-8 flex items-center">
+      <div class="w-1/2">
+        <h2 class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4">
+          Der Spielverlauf
+        </h2>
+        <p class="font-pixel text-gray-800 mb-8">
+          In der zweiten Phase starten die Roboter in einer farblich markierten
+          Karte und werden von beiden Spielern gleichzeitig beobachtet. Die
+          Runde endet, wenn ein Roboter die Aufgabe erledigt oder alle Befehle
+          ausgeführt wurden.
+        </p>
+      </div>
+      <div class="w-1/2 flex justify-end">
+        <img
+          src="/src/assets/Gameplay.png"
+          alt="Bild vom Spielverlauf"
+          class="w-full"
+        />
+      </div>
     </div>
 
     <div class="p-8">
