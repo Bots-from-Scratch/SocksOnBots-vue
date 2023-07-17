@@ -3,10 +3,10 @@ import HeroBanner from "@/components/HeroBanner.vue";
 import PixelCard from "@/components/PixelCard.vue";
 
 const cards = [
-  { text: "Card1" },
-  { text: "Card2" },
-  { text: "Card3" },
-  { text: "Card4" },
+  { text: "Neuigkeit1" },
+  { text: "Neuigkeit2" },
+  { text: "Neuigkeit3" },
+  { text: "Neuigkeit4" },
 ];
 </script>
 
@@ -14,8 +14,8 @@ const cards = [
   <div>
     <HeroBanner />
     <div class="container mx-auto flex justify-center gap-20 my-32 flex-wrap">
-      <div v-for="card in cards">
-        <PixelCard :text="card.text" />
+      <div class="w-full md:w-2/3 lg:w-1/2">
+        <video src="@/assets/video/Gesamt_hochkant.mp4" controls class="w-full"></video>
       </div>
     </div>
   </div>
