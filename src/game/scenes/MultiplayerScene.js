@@ -19,6 +19,10 @@ export class MultiplayerScene extends GameScene {
 
   create() {
     super.create();
+
+    state.playGame = false;
+
+
     this.player2 = this.physics.add
       .sprite(0, 0, "bot")
       .setScale(1.4)

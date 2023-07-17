@@ -80,6 +80,7 @@ state.room.connects = connects;
 socket.on("playGame.response", (data) => {
   console.log("playGame.response", data);
   state.playGame = data;
+  console.log("=>(socket.js:83) state.playGame", state.playGame);
 });
 
 socket.on("levelFinished.response", (data) => {
@@ -146,6 +147,9 @@ export function leaveRoom() {
   socket.emit("leaveRoom", state.room.id);
   state.room.id = null;
   state.room.connects = 0;
+  state.levelFinished.playerDisconnected = false;
+  state.levelFinished.winner = false;
+  state.levelFinished.loser = false;
 }
 
 setInterval(()=>console.log("12state.room", state.room), 1000)

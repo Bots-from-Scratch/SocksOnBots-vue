@@ -73,9 +73,9 @@
           class="h-2 font-pixel text-xs"
         >
           {{
-            state.room.connects === 1
-              ? "Warte auf Spieler"
-              : "Wähle einen Raum aus um gegen einen anderen Spieler anzutreten?"
+            state.room.connects === 0
+              ? "Wähle einen Raum aus um gegen einen anderen Spieler anzutreten?"
+              : "Warte auf Spieler"
           }}
         </p>
       </div>
@@ -173,7 +173,8 @@ export default {
         { playGame: true, roomId: state.room.id },
         () => {}
       );
-      runGame();
+      // this.isPlayingRef = !this.isPlayingRef
+      !state.playGame && runGame();
     };
 
     const updateSelectedLevel = (newLevel) => {
@@ -185,6 +186,7 @@ export default {
         leaveRoom();
       }
       state.activeScene = null;
+      activeScene().sys.game.destroy(true)
     });
     onMounted(() => emit("selectedLevel", selectedLevel.value));
     const selectLevel = (levelNumber) => {
@@ -241,7 +243,7 @@ export default {
     "state.playGame": {
       handler() {
         this.isPlayingRef = !this.isPlayingRef;
-        this.playGameCounter === 0 && this.runGame();
+        this.runGame();
       },
     },
     // "state.selectedLevel": {
