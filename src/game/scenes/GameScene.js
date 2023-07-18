@@ -378,7 +378,7 @@ export class GameScene extends Scene {
 
   createCollider() {
     this.physics.add.collider(this.player, this.pushableObjectsGroup, () => {
-      if (!itemConnected) {
+      if (!itemConnected && !this.movingObjectSound.isPlaying) {
         this.movingObjectSound.play();
       }
     });

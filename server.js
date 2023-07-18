@@ -8,6 +8,7 @@ const io = require("socket.io")(http, {
       "http://192.168.178.20:5173",
       "http://localhost:5173",
       "http://192.168.178.96:5173",
+      "http://192.168.50.67:5173",
     ],
   },
 });

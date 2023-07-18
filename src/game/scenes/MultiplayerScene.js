@@ -21,7 +21,6 @@ export class MultiplayerScene extends GameScene {
     super.create();
 
     this.prepareLevel(state.room.rndLvl?.number);
-    state.room.rndLvl = null;
     state.playGame = false;
 
 
@@ -57,6 +56,8 @@ export class MultiplayerScene extends GameScene {
         state.levelFinished.playerDisconnected) &&
       !this.isPausingCodeExecution
     ) {
+      state.room.rndLvl = null;
+
       this.isPausingCodeExecution = true;
       this.cameras.main.fadeOut(800, 0, 0, 0);
       this.cameras.main.once(

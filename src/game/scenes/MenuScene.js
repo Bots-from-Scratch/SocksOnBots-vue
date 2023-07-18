@@ -95,8 +95,8 @@ class MenuScene extends Scene {
     this.buttonTutorial = this.createButton(
       450,
       250,
-      "Tutorial",
-      "SingleplayerScene"
+      "Singleplayer",
+      "CutScene1"
     );
 
     this.buttonMultiplayer = this.createButton(
