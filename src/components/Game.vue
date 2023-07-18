@@ -179,7 +179,7 @@ export default {
           () => {}
         );
         // this.isPlayingRef = !this.isPlayingRef
-        !state.playGame && runGame();
+        // !state.playGame && runGame();
       } else if (state.activeScene === "SingleplayerScene") {
         runGame();
       }
