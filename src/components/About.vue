@@ -115,6 +115,9 @@ const getAnimationClass = (index) => {
           Runde endet, wenn ein Roboter die Aufgabe erledigt oder alle Befehle
           ausgeführt wurden.
         </p>
+         <router-link to="/game">
+        <PixelButton class="hover:text-gray-500" text="Lets play!"/>
+      </router-link>
       </div>
       <div class="w-1/2 flex justify-end">
         <img
