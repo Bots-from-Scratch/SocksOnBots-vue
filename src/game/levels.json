@@ -41,7 +41,7 @@
     "x": 24,
     "y": 15,
     "isActive": false,
-    "playerStart": { "x": 300, "y": 600 },
+    "playerStart": { "x": 27, "y": 20 },
     "text": "Du entdeckst einen Pfeil, bewege dich dorthin!"
   },
   {
@@ -59,7 +59,7 @@
     "x": 42,
     "y": 2,
     "isActive": false,
-    "playerStart": { "x": 400, "y": 800 },
+    "playerStart": { "x": 46, "y": 3 },
     "text": "Du entdeckst einen Pfeil, bewege dich dorthin!"
   },
   {
@@ -68,7 +68,7 @@
     "x": 42,
     "y": 15,
     "isActive": false,
-    "playerStart": { "x": 450, "y": 900 },
+    "playerStart": { "x": 43, "y": 17 },
     "text": "Du entdeckst einen Pfeil, bewege dich dorthin!"
   },
   {
@@ -77,7 +77,7 @@
     "x": 42,
     "y": 28,
     "isActive": false,
-    "playerStart": { "x": 500, "y": 1000 },
+    "playerStart": { "x": 43, "y": 30 },
     "text": "Du entdeckst einen Pfeil, bewege dich dorthin!"
   }
 ]
