@@ -9,7 +9,7 @@ export const state = reactive({
   directionOpponent: {},
   direction: {},
   roomID: "",
-  room: { id: null, connects: 0, rndLvl: null},
+  room: { id: null, connects: 0, rndLvl: null },
   rooms: [],
   selectedLevel: {
     number: 2,
@@ -27,8 +27,8 @@ export const state = reactive({
 const URL =
   process.env.NODE_ENV === "production"
     ? "https://socket-server-3jgo.onrender.com"
-    : "http://localhost:3010";
-
+    :  "http://localhost:3010";
+      //"http://192.168.50.67:3010/";
 export const socket = io(URL, {
   autoConnect: true,
 });
@@ -73,7 +73,7 @@ socket.on("playerJoinedRoom.info", (data) => {
 socket.on("leaveRoom.info", (connects) => {
   state.levelFinished.playerDisconnected = true;
   console.log("=>(socket.js:74) connects12state", connects);
-state.room.connects = connects;
+  state.room.connects = connects;
   console.log("Player left the room, remaining connects: ", connects);
 });
 
@@ -92,10 +92,10 @@ socket.on("levelFinished.response", (data) => {
   }
 });
 
-socket.on("nextLevel.response", (rndLvl)=>{
+socket.on("nextLevel.response", (rndLvl) => {
   console.log("=>(socket.js:97) nextLevel.response", rndLvl);
-  state.room.rndLvl = rndLvl
-})
+  state.room.rndLvl = rndLvl;
+});
 
 socket.on("selectedLevel.response", (data) => {
   state.selectedLevel = data;
@@ -163,4 +163,4 @@ export function resetFinishedLevelObject() {
   state.levelFinished.playerDisconnected = false;
 }
 
-setInterval(()=>console.log("12state.room", state.room), 1000)
+setInterval(() => console.log("12state.room", state.room), 1000);

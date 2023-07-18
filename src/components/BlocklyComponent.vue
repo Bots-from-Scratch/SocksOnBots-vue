@@ -1,12 +1,12 @@
 <script setup>
-import {computed, onMounted, onUnmounted, ref, shallowRef, watch} from "vue";
+import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
 import { useLocalStorage } from "@vueuse/core";
 import PixelButton from "@/components/PixelButton.vue";
 import { socket, state } from "@/socket";
-import {toolboxJson} from "@/toolbox_phaser";
-import {CustomRenderer} from "@/renderer/CustomRenderer";
+import { toolboxJson } from "@/toolbox_phaser";
+import { CustomRenderer } from "@/renderer/CustomRenderer";
 
 const emit = defineEmits(["playGamePressed", "workspaceFromBlockly"]);
 const props = defineProps(["options", "selectedLevel"]);
@@ -17,23 +17,32 @@ let playGameCounter = 0;
 let store = useLocalStorage("userBlocks", null);
 defineExpose({ workspace });
 
-Blockly.Theme.defineTheme('dark', {
-  'base': Blockly.Themes.Classic,
-  'componentStyles': {
-    'workspaceBackgroundColour': '#1e1f22',
-    'toolboxBackgroundColour': 'blackBackground',
-    'toolboxForegroundColour': '#fff',
-    'flyoutBackgroundColour': '#252526',
-    'flyoutForegroundColour': '#ccc',
-    'flyoutOpacity': 1,
-    'scrollbarColour': '#797979',
-    'insertionMarkerColour': '#fff',
-    'insertionMarkerOpacity': 0.3,
-    'scrollbarOpacity': 0.4,
-    'cursorColour': '#d0d0d0',
-    'blackBackground': '#2b2d30',
+const blockStyles = {
+  'loop_blocks': {
+    'colourPrimary': "#ff0000",
+    'colourSecondary': "#00ff00",
+    'colourTertiary': "#0000ff",
   },
-})
+};
+
+Blockly.Theme.defineTheme("dark", {
+  base: Blockly.Themes.Classic,
+  componentStyles: {
+    workspaceBackgroundColour: "#1e1f22",
+    toolboxBackgroundColour: "blackBackground",
+    toolboxForegroundColour: "#fff",
+    flyoutBackgroundColour: "#252526",
+    flyoutForegroundColour: "#ccc",
+    flyoutOpacity: 1,
+    scrollbarColour: "#797979",
+    insertionMarkerColour: "#fff",
+    insertionMarkerOpacity: 0.3,
+    scrollbarOpacity: 0.4,
+    blockStyles: blockStyles,
+    cursorColour: "#d0d0d0",
+    blackBackground: "#2b2d30",
+  },
+});
 
 const blocklyOptions = {
   renderer: "customRenderer",
@@ -57,19 +66,16 @@ const blocklyOptions = {
     colour: "#393b40",
     snap: true,
   },
-  theme: 'dark'
+  theme: "dark",
 };
 
-onUnmounted(()=>{
+onUnmounted(() => {
   console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
-  Blockly.registry.unregister('theme', 'dark');
-  Blockly.registry.unregister('renderer', 'customRenderer');
+  Blockly.registry.unregister("theme", "dark");
+  Blockly.registry.unregister("renderer", "customRenderer");
 
   console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
-
-
-
-})
+});
 
 onMounted(() => {
   const options = props.options || {};

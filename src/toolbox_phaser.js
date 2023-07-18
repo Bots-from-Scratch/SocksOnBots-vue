@@ -139,53 +139,7 @@ export var toolboxJson = {
         },
       ],
     },
-    {
-      kind: "CATEGORY",
-      name: "Text",
-      colour: "%{BKY_TEXTS_HUE}",
-      contents: [
-        {
-          kind: "BLOCK",
-          type: "text",
-        },
-        {
-          kind: "BLOCK",
-          type: "text_length",
-          inputs: {
-            VALUE: {
-              shadow: {
-                type: "text",
-                fields: { TEXT: "abc" },
-              },
-            },
-          },
-        },
-        {
-          kind: "BLOCK",
-          type: "text_print",
-          inputs: {
-            TEXT: {
-              shadow: {
-                type: "text",
-                fields: { TEXT: "abc" },
-              },
-            },
-          },
-        },
-        {
-          kind: "BLOCK",
-          type: "text_prompt_ext",
-          inputs: {
-            TEXT: {
-              shadow: {
-                type: "text",
-                fields: { TEXT: "abc" },
-              },
-            },
-          },
-        },
-      ],
-    },
+
     {
       kind: "SEP",
     },
@@ -199,12 +153,6 @@ export var toolboxJson = {
           type: "object_sock",
         },
       ],
-    },
-    {
-      kind: "CATEGORY",
-      name: "Functions",
-      custom: "PROCEDURE",
-      colour: "%{BKY_PROCEDURES_HUE}",
     },
     {
       kind: "CATEGORY",

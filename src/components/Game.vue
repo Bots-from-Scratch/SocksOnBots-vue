@@ -20,7 +20,7 @@
         class="grid grid-cols-3 gap-x-8 gap-y-4"
       >
         <div
-          v-for="level in levels"
+          v-for="level in storedLevels"
           :key="level.number"
           class="pixel-border-small text-center font-pixel text-black hover:bg-stone-400 cursor-pointer"
           @click="selectLevel(level.number)"
@@ -98,7 +98,7 @@
 
 <script>
 import * as Phaser from "phaser";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, toRaw } from "vue";
 import PreloadScene from "@/game/scenes/PreloadScene";
 import CutSceneFirstSock from "@/game/scenes/CutSceneFirstSock";
 import { leaveRoom, socket, state } from "@/socket";
@@ -114,6 +114,12 @@ import SoundControls from "@/components/SoundControls.vue";
 import { MultiplayerScene } from "@/game/scenes/MultiplayerScene";
 import { MultiplayerEndScene } from "@/game/scenes/MultiplayerEndScene";
 import { SingleplayerScene } from "@/game/scenes/SingleplayerScene";
+import { useLocalStorage } from "@vueuse/core";
+import Blockly from "blockly";
+import CutScene2 from "@/game/scenes/CutScene2";
+import CutScene3 from "@/game/scenes/CutScene3";
+import CutScene4 from "@/game/scenes/CutScene4";
+import CutScene1 from "@/game/scenes/CutScene1";
 // TODO licht/Strom anschalten
 // TODO schieben
 // TODO
@@ -144,6 +150,22 @@ export default {
     const isSelected = ref(false);
     const isPlayingRef = ref(state.playGame);
     const actScene = ref(null);
+    const storeLvl = useLocalStorage(
+      "levelProgress",
+      JSON.stringify([
+        {
+          number: 0,
+          name: "Level 1",
+          x: 3,
+          y: 28,
+          isActive: false,
+          playerStart: { x: 10, y: 36.8 },
+          text: "Du entdeckst einen Pfeil. Wahrscheinlich geht es dort weiter!",
+        },
+      ])
+    );
+    const storedLevels = ref(JSON.parse(storeLvl.value));
+    console.log("=>(Game.vue:196) storedLevels", storedLevels);
     activeScene = () => {
       if (game.value) {
         return game.value.scene.getScenes(true)[0];
@@ -185,7 +207,33 @@ export default {
       }
     };
 
+    const saveFinishedLevelToStorage = (newLevel) => {
+      const lvlToSave = levels.find((level) => level.number === newLevel);
+      // TODO level zu name oder levelName umbenennen
+      const dataToStore = [];
+      if (storeLvl.value !== null) {
+        const storedData = JSON.parse(storeLvl.value);
+        storedData.forEach((level) => {
+          level.number !== lvlToSave.number && dataToStore.push(level);
+        });
+      }
+      dataToStore.push(lvlToSave);
+
+      storeLvl.value = JSON.stringify(dataToStore);
+    };
+
     const updateSelectedLevel = (newLevel) => {
+      // console.log("=>(Game.vue:204) storedLevels", storedLevels);
+      // storedLevels.push(levels.find((level) => level.number === newLevel));
+      // console.log("=>(Game.vue:196) tmp", storedLevels);
+      // storeLvl.value = JSON.stringify(storedLevels);
+      if (
+        !storedLevels.value.some((lvl) => lvl.number === newLevel) &&
+        state.activeScene === "SingleplayerScene"
+      ) {
+        saveFinishedLevelToStorage(newLevel);
+        storedLevels.value = JSON.parse(storeLvl.value);
+      }
       selectedLevel.value = newLevel;
       selectLevel(newLevel);
     };
@@ -196,7 +244,9 @@ export default {
       state.activeScene = null;
       activeScene()?.sys.game.destroy(true);
     });
-    onMounted(() => emit("selectedLevel", selectedLevel.value));
+    onMounted(() => {
+      emit("selectedLevel", selectedLevel.value);
+    });
     const selectLevel = (levelNumber) => {
       console.log("=>(Game.vue:126) selectLevel", levelNumber);
       selectedLevel.value = levelNumber;
@@ -221,6 +271,7 @@ export default {
       isPlayingRef,
       volumesRef,
       isBlinking,
+      storedLevels,
     };
   },
 
@@ -277,7 +328,10 @@ export default {
       scene: [
         MenuScene,
         LobbyMenuScene,
-        // TutorialMenuScene,
+        CutScene1,
+        CutScene2,
+        CutScene3,
+        CutScene4,
         CreditMenuScene,
         new MultiplayerScene(
           this.selectedLevel,
