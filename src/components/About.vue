@@ -74,9 +74,9 @@ const getAnimationClass = (index) => {
       </div>
       <div class="w-1/2 flex justify-end">
         <img
-          src="/src/assets/Gameplay.png"
+          src="/src/assets/Pre-Phase.png"
           alt="Spielansicht mit Blöcken"
-          class="w-full"
+          class="w-3/4 pixel-border-16"
         />
       </div>
     </div>
@@ -84,9 +84,9 @@ const getAnimationClass = (index) => {
     <div class="p-8 flex items-center">
       <div class="w-1/2 flex justify-start">
         <img
-          src="/src/assets/Gameplay.png"
+          src="/src/assets/Lobby.png"
           alt="Bild von Lobby wahl"
-          class="w-full"
+          class="w-full pixel-border-16"
         />
       </div>
       <div class="w-1/2">
@@ -120,7 +120,7 @@ const getAnimationClass = (index) => {
         <img
           src="/src/assets/Gameplay.png"
           alt="Bild vom Spielverlauf"
-          class="w-full"
+          class="w-full pixel-border-16"
         />
       </div>
     </div>
@@ -190,5 +190,9 @@ const getAnimationClass = (index) => {
 
 .delay-5 {
   animation-delay: 0.5s;
+}
+
+.pixel-border-16 {
+  box-shadow: -16px 0 0 0 black, 16px 0 0 0 black, 0 -16px 0 0 black, 0 16px 0 0 black;
 }
 </style>
