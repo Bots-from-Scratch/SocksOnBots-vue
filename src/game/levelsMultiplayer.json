@@ -37,7 +37,7 @@
     "x": 24,
     "y": 15,
     "isActive": false,
-    "playerStart": { "x": 300, "y": 600 }
+    "playerStart": { "x": 25, "y": 18 }
   },
   {
     "number": 5,
@@ -53,7 +53,7 @@
     "x": 42,
     "y": 2,
     "isActive": false,
-    "playerStart": { "x": 400, "y": 800 }
+    "playerStart": { "x": 46, "y": 4 }
   },
   {
     "number": 7,
@@ -61,7 +61,7 @@
     "x": 42,
     "y": 15,
     "isActive": false,
-    "playerStart": { "x": 450, "y": 900 }
+    "playerStart": { "x": 43, "y": 17 }
   },
   {
     "number": 8,
@@ -69,6 +69,6 @@
     "x": 42,
     "y": 28,
     "isActive": false,
-    "playerStart": { "x": 500, "y": 1000 }
+    "playerStart": { "x": 43, "y": 30 }
   }
 ]
