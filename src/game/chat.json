@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "icon": "\ud83d\ude00",
+    "chatMessage": "Ich habe so viel Spaß!"
+  },
+  {
+    "id": 2,
+    "icon": "\ud83d\ude22",
+    "chatMessage": "Schade, dass wir verloren haben."
+  },
+  {
+    "id": 3,
+    "icon": "\ud83d\udc4d",
+    "chatMessage": "Gut gemacht, Team!"
+  },
+  {
+    "id": 4,
+    "icon": "\ud83d\udc4e",
+    "chatMessage": "Das hätte besser laufen können."
+  },
+  {
+    "id": 5,
+    "icon": "\ud83d\ude2e",
+    "chatMessage": "Wow, das war überraschend!"
+  },
+  {
+    "id": 6,
+    "icon": "\ud83d\ude31",
+    "chatMessage": "Das war erschreckend!"
+  }
+]

@@ -20,7 +20,7 @@ Blockly.common.defineBlocksWithJsonArray([
     ],
     previousStatement: null,
     nextStatement: null,
-    colour: 355,
+    colour: "#502828",
     tooltip: "",
     helpUrl: "",
   },

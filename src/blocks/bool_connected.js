@@ -6,7 +6,7 @@ Blockly.common.defineBlocksWithJsonArray([
         "type": "bool_connected",
         "message0": "Item connected",
         "output": "Boolean",
-        "colour": 230,
+        "colour": "#502828",
         "tooltip": "",
         "helpUrl": ""
     }

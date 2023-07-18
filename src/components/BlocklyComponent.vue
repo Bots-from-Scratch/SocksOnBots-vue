@@ -1,11 +1,12 @@
 <script setup>
-import { computed, onMounted, ref, shallowRef, watch } from "vue";
+import {computed, onMounted, onUnmounted, ref, shallowRef, watch} from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
 import { useLocalStorage } from "@vueuse/core";
 import PixelButton from "@/components/PixelButton.vue";
 import { socket, state } from "@/socket";
 import {toolboxJson} from "@/toolbox_phaser";
+import {CustomRenderer} from "@/renderer/CustomRenderer";
 
 const emit = defineEmits(["playGamePressed", "workspaceFromBlockly"]);
 const props = defineProps(["options", "selectedLevel"]);
@@ -16,7 +17,6 @@ let playGameCounter = 0;
 let store = useLocalStorage("userBlocks", null);
 defineExpose({ workspace });
 
-Blockly.registry.unregister('theme', 'dark');
 Blockly.Theme.defineTheme('dark', {
   'base': Blockly.Themes.Classic,
   'componentStyles': {
@@ -36,6 +36,7 @@ Blockly.Theme.defineTheme('dark', {
 })
 
 const blocklyOptions = {
+  renderer: "customRenderer",
   toolbox: toolboxJson,
   collapse: true,
   comments: true,
@@ -59,11 +60,24 @@ const blocklyOptions = {
   theme: 'dark'
 };
 
+onUnmounted(()=>{
+  console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
+  Blockly.registry.unregister('theme', 'dark');
+  Blockly.registry.unregister('renderer', 'customRenderer');
+
+  console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
+
+
+
+})
+
 onMounted(() => {
   const options = props.options || {};
   if (!options.toolbox) {
     options.toolbox = blocklyToolbox.value;
   }
+
+  Blockly.blockRendering.register("customRenderer", CustomRenderer);
 
   workspace.value = Blockly.inject(blocklyDiv.value, blocklyOptions);
 

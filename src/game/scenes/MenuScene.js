@@ -8,33 +8,39 @@ import horizon from "@/assets/horizon_menuBG.png";
 import city from "@/assets/city_menuBG.png";
 import buttonAnimJson from "@/assets/buttons.json";
 import buttonAnimPNG from "@/assets/buttons.png";
+import hoverSound from "@/assets/sounds/Click/CLICK2.mp3";
+import {state} from "@/socket";
 
 class MenuScene extends Scene {
   constructor() {
     super("MenuScene");
   }
-
+  init() {
+    state.activeScene = this.scene.key;}
   preload() {
     this.load.image("background", background);
     this.load.image("horizon", horizon);
     this.load.image("city", city);
-
     this.load.image("logo", logo);
 
     this.load.aseprite("button", buttonAnimPNG, buttonAnimJson);
+
+    this.load.audio("hoverSound", hoverSound);
   }
 
   create() {
     const widthGame = this.scale.width;
     const heightGame = this.scale.height;
 
-    console.log("=>(MenuScene.js:31) ", heightGame);
+    // console.log("=>(MenuScene.js:31) ", heightGame);
 
     this.add.image(widthGame, heightGame, "background").setScrollFactor(0);
 
+    this.hoverSound = this.sound.add("hoverSound");
+
     // this.cam = this.cameras.main.setBounds(0, 0, widthGame*4.5 , heightGame*4.5 );
     this.input.on("pointermove", (pointer) => {
-      console.log(pointer.x);
+      // console.log(pointer.x);
       this.cameras.main.startFollow(pointer, true, 0.1);
     });
     // this.centerX = this.scale.width / 2;
@@ -90,7 +96,7 @@ class MenuScene extends Scene {
       450,
       250,
       "Tutorial",
-      "TutorialMenuScene"
+      "SingleplayerScene"
     );
 
     this.buttonMultiplayer = this.createButton(
@@ -119,7 +125,10 @@ class MenuScene extends Scene {
       .sprite(x, y, "button")
       .setScrollFactor(0)
       .setInteractive()
-      .on("pointerover", () => button.play({ key: "hover" }))
+      .on("pointerover", () => {
+        button.play({ key: "hover" });
+        this.hoverSound.play();
+      })
       .on("pointerout", () => button.play({ key: "idle" }))
       .on("pointerdown", () => button.play({ key: "click" }))
       .on("pointerup", () => {
