@@ -1,4 +1,4 @@
-import { socket, state } from "@/socket";
+import { leaveRoom, socket, state } from "@/socket";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
@@ -123,13 +123,20 @@ export class GameScene extends Scene {
     this.objectLayer = map.createLayer("objects", tileset, 0, 0);
     this.winningPointLayer = map.getObjectLayer("WinningPointLayer")["objects"];
 
-    function createObjectsFromMapObjects(layerName, _this) {
+    function createObjectsFromMapObjects(layerName, _this, isStaticGroup) {
       const objects = map.createFromObjects(layerName, {
         classType: Phaser.Physics.Arcade.Sprite,
       });
-      const objectGroup = _this.physics.add.group();
-      objects.forEach((el) => objectGroup.add(el));
-      return objectGroup;
+
+      if (isStaticGroup) {
+        const objectGroup = _this.physics.add.staticGroup();
+        objects.forEach((el) => objectGroup.add(el));
+        return objectGroup;
+      } else {
+        const objectGroup = _this.physics.add.group();
+        objects.forEach((el) => objectGroup.add(el));
+        return objectGroup;
+      }
     }
 
     this.cutSceneTriggerGroup = createObjectsFromMapObjects(
@@ -141,12 +148,14 @@ export class GameScene extends Scene {
       this
     );
     this.keyGroup = createObjectsFromMapObjects("KeyLayer", this);
-    this.doorGroup = createObjectsFromMapObjects("DoorLayer", this);
+    this.doorGroup = createObjectsFromMapObjects("DoorLayer", this, true);
 
     this.backgroundLayer.setCollisionByProperty({ noFloor: true });
     this.wallLayer.setCollisionByProperty({ collision: true });
     this.objectLayer.setCollisionByProperty({ collision: true });
     this.objectLayer.depth = 1;
+
+    this.cameras.main.setAlpha(0);
 
     map.setBaseTileSize(64, 64);
 
@@ -378,7 +387,7 @@ export class GameScene extends Scene {
 
   createCollider() {
     this.physics.add.collider(this.player, this.pushableObjectsGroup, () => {
-      if (!itemConnected) {
+      if (!itemConnected && !this.movingObjectSound.isPlaying) {
         this.movingObjectSound.play();
       }
     });
@@ -414,6 +423,14 @@ export class GameScene extends Scene {
       this
     );
 
+    this.physics.add.collider(
+      this.player,
+      this.doorGroup,
+      (player, door) => door.setPushable(false),
+      null,
+      this
+    );
+
     this.physics.add.collider(this.player, this.wallLayer);
 
     this.physics.add.collider(this.player, this.objectLayer);
@@ -426,7 +443,14 @@ export class GameScene extends Scene {
         // TODO fix winnig bug (collider doesnt stop)
         sprite.x -= 1;
         sprite.y++;
-        this.checkForWin();
+        if (
+          collectedItems.some((item) =>
+            item?.data?.list.keyForLevel || item?.data?.list.sockForLevel
+          )
+        ) {
+          console.log("=>(GameScene.js:448) collectedItems", collectedItems);
+          this.checkForWin();
+        }
       },
       null,
       this
@@ -503,7 +527,15 @@ export class GameScene extends Scene {
   }
 
   createButtons() {
-    this.button = this.add.text(40, 600, "Back to Menu");
+    if (state.activeScene === "SingleplayerScene") {
+      this.button = this.add
+        .text(40, 600, "Zurück zum Menü")
+        .setScrollFactor(0);
+    } else if (state.activeScene === "MultiplayerScene") {
+      this.button = this.add
+        .text(40, 600, "Zurück zur Lobby")
+        .setScrollFactor(0);
+    }
     this.buttonUp = this.add.text(600, 400, "Increase Score");
     this.buttonScan = this.add.text(600, 450, "Scan For Star");
     this.button.setInteractive();
@@ -512,7 +544,14 @@ export class GameScene extends Scene {
     this.button
       .on("pointerover", () => this.button.setStyle({ fill: "#006db2" }))
       .on("pointerout", () => this.button.setStyle({ fill: "#fff" }))
-      .on("pointerdown", () => this.scene.start("MenuScene"));
+      .on("pointerup", () => {
+        this.scene.start(
+          state.activeScene === "SingleplayerScene"
+            ? "MenuScene"
+            : "LobbyMenuScene"
+        );
+        leaveRoom();
+      });
 
     // this.buttonScan.on("pointerdown", () => {
     //   objectToScanFor = itemSock;
@@ -583,7 +622,6 @@ export class GameScene extends Scene {
 
   prepareLevel(selectedLevel) {
     this.isPausingCodeExecution = true;
-
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
@@ -595,6 +633,7 @@ export class GameScene extends Scene {
         this.getItemKeyForActiveLevel();
         this.resetDirection();
         this.init();
+        this.cameras.main.setAlpha(1);
         this.cameras.main.fadeIn(800);
       }
     );
@@ -615,7 +654,8 @@ export class GameScene extends Scene {
     );
     itemKey = this.keyGroup.children.entries.find(
       (keyItem) =>
-        keyItem.data?.list?.keyForLevel === this.getActiveLevel().number
+        keyItem.data?.list?.keyForLevel === this.getActiveLevel().number ||
+        keyItem.data?.list?.sockForLevel === this.getActiveLevel().number
     );
     console.log("=>(Game.vue:1143) itemKey", itemKey);
   }
@@ -627,6 +667,7 @@ export class GameScene extends Scene {
     this.getActiveLevel() && (this.getActiveLevel().isActive = false);
     this.selectedGameLevel = selectedLevel;
     let lvl = this.levels.find((level) => level.number === selectedLevel);
+    console.log("=>(GameScene.js:649) lvl,selectedLevel", lvl, selectedLevel);
     lvl.isActive = true;
   }
 

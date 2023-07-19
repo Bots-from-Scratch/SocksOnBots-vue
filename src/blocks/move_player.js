@@ -4,17 +4,17 @@ import { javascriptGenerator } from "blockly/javascript";
 Blockly.common.defineBlocksWithJsonArray([
   {
     type: "move_player",
-    message0: "Move %1",
+    message0: "Laufe %1",
     args0: [
       {
         type: "field_dropdown",
         name: "VALUE",
         options: [
-          ["left", "moveLeft"],
-          ["right", "moveRight"],
-          ["up", "moveUp"],
-          ["down", "moveDown"],
-          ["to object", "moveToObject"],
+          ["nach links", "moveLeft"],
+          ["nach rechts", "moveRight"],
+          ["nach oben", "moveUp"],
+          ["nach unten", "moveDown"],
+          ["zum Item", "moveToObject"],
         ],
       },
     ],
@@ -37,3 +37,4 @@ javascriptGenerator["move_player"] = function (block) {
   console.log("=>(move_player.js:50) code", code);
   return code;
 };
+

@@ -4,7 +4,7 @@ import {javascriptGenerator} from "blockly/javascript";
 Blockly.common.defineBlocksWithJsonArray([
     {
         "type": "bool_connected",
-        "message0": "Item connected",
+        "message0": "Item verbunden",
         "output": "Boolean",
         "colour": "#502828",
         "tooltip": "",
