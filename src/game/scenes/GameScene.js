@@ -148,6 +148,8 @@ export class GameScene extends Scene {
     this.objectLayer.setCollisionByProperty({ collision: true });
     this.objectLayer.depth = 1;
 
+    this.cameras.main.setAlpha(0);
+
     map.setBaseTileSize(64, 64);
 
     this.createWinningZones();
@@ -503,7 +505,7 @@ export class GameScene extends Scene {
   }
 
   createButtons() {
-    this.button = this.add.text(40, 600, "Back to Menu");
+    this.button = this.add.text(40, 600, "Zurück zum Menü").setScrollFactor(0);
     this.buttonUp = this.add.text(600, 400, "Increase Score");
     this.buttonScan = this.add.text(600, 450, "Scan For Star");
     this.button.setInteractive();
@@ -583,7 +585,6 @@ export class GameScene extends Scene {
 
   prepareLevel(selectedLevel) {
     this.isPausingCodeExecution = true;
-
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
@@ -595,6 +596,7 @@ export class GameScene extends Scene {
         this.getItemKeyForActiveLevel();
         this.resetDirection();
         this.init();
+        this.cameras.main.setAlpha(1);
         this.cameras.main.fadeIn(800);
       }
     );

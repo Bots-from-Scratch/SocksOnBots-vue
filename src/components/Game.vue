@@ -115,7 +115,6 @@ import { MultiplayerScene } from "@/game/scenes/MultiplayerScene";
 import { MultiplayerEndScene } from "@/game/scenes/MultiplayerEndScene";
 import { SingleplayerScene } from "@/game/scenes/SingleplayerScene";
 import { useLocalStorage } from "@vueuse/core";
-import Blockly from "blockly";
 import CutScene2 from "@/game/scenes/CutScene2";
 import CutScene3 from "@/game/scenes/CutScene3";
 import CutScene4 from "@/game/scenes/CutScene4";
@@ -185,6 +184,7 @@ export default {
       scene.collectKeySound?.setVolume(parseInt(volume.sound) / 200);
       scene.doorSound?.setVolume(parseInt(volume.sound) / 200);
       scene.movingObjectSound?.setVolume(parseInt(volume.sound) / 200);
+      scene.hoverSound?.setVolume(parseInt(volume.sound) / 200);
     };
 
     const runGame = () => {
