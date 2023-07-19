@@ -9,6 +9,9 @@ import ConnectionState from "@/components/ConnectionState.vue";
   <div class="font-pixel text-center mt-2">
     Socks On Bots ©&nbsp;2023
   </div>
+  <div class="invisible">
+  <ConnectionManager/>
+  <ConnectionState/></div>
 </footer>
 </template>
 
