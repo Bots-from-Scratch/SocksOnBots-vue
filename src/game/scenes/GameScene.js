@@ -184,7 +184,7 @@ export class GameScene extends Scene {
       fill: "#fff",
       fontFamily: "Pixel",
     });
-    this.scoreText.setVisible(true).setScrollFactor(0);
+    this.scoreText.setVisible(false).setScrollFactor(0);
 
     // TODO overlap winning points
 
@@ -246,7 +246,7 @@ export class GameScene extends Scene {
         alpha: 0.5,
       },
     });
-    this.scanGfx.setVisible(true);
+    this.scanGfx.setVisible(false);
     this.scanLine = new Phaser.Geom.Line(
       this.player.x,
       this.player.y,
@@ -555,7 +555,7 @@ export class GameScene extends Scene {
     this.buttonScan = this.add.text(600, 450, "Scan For Star");
     this.button.setInteractive();
     this.buttonUp.setInteractive().setVisible(false);
-    this.buttonScan.setInteractive().setVisible(true);
+    this.buttonScan.setInteractive().setVisible(false);
     this.button
       .on("pointerover", () => this.button.setStyle({ fill: "#006db2" }))
       .on("pointerout", () => this.button.setStyle({ fill: "#fff" }))
@@ -582,7 +582,7 @@ export class GameScene extends Scene {
 
     this.buttonUp.on("pointerdown", () => {
       this.score += 10;
-      this.scoreText.setText("Score: " + score);
+      this.scoreText.setText("Score: " + score).setVisible(false);
       console.log(this.player);
     });
   }
@@ -759,7 +759,7 @@ export class GameScene extends Scene {
     );
     objectCollected = true;
     this.physics.pause();
-    this.scoreText.setVisible(true);
+    this.scoreText.setVisible(false);
   }
 
   checkForWin(sprite, object) {
