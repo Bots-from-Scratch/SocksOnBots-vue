@@ -9,6 +9,7 @@ const io = require("socket.io")(http, {
       "http://localhost:5173",
       "http://192.168.178.96:5173",
       "http://192.168.50.67:5173",
+      "https://home-5013443700.app-ionos.space",
     ],
   },
 });
