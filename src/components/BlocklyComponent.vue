@@ -1,19 +1,81 @@
 <script setup>
-import {computed, onMounted, ref, shallowRef, watch} from "vue";
+import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
-import {useLocalStorage} from "@vueuse/core";
+import { useLocalStorage } from "@vueuse/core";
 import PixelButton from "@/components/PixelButton.vue";
-import {socket, state} from "@/socket";
+import { socket, state } from "@/socket";
+import { toolboxJson } from "@/toolbox_phaser";
+import { CustomRenderer } from "@/renderer/CustomRenderer";
 
-const emit = defineEmits(["playGamePressed", "workspace"]);
+const emit = defineEmits(["playGamePressed", "workspaceFromBlockly"]);
 const props = defineProps(["options", "selectedLevel"]);
 const blocklyToolbox = ref();
 const blocklyDiv = ref();
 const workspace = shallowRef();
 let playGameCounter = 0;
 let store = useLocalStorage("userBlocks", null);
-defineExpose({workspace});
+defineExpose({ workspace });
+
+const blockStyles = {
+  'loop_blocks': {
+    'colourPrimary': "#ff0000",
+    'colourSecondary': "#00ff00",
+    'colourTertiary': "#0000ff",
+  },
+};
+
+Blockly.Theme.defineTheme("dark", {
+  base: Blockly.Themes.Classic,
+  componentStyles: {
+    workspaceBackgroundColour: "#1e1f22",
+    toolboxBackgroundColour: "blackBackground",
+    toolboxForegroundColour: "#fff",
+    flyoutBackgroundColour: "#252526",
+    flyoutForegroundColour: "#ccc",
+    flyoutOpacity: 1,
+    scrollbarColour: "#797979",
+    insertionMarkerColour: "#fff",
+    insertionMarkerOpacity: 0.3,
+    scrollbarOpacity: 0.4,
+    blockStyles: blockStyles,
+    cursorColour: "#d0d0d0",
+    blackBackground: "#2b2d30",
+  },
+});
+
+const blocklyOptions = {
+  renderer: "customRenderer",
+  toolbox: toolboxJson,
+  collapse: true,
+  comments: true,
+  disable: true,
+  maxBlocks: Infinity,
+  trashcan: true,
+  horizontalLayout: false,
+  toolboxPosition: "start",
+  css: true,
+  media: "https://blockly-demo.appspot.com/static/media/",
+  rtl: false,
+  scrollbars: true,
+  sounds: true,
+  oneBasedIndex: true,
+  grid: {
+    spacing: 25,
+    length: 3,
+    colour: "#393b40",
+    snap: true,
+  },
+  theme: "dark",
+};
+
+onUnmounted(() => {
+  console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
+  Blockly.registry.unregister("theme", "dark");
+  Blockly.registry.unregister("renderer", "customRenderer");
+
+  console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
+});
 
 onMounted(() => {
   const options = props.options || {};
@@ -21,14 +83,18 @@ onMounted(() => {
     options.toolbox = blocklyToolbox.value;
   }
 
-  workspace.value = Blockly.inject(blocklyDiv.value, options);
+  Blockly.blockRendering.register("customRenderer", CustomRenderer);
 
-  emit("workspace", workspace);
+  workspace.value = Blockly.inject(blocklyDiv.value, blocklyOptions);
+
+  emit("workspaceFromBlockly", workspace);
+
+  loadBlocksFromStorage(props.selectedLevel);
 
   workspace.value.addChangeListener(function (event) {
     if (
-        event.type === Blockly.Events.BLOCK_DRAG ||
-        event.type === Blockly.Events.BLOCK_CHANGE
+      event.type === Blockly.Events.BLOCK_DRAG ||
+      event.type === Blockly.Events.BLOCK_CHANGE
     ) {
       console.log("=>(BlocklyComponent.vue:39) drag");
       saveBlocksToStorage();
@@ -49,37 +115,19 @@ const directionObj = computed({
 });
 
 watch(
-    () => props.selectedLevel,
-    (newLevel) => {
-      loadBlocksFromStorage(newLevel);
-    }
+  () => props.selectedLevel,
+  (newLevel) => {
+    Blockly.getMainWorkspace() && loadBlocksFromStorage(newLevel);
+  }
 );
-
-watch(
-    () => state.playGame,
-    () => {
-      console.log("watcher state.playGame blocklyComponent");
-      playGameCounter === 0 && emit("playGamePressed");
-    }
-);
-
-function playGameClicked() {
-  playGameCounter++;
-  socket.emit("playGame", {playGame: true, roomId: state.roomID}, () => {
-    emit("playGamePressed");
-  });
-
-  // TODO check if init is important
-  // javascriptGenerator.init(Blockly.common.getMainWorkspace());
-}
 
 function loadBlocksFromStorage(newLevel) {
   Blockly.serialization.workspaces.load([], workspace.value);
   if (store.value !== null) {
     const startBlocks = JSON.parse(store.value);
     startBlocks.forEach((level) => {
-      level.level === newLevel &&
-      Blockly.serialization.workspaces.load(level.blocks, workspace.value);
+      parseInt(level.level) === parseInt(newLevel) &&
+        Blockly.serialization.workspaces.load(level.blocks, workspace.value);
     });
   } else {
     console.log("localStorage ist nicht verfügbar.");
@@ -96,7 +144,7 @@ function saveBlocksToStorage() {
       level.level !== props.selectedLevel && dataToStore.push(level);
     });
   }
-  dataToStore.push({level: props.selectedLevel, blocks: blocksToSave});
+  dataToStore.push({ level: props.selectedLevel, blocks: blocksToSave });
 
   store.value = JSON.stringify(dataToStore);
 }
@@ -107,10 +155,6 @@ function saveBlocksToStorage() {
     <div ref="blocklyDiv" class="h-full"></div>
     <div ref="blocklyToolbox">
       <slot></slot>
-    </div>
-    <div class="flex justify-start my-8">
-      <PixelButton text="Play" @click="playGameClicked"/>
-      <p>{{ directionObj }}</p>
     </div>
   </div>
 </template>

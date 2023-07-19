@@ -25,7 +25,7 @@ export default {
   data() {
     return {
       test: "testString",
-      roomID: "test",
+      roomID: "Room1",
       message: "hey other player",
       connectedToRoom: "",
     };

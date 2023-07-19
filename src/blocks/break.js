@@ -6,12 +6,15 @@ Blockly.common.defineBlocksWithJsonArray([
         "type": "break",
         "message0": "break",
         "previousStatement": null,
-        "colour": 355,
+        "colour": "#502828",
         "tooltip": "",
         "helpUrl": ""
     }
 ])
 
 javascriptGenerator['break'] = function(block) {
-    return  'break;\n';
+    // let code = "yield;";
+    // code += "stopPlayer();"
+    // return code;
+    return "break;"
 };

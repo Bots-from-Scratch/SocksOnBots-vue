@@ -1,4 +1,5 @@
 import {Scene} from "phaser";
+import {state} from "@/socket";
 
 class PreloadScene extends Scene {
 constructor() {

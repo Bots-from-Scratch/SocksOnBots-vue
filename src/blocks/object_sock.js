@@ -7,20 +7,29 @@ Blockly.common.defineBlocksWithJsonArray([
         "message0": "%1",
         "args0": [
             {
-                "type": "field_label_serializable",
+                "type": "field_dropdown",
                 "name": "NAME",
-                "text": "Sock"
+                "options": [
+                    [
+                        "Sock",
+                        "itemKey"
+                    ],
+                    [
+                        "Key",
+                        "itemKey"
+                    ],
+                ]
             }
         ],
         "output": "String",
-        "colour": 230,
+        "colour": "#502828",
         "tooltip": "",
         "helpUrl": ""
     }
 ]);
 
 javascriptGenerator['object_sock'] = function(block) {
-    // TODO: Assemble JavaScript into code variable.
-    var code = 'blueStar';
+    let code = block.getFieldValue('NAME');
+
     return [code, javascriptGenerator.ORDER_NONE];
 };
