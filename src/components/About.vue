@@ -141,28 +141,38 @@ const getAnimationClass = (index) => {
       <h2 class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4">
         Frameworks
       </h2>
-      <div class="flex items-center gap-8">
-        <img
-          src="/src/assets/logo/Aseprite_logo.jpg"
-          alt="Logo Aseprite"
-          class="h-40"
-        />
-        <img
-          src="/src/assets/logo/Blockly_logo.jpg"
-          alt="Logo Blockly"
-          class="h-40"
-        />
-        <img
-          src="/src/assets/logo/Phaser_logo.jpg"
-          alt="Logo Phaser"
-          class="h-40"
-        />
-        <img
-          src="/src/assets/logo/Tiled_logo.jpg"
-          alt="Logo Tiled"
-          class="h-40"
-        />
-        <img src="/src/assets/logo/Vue_logo.jpg" alt="Logo Vue" class="h-40" />
+      <div class="flex items-center gap-8 justify-between">
+        <a href="https://www.aseprite.org/" target="_blank">
+          <img
+            src="/src/assets/logo/Aseprite_logo.jpg"
+            alt="Logo Aseprite"
+            class="h-40"
+          />
+        </a>
+        <a href="https://developers.google.com/blockly" target="_blank">
+          <img
+            src="/src/assets/logo/Blockly_logo.jpg"
+            alt="Logo Blockly"
+            class="h-40"
+          />
+        </a>
+        <a href="https://phaser.io/" target="_blank">
+          <img
+            src="/src/assets/logo/Phaser_logo.jpg"
+            alt="Logo Phaser"
+            class="h-40"
+            />
+        </a>
+        <a href="https://www.mapeditor.org/" target="_blank">
+          <img
+            src="/src/assets/logo/Tiled_logo.jpg"
+            alt="Logo Tiled"
+            class="h-40"
+          />
+        </a>
+        <a href="https://vuejs.org/" target="_blank">
+          <img src="/src/assets/logo/Vue_logo.jpg" alt="Logo Vue" class="h-40" />
+        </a>
       </div>
     </div>
   </div>

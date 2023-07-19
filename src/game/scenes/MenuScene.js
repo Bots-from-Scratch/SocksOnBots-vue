@@ -106,10 +106,6 @@ class MenuScene extends Scene {
       "LobbyMenuScene"
     );
 
-    this.buttonCredits = this.createButton(450, 400, "Credits").on(
-      "pointerdown",
-      () => console.log("Credits")
-    );
   }
 
   update() {
