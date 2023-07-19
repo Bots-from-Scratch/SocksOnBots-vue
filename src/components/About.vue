@@ -4,92 +4,208 @@ import HeroBanner from "@/components/HeroBanner.vue";
 import PixelButton from "@/components/PixelButton.vue";
 import PixelCard from "@/components/PixelCard.vue";
 
-const cards = [
-  { text: "Denushan"},
-  { text: "Card2" },
-  { text: "Card3" },
-  { text: "Card4" },
+const team = [
+  {
+    name: "Denushan",
+    imgPath: "/src/assets/Bild_Denu.png",
+    description: "Teamleader",
+    alt: "Bild von Denu",
+  },
+  {
+    name: "Stefan",
+    imgPath: "/src/assets/Bild_Stefan.png",
+    description: "Dev",
+    alt: "Bild von Stefan",
+  },
+  {
+    name: "Nathan",
+    imgPath: "/src/assets/Bild_Nathan.png",
+    description: "Dev",
+    alt: "Bild von Nathan",
+  },
+  {
+    name: "Muhammet",
+    imgPath: "/src/assets/Bild_Muhammet.png",
+    description: "Design",
+    alt: "Bild von Muhammet",
+  },
+  {
+    name: "Daniel",
+    imgPath: "/src/assets/Bild_Dani.png",
+    description: "Design",
+    alt: "Bild von Daniel",
+  },
 ];
+
+const getAnimationClass = (index) => {
+  return `animate-fadeIn delay-${index + 1}`;
+};
 </script>
 
-
 <template>
-
-    <div class="container mx-auto flex justify-center gap-20 my-32 flex-wrap">
-      <div v-for="card in cards">
-        <PixelCard :text="card.text" />
+  <div>
+    <div class="p-8">
+      <h2
+        class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4 text-center"
+      >
+        Die kreativen Schöpfer von 'Socks on Bots' - Einblick in das Team und
+        die Sockenkünstler!
+      </h2>
+      <div class="container mx-auto flex justify-center gap-20 my-32">
+        <div
+          v-for="(member, index) in team"
+          :key="member.name"
+          :class="getAnimationClass(index)"
+        >
+          <PixelCard :member="member" />
+        </div>
       </div>
     </div>
-  <div class="container mx-auto">
-<h2 class="font-pixel text-gray-800 text-4xl sm:leading-snug sm:text-2xl">Die kreativen Schöpfer von 'Socks on Bots' - Einblick in das Team und die Sockenkünstler!</h2>
-    <div class="block-container">
-      <div class="block">
-        <div class="block-content">
-          <img src="@/assets/Bild_Denu.png" alt="Bild Denu" class="block-image" />
-          <p class="block-description">Kurze Beschreibung hier</p>
-        </div>
-      </div>
-      <div class="block">
-        <div class="block-content">
-          <img src="@/assets/Bild_Stefan.png" alt="Bild Stefan" class="block-image" />
-          <p class="block-description">Kurze Beschreibung hier</p>
-        </div>
-      </div>
-      <div class="block">
-        <div class="block-content">
-          <img src="@/assets/Bild_Nathan.png" alt="Bild Nathan" class="block-image" />
-          <p class="block-description">Kurze Beschreibung hier</p>
-        </div>
-      </div>
-      <div class="block">
-        <div class="block-content">
-          <img src="@/assets/Bild_Dani.png" alt="Bild Dani" class="block-image" />
-          <p class="block-description">Kurze Beschreibung hier</p>
-        </div>
-      </div>
-      <div class="block">
-        <div class="block-content">
-          <img src="@/assets/Bild_Muhammet.png" alt="Bild Muhammet" class="block-image" />
-          <p class="block-description">Kurze Beschreibung hier</p>
-        </div>
-      </div>
-      <!-- Weitere Blöcke hier hinzufügen -->
+
+    <div class="p-8">
+      <h2
+        class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4 text-center"
+      >
+        Projektbeschreibung
+      </h2>
     </div>
 
-    <div class="container mx-auto">
-      <PixelButton class="mx-auto" text="Donate" />
+    <div class="bg-[#c06c1c] p-8 flex items-center my-24 py-24">
+      <div class="w-1/2">
+        <h2 class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4">
+          Webbasiertes Multiplayerspiel mit Code-Steuerung
+        </h2>
+        <p class="font-pixel text-gray-800 mb-8">
+          Socks on Bots soll ein webbasiertes Multiplayerspiel werden, in der in
+          einer Wettkampfumgebung Spieler gegeneinander antreten und ihre
+          Spielfiguren mit Hilfe von vorgefertigten Codeblöcken steuern können.
+        </p>
+      </div>
+      <div class="w-1/2 flex justify-end">
+        <img
+          src="/src/assets/Pre-Phase.png"
+          alt="Spielansicht mit Blöcken"
+          class="w-3/4 pixel-border-16"
+        />
+      </div>
+    </div>
+
+    <div class="p-8 flex items-center my-24 py-24">
+      <div class="w-1/2 flex justify-start">
+        <img
+          src="/src/assets/Lobby.png"
+          alt="Bild von Lobby wahl"
+          class="w-full pixel-border-16"
+        />
+      </div>
+      <div class="w-1/2">
+        <h2
+          class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4 text-right"
+        >
+          Die Lobby Auswahl
+        </h2>
+        <p class="font-pixel text-gray-800 mb-8 text-right">
+          Im Multiplayermodus treten maximal 2 Spielern online gegeneinander an
+          und versuchen, eine höhere Punktzahl als der Gegner zu erreichen.
+          Dabei treten sie in beliebigen Räumen bei und warten bis der Raum 2
+          Spieler erreicht hat. Dann wird die Map geladen.
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-[#c06c1c] p-8 flex items-center my-24 py-24">
+      <div class="w-1/2">
+        <h2 class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4">
+          Der Spielverlauf
+        </h2>
+        <p class="font-pixel text-gray-800 mb-8">
+          In der zweiten Phase starten die Roboter in einer farblich markierten
+          Karte und werden von beiden Spielern gleichzeitig beobachtet. Die
+          Runde endet, wenn ein Roboter die Aufgabe erledigt oder alle Befehle
+          ausgeführt wurden.
+        </p>
+<!--        <router-link to="/game">-->
+<!--          <PixelButton class="hover:text-gray-500" text="Lets play!" />-->
+<!--        </router-link>-->
+      </div>
+      <div class="w-1/2 flex justify-end">
+        <img
+          src="/src/assets/Gameplay.png"
+          alt="Bild vom Spielverlauf"
+          class="w-full pixel-border-16"
+        />
+      </div>
+    </div>
+
+    <div class="p-8">
+      <h2 class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4">
+        Frameworks
+      </h2>
+      <div class="flex items-center gap-8">
+        <img
+          src="/src/assets/logo/Aseprite_logo.jpg"
+          alt="Logo Aseprite"
+          class="h-40"
+        />
+        <img
+          src="/src/assets/logo/Blockly_logo.jpg"
+          alt="Logo Blockly"
+          class="h-40"
+        />
+        <img
+          src="/src/assets/logo/Phaser_logo.jpg"
+          alt="Logo Phaser"
+          class="h-40"
+        />
+        <img
+          src="/src/assets/logo/Tiled_logo.jpg"
+          alt="Logo Tiled"
+          class="h-40"
+        />
+        <img src="/src/assets/logo/Vue_logo.jpg" alt="Logo Vue" class="h-40" />
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.block-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-top: 12px;
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translate(0, -10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
 }
 
-.block {
-  width: 300px;
-  margin-bottom: 40px; /* Erhöhter Abstand zwischen den Blöcken */
-  padding: 10px;
-  background-color: #c06c1c;
-  border-radius: 4px;
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-.block-content {
-  display: flex;
-  align-items: center;
+.delay-1 {
+  animation-delay: 0.1s;
 }
 
-.block-image {
-  width: 100px;
-  height: auto;
-  margin-right: 10px;
+.delay-2 {
+  animation-delay: 0.2s;
 }
 
-.block-description {
-  margin-top: 0;
+.delay-3 {
+  animation-delay: 0.3s;
+}
+
+.delay-4 {
+  animation-delay: 0.4s;
+}
+
+.delay-5 {
+  animation-delay: 0.5s;
+}
+
+.pixel-border-16 {
+  box-shadow: -16px 0 0 0 black, 16px 0 0 0 black, 0 -16px 0 0 black,
+    0 16px 0 0 black;
 }
 </style>

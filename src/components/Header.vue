@@ -5,15 +5,16 @@
     <div
       class="bg-[#BA691D] w-full flex flex-row justify-around items-center py-2"
     >
-      <div class="basis-1/4 flex justify-center">
-        <img src="@/assets/pixel-logo.svg" width="64" />
-      </div>
+      <router-link to="/" class="basis-1/4 flex justify-center">
+
+        <img src="@/assets/pixel-logo.svg" width="64" alt="Socks On Bots Logo" />
+      </router-link>
       <div
         class="flex flex-row w-full justify-around font-pixel text-black text-2xl"
       >
-        <router-link to="/">Home</router-link>
-        <router-link to="/game">Game</router-link>
-        <router-link to="/about">About</router-link>
+        <router-link to="/" class="hover:text-gray-500">Home</router-link>
+        <router-link to="/game" class="hover:text-gray-500">Game</router-link>
+        <router-link to="/about" class="hover:text-gray-500">About</router-link>
       </div>
       <div class="text-white font-pixel basis-1/4"></div>
     </div>
@@ -22,4 +23,7 @@
   </header>
 </template>
 
+<style scoped>
+
+</style>
 <style scoped></style>
