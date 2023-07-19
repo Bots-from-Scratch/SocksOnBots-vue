@@ -229,7 +229,7 @@ export class GameScene extends Scene {
         fill: "#fff",
       }
     );
-    this.statusText.setVisible(true).setScrollFactor(0).setDepth(2);
+    this.statusText.setVisible(false).setScrollFactor(0).setDepth(2);
 
     this.gfx = this.add.graphics();
 
