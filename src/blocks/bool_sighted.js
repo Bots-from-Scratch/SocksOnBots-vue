@@ -4,7 +4,7 @@ import {javascriptGenerator} from "blockly/javascript";
 Blockly.common.defineBlocksWithJsonArray([
     {
         "type": "bool_sighted",
-        "message0": "Object sighted",
+        "message0": "Item in Sicht",
         "output": "Boolean",
         "colour": "#502828",
         "tooltip": "",

@@ -75,7 +75,7 @@
           {{
             state.room.connects === 0
               ? "Wähle einen Raum aus um gegen einen anderen Spieler anzutreten?"
-              : "Warte auf Spieler"
+              : "Warte auf Spieler in Raum " + state.room.id
           }}
         </p>
       </div>
@@ -142,7 +142,7 @@ export default {
   },
   setup(props, { emit }) {
     let game = ref(null);
-    const isBlinking = ref(true);
+    const isBlinking = ref();
     const playGameCounter = ref(0);
     const volumesRef = ref();
     const selectedLevel = ref(0);

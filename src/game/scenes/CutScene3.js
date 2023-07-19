@@ -13,7 +13,7 @@ class CutScene3 extends Scene {
   create() {
     this.anims.createFromAseprite("cutscene3");
 
-    this.sprite = this.add.sprite(480, 320, "cutscene3");
+    this.sprite = this.add.sprite(560, 320, "cutscene3");
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
