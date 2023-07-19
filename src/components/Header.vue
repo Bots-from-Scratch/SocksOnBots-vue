@@ -5,9 +5,10 @@
     <div
       class="bg-[#BA691D] w-full flex flex-row justify-around items-center py-2"
     >
-      <div class="basis-1/4 flex justify-center">
-        <img src="@/assets/pixel-logo.svg" width="64" />
-      </div>
+      <router-link to="/" class="basis-1/4 flex justify-center">
+
+        <img src="@/assets/pixel-logo.svg" width="64" alt="Socks On Bots Logo" />
+      </router-link>
       <div
         class="flex flex-row w-full justify-around font-pixel text-black text-2xl"
       >

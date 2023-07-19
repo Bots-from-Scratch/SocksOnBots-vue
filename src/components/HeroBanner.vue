@@ -9,10 +9,11 @@ import PixelButton from "@/components/PixelButton.vue";
     <img
       src="@/assets/robot.png"
       alt="Roboter in Pixelart"
+      class="animate-fly-in"
     />
     <div class="flex flex-col gap-16 items-start px-16 md:p-0 my-12">
       <h2 class="font-pixel text-gray-800 text-[10vw] sm:leading-snug sm:text-6xl">
-        Lost your sock lately?
+        Socke verloren?
       </h2>
       <router-link to="/game">
         <PixelButton class="hover:text-gray-500 animate-shake" text="Get it back!"/>

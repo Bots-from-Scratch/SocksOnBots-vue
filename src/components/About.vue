@@ -45,7 +45,12 @@ const getAnimationClass = (index) => {
 <template>
   <div>
     <div class="p-8">
-      <h2 class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4 text-center">Die kreativen Schöpfer von 'Socks on Bots' - Einblick in das Team und die Sockenkünstler!</h2>
+      <h2
+        class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4 text-center"
+      >
+        Die kreativen Schöpfer von 'Socks on Bots' - Einblick in das Team und
+        die Sockenkünstler!
+      </h2>
       <div class="container mx-auto flex justify-center gap-20 my-32">
         <div
           v-for="(member, index) in team"
@@ -58,10 +63,14 @@ const getAnimationClass = (index) => {
     </div>
 
     <div class="p-8">
-    <h2 class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4 text-center">Projektbeschreibung</h2>
+      <h2
+        class="font-pixel text-gray text-4xl sm:text-2xl mt-10 mb-4 text-center"
+      >
+        Projektbeschreibung
+      </h2>
     </div>
 
-    <div class="bg-[#c06c1c] p-8 flex items-center">
+    <div class="bg-[#c06c1c] p-8 flex items-center my-24 py-24">
       <div class="w-1/2">
         <h2 class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4">
           Webbasiertes Multiplayerspiel mit Code-Steuerung
@@ -81,7 +90,7 @@ const getAnimationClass = (index) => {
       </div>
     </div>
 
-    <div class="p-8 flex items-center">
+    <div class="p-8 flex items-center my-24 py-24">
       <div class="w-1/2 flex justify-start">
         <img
           src="/src/assets/Lobby.png"
@@ -93,7 +102,7 @@ const getAnimationClass = (index) => {
         <h2
           class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4 text-right"
         >
-          Die Lobby wahl
+          Die Lobby Auswahl
         </h2>
         <p class="font-pixel text-gray-800 mb-8 text-right">
           Im Multiplayermodus treten maximal 2 Spielern online gegeneinander an
@@ -104,7 +113,7 @@ const getAnimationClass = (index) => {
       </div>
     </div>
 
-    <div class="bg-[#c06c1c] p-8 flex items-center">
+    <div class="bg-[#c06c1c] p-8 flex items-center my-24 py-24">
       <div class="w-1/2">
         <h2 class="font-pixel text-gray-800 text-4xl sm:text-2xl mt-10 mb-4">
           Der Spielverlauf
@@ -115,9 +124,9 @@ const getAnimationClass = (index) => {
           Runde endet, wenn ein Roboter die Aufgabe erledigt oder alle Befehle
           ausgeführt wurden.
         </p>
-         <router-link to="/game">
-        <PixelButton class="hover:text-gray-500" text="Lets play!"/>
-      </router-link>
+<!--        <router-link to="/game">-->
+<!--          <PixelButton class="hover:text-gray-500" text="Lets play!" />-->
+<!--        </router-link>-->
       </div>
       <div class="w-1/2 flex justify-end">
         <img
@@ -196,6 +205,7 @@ const getAnimationClass = (index) => {
 }
 
 .pixel-border-16 {
-  box-shadow: -16px 0 0 0 black, 16px 0 0 0 black, 0 -16px 0 0 black, 0 16px 0 0 black;
+  box-shadow: -16px 0 0 0 black, 16px 0 0 0 black, 0 -16px 0 0 black,
+    0 16px 0 0 black;
 }
 </style>

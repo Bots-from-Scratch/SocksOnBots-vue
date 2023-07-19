@@ -17,7 +17,6 @@ const cards = [
       <div class="w-full md:w-2/3 lg:w-1/2">
         <video src="@/assets/video/Socks_on_Bots_Pitchvideo.mp4" controls class="w-full pixel-border-16"></video>
       </div>
-      <PixelCard text="cards[2].text"/>
     </div>
     <div class="flex items-center justify-end space-x-2 p-4">
       <a href="https://www.instagram.com/socks_on_bots/" target="_blank" rel="noopener noreferrer">
