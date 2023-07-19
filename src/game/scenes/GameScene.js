@@ -48,6 +48,7 @@ export class GameScene extends Scene {
     blockFunction = null;
     itemConnected = false;
     objectToScanFor = null;
+    collectedItems = [];
     this.resetDirection();
 
     score = 0;
@@ -338,7 +339,17 @@ export class GameScene extends Scene {
   triggerCutscene(player, triggerPoint) {
     directionPlayer1.up.isClear = false;
     // this.scene.isPaused();
-    this.scene.start(triggerPoint.data.list.cutSceneName);
+    if (
+      itemKey &&
+      collectedItems.some(
+        (item) => item?.data?.list.keyForLevel || item?.data?.list.sockForLevel
+      )
+    ) {
+      console.log("=>(GameScene.js:448) collectedItems", collectedItems);
+      this.scene.start(triggerPoint.data.list.cutSceneName);
+    } else if (itemKey === undefined) {
+      this.scene.start(triggerPoint.data.list.cutSceneName);
+    }
   }
 
   createWinningZones() {
@@ -444,11 +455,15 @@ export class GameScene extends Scene {
         sprite.x -= 1;
         sprite.y++;
         if (
-          collectedItems.some((item) =>
-            item?.data?.list.keyForLevel || item?.data?.list.sockForLevel
+          itemKey &&
+          collectedItems.some(
+            (item) =>
+              item?.data?.list.keyForLevel || item?.data?.list.sockForLevel
           )
         ) {
           console.log("=>(GameScene.js:448) collectedItems", collectedItems);
+          this.checkForWin();
+        } else if (itemKey === undefined) {
           this.checkForWin();
         }
       },
@@ -631,6 +646,7 @@ export class GameScene extends Scene {
         this.player.setScale(1);
         playerController.setState("idle");
         this.getItemKeyForActiveLevel();
+        console.log("=>(GameScene.js:638) itemKey", itemKey);
         this.resetDirection();
         this.init();
         this.cameras.main.setAlpha(1);
@@ -657,6 +673,7 @@ export class GameScene extends Scene {
         keyItem.data?.list?.keyForLevel === this.getActiveLevel().number ||
         keyItem.data?.list?.sockForLevel === this.getActiveLevel().number
     );
+
     console.log("=>(Game.vue:1143) itemKey", itemKey);
   }
 
