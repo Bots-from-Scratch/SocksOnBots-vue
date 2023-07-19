@@ -5,9 +5,10 @@ import ConnectionState from "@/components/ConnectionState.vue";
 </script>
 
 <template>
-<footer class="relative -bottom-12 left-0 w-full bg-amber-600 h-12">Impressum
-<ConnectionManager/>
-  <ConnectionState/>
+<footer class="relative -bottom-12 left-0 w-full bg-amber-600 h-12">
+  <div class="font-pixel text-center mt-2">
+    Socks On Bots ©&nbsp;2023
+  </div>
 </footer>
 </template>
 
