@@ -21,6 +21,7 @@ export const state = reactive({
   },
   activeScene: "",
   levelFinished: { winner: false, loser: false, playerDisconnected: false },
+  chat: ""
 });
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -50,6 +51,7 @@ socket.on("playerXY", (data) => {
   // state.fooEvents.push(args);
 });
 socket.on("chatMessage", (data) => {
+  state.chat = data;
   console.log(data);
 });
 

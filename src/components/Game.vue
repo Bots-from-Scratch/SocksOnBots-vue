@@ -59,15 +59,19 @@
         >
           {{ levels.find((level) => level.number === selectedLevel).text }}
         </p>
-        <p
+        <div
           v-if="state.activeScene === 'MultiplayerScene'"
           class="h-2 font-pixel text-xs"
         >
-          {{ "Du befindest dich in Raum " + state.room.id }}
-          {{
-            chatMessages.find((chat) => chat.id === selectedLevel)?.chatMessage
-          }}
-        </p>
+          <p class="font-pixel text-xs">
+            {{ "Du befindest dich in Raum " + state.room.id }}
+          </p>
+
+          <p class="mt-4 font-pixel text-xs">
+            {{ state.chat?.chatMessage }}
+          </p>
+        </div>
+
         <p
           v-if="state.activeScene === 'LobbyMenuScene'"
           class="h-2 font-pixel text-xs"
@@ -149,6 +153,7 @@ export default {
     const isSelected = ref(false);
     const isPlayingRef = ref(state.playGame);
     const actScene = ref(null);
+    const chatMessage = ref();
     const storeLvl = useLocalStorage(
       "levelProgress",
       JSON.stringify([
@@ -248,10 +253,19 @@ export default {
       emit("selectedLevel", selectedLevel.value);
     });
     const selectLevel = (levelNumber) => {
-      console.log("=>(Game.vue:126) selectLevel", levelNumber);
-      selectedLevel.value = levelNumber;
-      emit("selectedLevel", selectedLevel.value);
-      activeScene().prepareLevel(selectedLevel.value);
+      if (state.activeScene === "SingleplayerScene") {
+        console.log("=>(Game.vue:126) selectLevel", levelNumber);
+        selectedLevel.value = levelNumber;
+        emit("selectedLevel", selectedLevel.value);
+        activeScene().prepareLevel(selectedLevel.value);
+        // isSelected.value = !isSelected.value;
+      } else if (state.activeScene === "MultiplayerScene") {
+        socket.emit("chat", {
+          roomId: state.room.id,
+          msg: chat.find((msg) => msg.id === levelNumber),
+        });
+      }
+
       isSelected.value = !isSelected.value;
       isBlinking.value = true;
     };
@@ -272,6 +286,7 @@ export default {
       volumesRef,
       isBlinking,
       storedLevels,
+      chatMessage,
     };
   },
 
@@ -305,6 +320,13 @@ export default {
         this.runGame();
       },
     },
+    // "state.chat": {
+    //   handler(newValue) {
+    //     console.log("=>(Game.vue:319) newValue", newValue);
+    //
+    //     this.chatMessage.value = newValue.chatMessage;
+    //   },
+    // },
     // "state.selectedLevel": {
     //   handler(newValue) {
     //     selectedGameLevel = newValue;

@@ -594,24 +594,6 @@
                  "width":64,
                  "x":1856,
                  "y":2304
-                }, 
-                {
-                 "gid":66,
-                 "height":64,
-                 "id":55,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"removeEvent",
-                         "type":"int",
-                         "value":6
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":3200,
-                 "y":447.150670969934
                 }],
          "opacity":1,
          "type":"objectgroup",

@@ -6,7 +6,7 @@
     "y": 28,
     "isActive": false,
     "playerStart": { "x": 10, "y": 36.8 },
-    "text": "Du entdeckst einen Pfeil. Wahrscheinlich geht es dort weiter!"
+    "text": "Du entdeckst einen Pfeil. Wahrscheinlich geht es dort weiter!\nSteuere den Bot über die vorgefertigten Codeblöcke.\nTipp: Du kannst die Lautstärke der Musik und der Sounds selbst regeln."
   },
   {
     "number": 1,
@@ -15,7 +15,7 @@
     "y": 15,
     "isActive": false,
     "playerStart": { "x": 10, "y": 23 },
-    "text": "Geradeaus laufen reicht hier nicht mehr. Du kannst aber auch nach links oder rechts. Dein Umgebungssensor wird dir sagen wann es nicht mehr geradeaus weitergeht."
+    "text": "Geradeaus laufen reicht hier leider nicht mehr. Du kannst dich aber auch nach links oder rechts bewegen. Dein Umgebungssensor wird dir sagen, wann es nicht mehr geradeaus weitergeht."
   },
   {
     "number": 2,
@@ -24,7 +24,7 @@
     "y": 2,
     "isActive": false,
     "playerStart": { "x": 3, "y": 7 },
-    "text": "Hier gibt es eine Tür. Türen sind fast immer verschlossen. Dein Suchsensor kann dir helfen einen Schlüssel für die Tür zu finden. Aber Achtung, deine Sichtweite ist nicht sonderlich hoch."
+    "text": "Dein Besitzer hat dir über den Telekommunikator aus dem Untergrund mitgeteilt, dass Ihnen das nötige Geld zum überleben fehlt. Er befielt dir die Zentralbank zu hacken um sie so zu retten. Hier findest du eine verschlossene Tür. Dein Suchsensor kann dir helfen einen Schlüssel für die Tür zu finden. Aber Achtung, deine Sichtweite ist nicht sonderlich hoch."
   },
   {
     "number": 3,
@@ -33,7 +33,7 @@
     "y": 28,
     "isActive": false,
     "playerStart": { "x": 25, "y": 29 },
-    "text": "Oh wieder eine Tür. Diesmal ist der Schlüssel aber hinter einem Zaun. Deine Ärmchen sind zu kurz um hindurchzulangen. (Hast du dich schon mal gefragt wieso deine Typenbezeichnung T-REX-5 ist?) Am Zaun hängt ein Kabel, und vor dir liegt ein Gegenstück mit Stromquelle. Passt das zusammen? "
+    "text": "Oh! Wieder eine Tür! Diesmal ist der Schlüssel aber hinter einem Zaun eingeschlossen. Deine Ärmchen sind zu kurz um hindurch zu greifen. Nun verstehst du auch den Sinn hinter deiner Typenbezeichnung T-REX-5. Am Zaun hängt ein Kabel, und vor dir liegt ein Gegenstück mit Stromquelle. Passt das zusammen?"
   },
   {
     "number": 4,
@@ -42,7 +42,7 @@
     "y": 15,
     "isActive": false,
     "playerStart": { "x": 27, "y": 20 },
-    "text": "Du entdeckst einen Pfeil, bewege dich dorthin!"
+    "text": "DU WURDEST ERWISCHT!\nDeine Kopfbedeckung war zu klein. Finde eine passende Socke um dein Gesicht zu bedecken und bewege dich dann zum Telekommunikator um deinem Besitzer von deinem Misserfolg zu berichten."
   },
   {
     "number": 5,
@@ -51,7 +51,7 @@
     "y": 2,
     "isActive": false,
     "playerStart": { "x": 25, "y": 3 },
-    "text": "Hier gibt es eine Tür. Türen sind fast immer verschlossen. Dein Suchsensor kann dir helfen einen Schlüssel für die Tür zu finden. Aber Achtung, deine Sichtweite ist nicht sonderlich hoch."
+    "text": "Dein Besitzer war nicht zufrieden mit der Socke.\nFindest du eine passende?\nBegebe dich in den nächsten Raum."
   },
   {
     "number": 6,
@@ -60,7 +60,7 @@
     "y": 2,
     "isActive": false,
     "playerStart": { "x": 46, "y": 3 },
-    "text": "Du entdeckst einen Pfeil, bewege dich dorthin!"
+    "text": "Triffst du auf einen anderen Bot, ist es dir aufgrund seines Schutzmechanismus nicht möglich anzugreifen. Du kannst ihn nur als Rauchwolke wahrnehmen."
   },
   {
     "number": 7,
@@ -69,7 +69,7 @@
     "y": 15,
     "isActive": false,
     "playerStart": { "x": 43, "y": 17 },
-    "text": "Du entdeckst einen Pfeil, bewege dich dorthin!"
+    "text": ""
   },
   {
     "number": 8,
@@ -78,6 +78,6 @@
     "y": 28,
     "isActive": false,
     "playerStart": { "x": 43, "y": 30 },
-    "text": "Du entdeckst einen Pfeil, bewege dich dorthin!"
+    "text": ""
   }
 ]
