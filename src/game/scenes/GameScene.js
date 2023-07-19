@@ -615,7 +615,8 @@ export class GameScene extends Scene {
     );
     itemKey = this.keyGroup.children.entries.find(
       (keyItem) =>
-        keyItem.data?.list?.keyForLevel === this.getActiveLevel().number
+        keyItem.data?.list?.keyForLevel === this.getActiveLevel().number ||
+        keyItem.data?.list?.sockForLevel === this.getActiveLevel().number
     );
     console.log("=>(Game.vue:1143) itemKey", itemKey);
   }

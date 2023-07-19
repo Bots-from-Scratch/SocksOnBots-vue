@@ -12,7 +12,7 @@ Blockly.common.defineBlocksWithJsonArray([
                 "options": [
                     [
                         "Sock",
-                        "itemSock"
+                        "itemKey"
                     ],
                     [
                         "Key",
