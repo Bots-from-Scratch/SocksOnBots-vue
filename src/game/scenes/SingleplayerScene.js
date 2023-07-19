@@ -20,7 +20,7 @@ export class SingleplayerScene extends GameScene {
             this.scene.pause("SingleplayerScene");
             this.scene.run("CutScene3");
             this.scene.bringToTop("CutScene3");
-        } else if (this.getActiveLevel().number === 5) {
+        } else if (this.getActiveLevel().number === 4) {
             this.scene.pause("SingleplayerScene");
             this.scene.run("CutScene4");
             this.scene.bringToTop("CutScene4");
