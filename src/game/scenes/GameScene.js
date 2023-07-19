@@ -979,7 +979,7 @@ export class GameScene extends Scene {
         this.objectIsInSight = false;
         directionPlayer1.toObject.isClear = false;
       } else {
-        this.scanLineGfx.setVisible(true);
+        this.scanLineGfx.setVisible(false);
         this.objectIsInSight = true;
         directionPlayer1.toObject.isClear = true;
       }
