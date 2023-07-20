@@ -1,41 +1,44 @@
 <script setup lang="ts">
-import { defineComponent } from "vue";
-import HeroBanner from "@/components/HeroBanner.vue";
-import PixelButton from "@/components/PixelButton.vue";
 import PixelCard from "@/components/PixelCard.vue";
+import denushanImage from "@/assets/Bild_Denu.png";
+import stefanImage from "@/assets/Bild_Stefan.png";
+import nathanImage from "@/assets/Bild_Nathan.png";
+import muhammetImage from "@/assets/Bild_Muhammet.png";
+import danielImage from "@/assets/Bild_Dani.png";
 
 const team = [
   {
     name: "Denushan",
-    imgPath: "https://socksonbots.de/assets/Bild_Denu.png",
+    imgPath: denushanImage,
     description: "Teamleader",
     alt: "Bild von Denu",
   },
   {
     name: "Stefan",
-    imgPath: "https://socksonbots.de/assets/Bild_Stefan.png",
+    imgPath: stefanImage,
     description: "Dev",
     alt: "Bild von Stefan",
   },
   {
     name: "Nathan",
-    imgPath: "https://socksonbots.de/assets/Bild_Nathan.png",
+    imgPath: nathanImage,
     description: "Dev",
     alt: "Bild von Nathan",
   },
   {
     name: "Muhammet",
-    imgPath: "https://socksonbots.de/assets/Bild_Muhammet.png",
+    imgPath: muhammetImage,
     description: "Design",
     alt: "Bild von Muhammet",
   },
   {
     name: "Daniel",
-    imgPath: "https://socksonbots.de/assets/Bild_Dani.png",
+    imgPath: danielImage,
     description: "Design",
     alt: "Bild von Daniel",
   },
 ];
+
 
 const getAnimationClass = (index) => {
   return `animate-fadeIn delay-${index + 1}`;
