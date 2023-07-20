@@ -7,31 +7,31 @@ import PixelCard from "@/components/PixelCard.vue";
 const team = [
   {
     name: "Denushan",
-    imgPath: "/src/assets/Bild_Denu.png",
+    imgPath: "https://socksonbots.de/assets/Bild_Denu.png",
     description: "Teamleader",
     alt: "Bild von Denu",
   },
   {
     name: "Stefan",
-    imgPath: "/src/assets/Bild_Stefan.png",
+    imgPath: "https://socksonbots.de/assets/Bild_Stefan.png",
     description: "Dev",
     alt: "Bild von Stefan",
   },
   {
     name: "Nathan",
-    imgPath: "/src/assets/Bild_Nathan.png",
+    imgPath: "https://socksonbots.de/assets/Bild_Nathan.png",
     description: "Dev",
     alt: "Bild von Nathan",
   },
   {
     name: "Muhammet",
-    imgPath: "/src/assets/Bild_Muhammet.png",
+    imgPath: "https://socksonbots.de/assets/Bild_Muhammet.png",
     description: "Design",
     alt: "Bild von Muhammet",
   },
   {
     name: "Daniel",
-    imgPath: "/src/assets/Bild_Dani.png",
+    imgPath: "https://socksonbots.de/assets/Bild_Dani.png",
     description: "Design",
     alt: "Bild von Daniel",
   },
