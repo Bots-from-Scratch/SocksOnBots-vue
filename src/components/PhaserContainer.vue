@@ -18,7 +18,6 @@ let currentScene = null;
 onMounted(async () => {
   gameInstance = await game.launch(containerId);
   currentScene = gameInstance.scene
-  console.log(currentScene)
 });
 
 
@@ -27,7 +26,6 @@ defineEmits(["player2X"]);
 watch(
   () => props.playGame,
   () => {
-    console.log(props.blockList);
     runBlocks(props.blockList);
     gameInstance.scene.scenes[0].playBackgroundSound(props.volume.music / 200);
   }
@@ -39,7 +37,6 @@ watch(
   () => {
     if (gameInstance) {
       let scene = gameInstance.scene.getScenes(true);
-      console.log(scene);
       scene[0].backgroundSound.setVolume(props.volume.music / 200);
       scene[0].collisionSound.setVolume(props.volume.sound / 200);
     }

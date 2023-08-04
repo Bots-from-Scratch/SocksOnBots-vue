@@ -35,10 +35,6 @@ export default class PlayerController {
    * @param {Phaser.Physics.Arcade.Sprite} object
    */
   setState(name,directionIsClear, object) {
-    // if (this.currentState === this.states[name]) {
-    //   return;
-    // }
-
     this.currentState = this.states[name];
     name === "moveToObject" ? this.currentState.enter(directionIsClear, object) : this.currentState.enter();
   }

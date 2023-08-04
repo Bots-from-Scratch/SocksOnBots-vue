@@ -105,10 +105,6 @@ class MenuScene extends Scene {
       "Multiplayer",
       "LobbyMenuScene"
     );
-    this.buttonCredits = this.createButton(450, 400, "").on(
-        "pointerdown",
-        () => console.log("Credits")
-    );
     this.buttonCredits.setVisible(false);
   }
 

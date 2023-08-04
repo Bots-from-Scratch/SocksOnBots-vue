@@ -18,7 +18,6 @@ export default class MoveUpState {
       this.player.setVelocity(0, -maxSpeed);
       setTimeout(() => {
         this.player.setVelocityY(0);
-        console.log("Bewegung abgeschlossen!");
       }, 400);
     }
   }

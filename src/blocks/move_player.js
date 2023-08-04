@@ -28,13 +28,15 @@ Blockly.common.defineBlocksWithJsonArray([
 
 javascriptGenerator["move_player"] = function (block) {
   let blockValue = block.getFieldValue("VALUE");
-  let code = "yield;\n";
+  let code = "";
+  code += "yield;\n";
   if (blockValue === "moveToObject") {
-    code += "playerController.setState('" + blockValue + "', directionPlayer1.toObject.isClear, objectToScanFor);";
+    code +=
+      "playerController.setState('" +
+      blockValue +
+      "', directionPlayer1.toObject.isClear, objectToScanFor);";
   } else {
     code += "playerController.setState('" + blockValue + "');";
   }
-  console.log("=>(move_player.js:50) code", code);
   return code;
 };
-

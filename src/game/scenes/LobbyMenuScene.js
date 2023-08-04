@@ -44,7 +44,6 @@ class LobbyMenuScene extends Scene {
     this.hoverSound = this.sound.add("hoverSound");
 
     this.input.on("pointermove", (pointer) => {
-      console.log(pointer.x);
       this.cameras.main.startFollow(pointer, true, 0.1);
     });
 
@@ -131,7 +130,6 @@ class LobbyMenuScene extends Scene {
   update() {
     // console.log(state.rooms);
     // this.roomSizes[3].setText("1/2");
-    console.log(state.rooms);
     this.roomSizes.forEach((roomSize, index) => {
       roomSize.setText(state.rooms.at(index).connects + "/" + this.maxRoomSize);
     });

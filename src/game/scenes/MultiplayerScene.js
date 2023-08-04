@@ -12,7 +12,6 @@ export class MultiplayerScene extends GameScene {
     super({ key: "MultiplayerScene" });
     this.selectedGameLevel = selectedLevel;
     this.levels = levels;
-    console.log("=>(MultiplayerScene.js:15) this.levels", this.levels);
 
     this.updateLevels = updateSelectedLevel;
   }
@@ -46,10 +45,7 @@ export class MultiplayerScene extends GameScene {
 
   update() {
     super.update();
-    console.log(
-      "=>(MultiplayerScene.js:45) state.levelFinished",
-      state.levelFinished
-    );
+
     if (
       (state.levelFinished.winner ||
         state.levelFinished.loser ||
@@ -76,13 +72,11 @@ export class MultiplayerScene extends GameScene {
     player2XY = toRaw(state.playerPosition);
     this.player2.setX(player2XY.x);
     this.player2.setY(player2XY.y);
-    console.log("=>(MultiplayerScene.js:45) this.player", this.player);
     this.sendPlayerPositionToSocketServer(this.player);
   }
 
   checkForWin(sprite, object) {
     socket.emit("levelFinished", { roomId: state.roomID });
-    console.log("=>(Game.vue:916) level finished");
   }
   sendPlayerPositionToSocketServer(player) {
     playerPosition.x = player.x;

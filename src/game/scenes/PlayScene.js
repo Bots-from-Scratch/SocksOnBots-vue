@@ -21,6 +21,5 @@ export default class PlayScene extends Scene {
     }
 
     update () {
-        console.log("update");
     }
 }

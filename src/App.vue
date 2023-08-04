@@ -1,5 +1,4 @@
 <script setup>
-import "./blocks/stocks";
 import AppLayout from "@/layouts/AppLayout.vue";
 </script>
 

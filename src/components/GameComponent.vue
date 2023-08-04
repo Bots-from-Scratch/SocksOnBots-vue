@@ -110,7 +110,6 @@ onMounted(() => {
   element.addEventListener("mouseover", () => playAnimation());
 
   function playAnimation() {
-    console.log("=>(GameComponent.vue:114) ");
     element.classList.add("wobble-top-on-hover-animation");
     setTimeout(
       () => element.classList.remove("wobble-top-on-hover-animation"),

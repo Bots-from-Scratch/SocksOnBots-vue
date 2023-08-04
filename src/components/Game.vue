@@ -169,7 +169,6 @@ export default {
       ])
     );
     const storedLevels = ref(JSON.parse(storeLvl.value));
-    console.log("=>(Game.vue:196) storedLevels", storedLevels);
     activeScene = () => {
       if (game.value) {
         return game.value.scene.getScenes(true)[0];
@@ -228,10 +227,6 @@ export default {
     };
 
     const updateSelectedLevel = (newLevel) => {
-      // console.log("=>(Game.vue:204) storedLevels", storedLevels);
-      // storedLevels.push(levels.find((level) => level.number === newLevel));
-      // console.log("=>(Game.vue:196) tmp", storedLevels);
-      // storeLvl.value = JSON.stringify(storedLevels);
       if (
         !storedLevels.value.some((lvl) => lvl.number === newLevel) &&
         state.activeScene === "SingleplayerScene"
@@ -254,7 +249,6 @@ export default {
     });
     const selectLevel = (levelNumber) => {
       if (state.activeScene === "SingleplayerScene") {
-        console.log("=>(Game.vue:126) selectLevel", levelNumber);
         selectedLevel.value = levelNumber;
         emit("selectedLevel", selectedLevel.value);
         activeScene().prepareLevel(selectedLevel.value);
@@ -372,7 +366,7 @@ export default {
       physics: {
         default: "arcade",
         arcade: {
-          debug: false,
+          debug: true,
         },
       },
       input: { mouse: { preventDefaultWheel: false } },
@@ -382,7 +376,6 @@ export default {
 
     setTimeout(() => {
       state.activeScene = activeScene().scene.key;
-      console.log("=>(Game.vue:241) state.activeScene", state.activeScene);
     }, 1000);
   },
 };
@@ -391,7 +384,6 @@ let gameConfig;
 let selectedGameLevel;
 
 function runBlocks(workspace) {
-  console.log("runBlocks wurde aufgerufen.");
   javascriptGenerator.STATEMENT_PREFIX = "highlightBlock(%1);\n";
   javascriptGenerator.addReservedWords("highlightBlock");
   const highlightBlock = (id) => {

@@ -19,7 +19,6 @@ export default class MoveRightState {
       setTimeout(() => {
         // Delay of 400 by a velocity of 160 means a movement of 64 pixels (our tile size)
         this.player.setVelocityX(0);
-        console.log("1553Bewegung abgeschlossen!");
       }, 400);
     }
   }

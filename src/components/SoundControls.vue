@@ -12,7 +12,6 @@ const store = useLocalStorage(
   })
 );
 const savedVolume = JSON.parse(store.value);
-console.log("=>(GameControls.vue:17) savedVolume", savedVolume);
 let volume = ref({
   music: parseInt(savedVolume.music),
   sound: parseInt(savedVolume.sound),

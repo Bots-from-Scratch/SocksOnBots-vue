@@ -3,8 +3,7 @@ import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from "vue";
 import Blockly from "blockly";
 import "@/blocks/move_player";
 import { useLocalStorage } from "@vueuse/core";
-import PixelButton from "@/components/PixelButton.vue";
-import { socket, state } from "@/socket";
+import { state } from "@/socket";
 import { toolboxJson } from "@/toolbox_phaser";
 import { CustomRenderer } from "@/renderer/CustomRenderer";
 
@@ -18,10 +17,10 @@ let store = useLocalStorage("userBlocks", null);
 defineExpose({ workspace });
 
 const blockStyles = {
-  'loop_blocks': {
-    'colourPrimary': "#ff0000",
-    'colourSecondary': "#00ff00",
-    'colourTertiary': "#0000ff",
+  loop_blocks: {
+    colourPrimary: "#ff0000",
+    colourSecondary: "#00ff00",
+    colourTertiary: "#0000ff",
   },
 };
 
@@ -70,11 +69,8 @@ const blocklyOptions = {
 };
 
 onUnmounted(() => {
-  console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
   Blockly.registry.unregister("theme", "dark");
   Blockly.registry.unregister("renderer", "customRenderer");
-
-  console.log("=>(BlocklyComponent.vue:65) Blockly.registry", Blockly.registry);
 });
 
 onMounted(() => {
@@ -89,14 +85,15 @@ onMounted(() => {
 
   emit("workspaceFromBlockly", workspace);
 
-  loadBlocksFromStorage(props.selectedLevel);
+  if (state.activeScene === "SingleplayerScene") {
+    loadBlocksFromStorage(props.selectedLevel);
+  }
 
   workspace.value.addChangeListener(function (event) {
     if (
-      event.type === Blockly.Events.BLOCK_DRAG ||
-      event.type === Blockly.Events.BLOCK_CHANGE
+        (event.type === Blockly.Events.BLOCK_DRAG ||
+      event.type === Blockly.Events.BLOCK_CHANGE) && state.activeScene === "SingleplayerScene"
     ) {
-      console.log("=>(BlocklyComponent.vue:39) drag");
       saveBlocksToStorage();
     }
   });
@@ -130,13 +127,12 @@ function loadBlocksFromStorage(newLevel) {
         Blockly.serialization.workspaces.load(level.blocks, workspace.value);
     });
   } else {
-    console.log("localStorage ist nicht verfügbar.");
+    console.error("localStorage ist nicht verfügbar.");
   }
 }
 
 function saveBlocksToStorage() {
   const blocksToSave = Blockly.serialization.workspaces.save(workspace.value);
-  // TODO level zu name oder levelName umbenennen
   const dataToStore = [];
   if (store.value !== null) {
     const storedData = JSON.parse(store.value);

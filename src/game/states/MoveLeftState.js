@@ -18,7 +18,6 @@ export default class MoveLeftState {
       this.player.setVelocity(-maxSpeed, 0);
       setTimeout(() => {
         this.player.setVelocityX(0);
-        console.log("400left","Bewegung abgeschlossen!");
       }, 400);
     }
   }

@@ -34,11 +34,9 @@ export default {
   methods: {
     connect() {
       socket.connect();
-      console.log(socket);
     },
     disconnect() {
       socket.disconnect();
-      console.log(socket);
     },
     foo() {
       socket.emit("foo", this.test);
@@ -47,19 +45,16 @@ export default {
       if (!this.connectedToRoom) {
         this.connectedToRoom = this.roomID;
         socket.emit("connectRoom", this.roomID);
-        console.log("connected to Room", this.connectedToRoom);
       } else {
         socket.emit("leaveRoom", this.connectedToRoom);
         this.connectedToRoom = this.roomID;
         socket.emit("connectRoom", this.roomID);
-
       }
     },
     sendMessage(text) {
       if (this.connectedToRoom) {
         socket.emit("chat", { roomId: this.roomID, msg: text });
       }
-      // console.log("chat", this.roomID, text);
     },
     startInterval() {
       setInterval(() => socket.emit("listRooms"), 1000);

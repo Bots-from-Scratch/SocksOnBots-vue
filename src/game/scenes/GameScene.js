@@ -1,4 +1,4 @@
-import { leaveRoom, socket, state } from "@/socket";
+import { leaveRoom, state } from "@/socket";
 import tileset from "@/assets/CosmicLilac_Tiles_64x64-cd3.png";
 import platform from "@/assets/platform.png";
 import star from "@/assets/socke.png";
@@ -40,6 +40,7 @@ let pushObject = true;
 let slowDownTimer;
 /** @type {PlayerController} */
 let playerController;
+
 export class GameScene extends Scene {
   SCAN_DISTANCE = 200;
 
@@ -65,7 +66,6 @@ export class GameScene extends Scene {
 
     this.objectIsScanned = false;
     this.objectCollidedWith = {};
-    // this.viewBlockingObjects = undefined;
     objectToScanFor = undefined;
     this.objectIsInSight = false;
     this.scanAngle = 0;
@@ -75,8 +75,6 @@ export class GameScene extends Scene {
   }
 
   preload() {
-    // this.load.image('sky', sky);
-    // this.load.image('sky', sky);
     this.load.spritesheet("tileset", tileset, {
       frameWidth: 64,
       frameHeight: 64,
@@ -84,11 +82,6 @@ export class GameScene extends Scene {
     this.load.image("ground", platform);
     this.load.image("star", star);
     this.load.image("bomb", bomb);
-    // this.load.spritesheet("bot", botSpritesheet, {
-    //   frameWidth: 64,
-    //   frameHeight: 64,
-    // });
-    // TODO load player from aseprite
     this.load.aseprite("bot", botSpritesheet, botAnimationJson);
 
     this.load.spritesheet("bot_with_sock", bot_with_sock, {
@@ -188,7 +181,6 @@ export class GameScene extends Scene {
 
     // TODO overlap winning points
 
-    console.log(this.winningPointLayer);
 
     this.physics.add.overlap(
       this.player,
@@ -201,7 +193,6 @@ export class GameScene extends Scene {
 
     function fallingDown(sprite, tile) {
       if (tile.properties && tile.properties.noFloor && tween === undefined) {
-        console.log("fallingDown");
         const scene = this.scene;
         tween = this.tweens.addCounter({
           from: 100,
@@ -291,9 +282,7 @@ export class GameScene extends Scene {
   createGeneratorFunction(code, highlightBlock, _this) {
     const blockGenerator = eval(`
             (function* () {
-                console.log("eval.new");
                 ${code};
-                console.log("eval.new.finished");
             })`);
 
     blockFunction = blockGenerator();
@@ -310,30 +299,28 @@ export class GameScene extends Scene {
   }
 
   executeCodeWithGenerator(player, isPreparingLevel) {
-    let blockResult = { done: false, value: undefined };
+    let blockResult;
 
     if (blockFunction !== undefined) {
       if (!blockResult?.done && !isPreparingLevel) {
         if (player.body.velocity.x === 0 && player.body.velocity.y === 0) {
-          console.log("=>(Game.vue:751) next");
           blockResult = blockFunction.next();
           score++;
         }
       }
       if (blockResult?.done || isPreparingLevel) {
-        clearInterval(intervalId);
-        console.log("=>(Game.vue:755) intervalId", intervalId);
-
-        intervalId = null;
-        console.log("=>(Game.vue:755) intervalId", intervalId);
-
-        setTimeout(() => {
-          player.setVelocity(0);
-          blockFunction = undefined;
-        }, 390); //390 um delay auszugleichen
-        // this.resetDirection();
+        this.endBlockExecution(player);
       }
     }
+  }
+
+  endBlockExecution(player) {
+    clearInterval(intervalId);
+    intervalId = null;
+    setTimeout(() => {
+      player.setVelocity(0);
+      blockFunction = undefined;
+    }, 390); //390 um delay auszugleichen
   }
 
   triggerCutscene(player, triggerPoint) {
@@ -345,7 +332,6 @@ export class GameScene extends Scene {
         (item) => item?.data?.list.keyForLevel || item?.data?.list.sockForLevel
       )
     ) {
-      console.log("=>(GameScene.js:448) collectedItems", collectedItems);
       this.scene.start(triggerPoint.data.list.cutSceneName);
     } else if (itemKey === undefined) {
       this.scene.start(triggerPoint.data.list.cutSceneName);
@@ -375,15 +361,12 @@ export class GameScene extends Scene {
   }
 
   createPlayer() {
-    console.log("=>(GameScenes.js:344) this", this);
     this.player = this.physics.add.sprite(
       this.game.config.width / 2,
       this.game.config.height / 2,
       "bot"
     );
     this.anims.createFromAseprite("bot");
-
-    // TODO set player mid to mid of tiles
 
     this.player.body.setMaxSpeed(maxSpeed);
     this.player.body.setCircle(20, 12, 28);
@@ -412,7 +395,6 @@ export class GameScene extends Scene {
         itemConnected = true;
         pushableObject.tint = 0xeddc32;
         pushableObject.setPushable(false);
-        console.log("=>(Game.vue:523) object", object);
         object.tint = 0xeddc32;
 
         this.doorGroup.children.entries.forEach(
@@ -451,7 +433,6 @@ export class GameScene extends Scene {
       this.winningPoints,
       (sprite, rect) => {
         this.detectCollisionDirection(sprite, rect);
-        // TODO fix winnig bug (collider doesnt stop)
         sprite.x -= 1;
         sprite.y++;
         if (
@@ -461,7 +442,6 @@ export class GameScene extends Scene {
               item?.data?.list.keyForLevel || item?.data?.list.sockForLevel
           )
         ) {
-          console.log("=>(GameScene.js:448) collectedItems", collectedItems);
           this.checkForWin();
         } else if (itemKey === undefined) {
           this.checkForWin();
@@ -482,20 +462,14 @@ export class GameScene extends Scene {
   detectCollisionDirection() {
     return (_player, _rectangles) => {
       this.objectCollidedWith = _rectangles;
-      console.log(
-        "=>(Game.vue:569) this.objectCollidedWith",
-        this.objectCollidedWith
-      );
       this.collided = true;
       walkedBy = false;
       if (!_player.body.blocked.none) {
         if (!this.collisionSound.isPlaying) {
-          console.log("=>(Game.vue:620) movePl");
           this.collisionSound.play();
         }
 
         if (_player.body.blocked.up) {
-          console.log("=>(Game.vue:808) frontBlocked");
           // _player.setY(_player.y + 2);
           // _player.setVelocity(0);
           directionPlayer1.up.isClear = false;
@@ -583,7 +557,6 @@ export class GameScene extends Scene {
     this.buttonUp.on("pointerdown", () => {
       this.score += 10;
       this.scoreText.setText("Score: " + score).setVisible(false);
-      console.log(this.player);
     });
   }
 
@@ -607,7 +580,6 @@ export class GameScene extends Scene {
   }
 
   checkIfObjectBlocksViewline(gameObject) {
-    console.log("=>(Game.vue:1008) gameObject", gameObject);
     if (gameObject.isParent) {
       let intersects = gameObject
         .getChildren()
@@ -646,7 +618,6 @@ export class GameScene extends Scene {
         this.player.setScale(1);
         playerController.setState("idle");
         this.getItemKeyForActiveLevel();
-        console.log("=>(GameScene.js:638) itemKey", itemKey);
         this.resetDirection();
         this.init();
         this.cameras.main.setAlpha(1);
@@ -659,32 +630,24 @@ export class GameScene extends Scene {
         this.isPausingCodeExecution = false;
       }
     );
-    console.log("=>(Game.vue:823) prepareLevel");
   }
 
   getItemKeyForActiveLevel() {
-    console.log("=>(Game.vue:1142) this.keyGroup", this.keyGroup);
-    console.log(
-      "=>(GameScene.js:589) this.getActiveLevel",
-      this.getActiveLevel()
-    );
     itemKey = this.keyGroup.children.entries.find(
       (keyItem) =>
         keyItem.data?.list?.keyForLevel === this.getActiveLevel().number ||
         keyItem.data?.list?.sockForLevel === this.getActiveLevel().number
     );
-
-    console.log("=>(Game.vue:1143) itemKey", itemKey);
   }
 
   getActiveLevel() {
     return this.levels.find((level) => level.isActive);
   }
+
   setActiveLevel(selectedLevel) {
     this.getActiveLevel() && (this.getActiveLevel().isActive = false);
     this.selectedGameLevel = selectedLevel;
     let lvl = this.levels.find((level) => level.number === selectedLevel);
-    console.log("=>(GameScene.js:649) lvl,selectedLevel", lvl, selectedLevel);
     lvl.isActive = true;
   }
 
@@ -701,7 +664,6 @@ export class GameScene extends Scene {
      *   } } lvl
      */
     let lvl = this.getActiveLevel();
-    console.log("=>(GameScene.js:620) lvl", lvl.number);
     this.cam = this.cameras.main;
     this.cam.setBounds(
       lvl.x * this.tileWidth,
@@ -723,7 +685,6 @@ export class GameScene extends Scene {
   }
 
   pushObject(player, object) {
-    console.log("=>(Game.vue:1143) player", player);
     // if (itemConnected) {
     //   object.setVelocity(0);
     // } else {
@@ -765,7 +726,6 @@ export class GameScene extends Scene {
   checkForWin(sprite, object) {
     // this.updateLevels(this.getActiveLevel().number + 1);
     this.doorSound.play();
-    console.log("=>(Game.vue:916) level finished GameScene");
   }
 
   // resetMovement() {
@@ -779,7 +739,6 @@ export class GameScene extends Scene {
   // TODO reset isClear when turning away
   resetDirection() {
     if (Object.keys(directionPlayer1).length > 0) {
-      console.log(directionPlayer1);
       directionPlayer1.right.isClear = true;
       directionPlayer1.right.isMoving = false;
       directionPlayer1.left.isClear = true;
@@ -855,7 +814,6 @@ export class GameScene extends Scene {
     if (this.cursors.space.isDown) {
       this.physics.pause();
       this.objectCollidedWith = null;
-      console.log("=>(GameScene.js:796) Phaser.Game", this.backgroundSound);
       this.backgroundSound.stop();
       this.scene.restart();
     }
@@ -879,31 +837,12 @@ export class GameScene extends Scene {
 
   checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot) {
     if (distClosest > hypot) {
-      console.log("=>(Game.vue:1526) distClosest", distClosest);
-      // console.log("clear");
       directionPlayer1.left.isClear = true;
       directionPlayer1.right.isClear = true;
       directionPlayer1.down.isClear = true;
       directionPlayer1.up.isClear = true;
-      // if (
-      //   this.player.body.x - this.player.body.prev.x !== 0 &&
-      //   (Math.abs(this.player.body.velocity.x) === maxSpeed )
-      // ) {
-      //   walkedBy = true;
-      //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-      //   this.player.setVelocity(0);
-      //   this.objectCollidedWith = null;
-      // } else if (
-      //   this.player.body.y - this.player.body.prev.y !== 0 &&
-      //   (Math.abs(this.player.body.velocity.y) === maxSpeed)
-      // ) {
-      //   walkedBy = true;
-      //   console.log("=>(Game.vue:1553) walkedBy", walkedBy);
-      //   this.player.setVelocity(0);
-      //   this.objectCollidedWith = null;
-      // }
+
       walkedBy = true;
-      console.log("=>(Game.vue:1553) walkedBy", walkedBy);
       this.player.setVelocity(0);
       this.objectCollidedWith = null;
     }
@@ -943,7 +882,6 @@ export class GameScene extends Scene {
   }
 
   updateScanGraphics() {
-    console.log("=>(Game.vue:1453) objectToScanFor", objectToScanFor);
     this.scanCircle.setPosition(
       this.player.body.center.x,
       this.player.body.center.y
@@ -974,7 +912,6 @@ export class GameScene extends Scene {
   checkForScannedObject() {
     if (this.objectIsScanned) {
       if (this.checkIfObjectBlocksViewline(this.viewBlockingObjects)) {
-        // console.log("not in view");
         this.scanLineGfx.setVisible(false);
         this.objectIsInSight = false;
         directionPlayer1.toObject.isClear = false;

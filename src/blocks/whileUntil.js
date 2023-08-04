@@ -43,19 +43,18 @@ javascriptGenerator["whileUntil"] = function (block) {
   var code = ""; //don't use this yield!
   if (dropdown_mode === "WHILE") {
     code +=
-      "console.log('while Block')\n;while (" +
+      "while (" +
       value_bool +
       ") {\n" +
       statements_do +
       "}\n";
   } else if (dropdown_mode === "UNTIL") {
     code +=
-      "console.log('until Block')\n;\nwhile (!(" +
+      "\nwhile (!(" +
       value_bool +
       ")) {\n" +
       statements_do +
       "}\n";
   }
-  console.log("=>(whileUntil.js:70) code", code);
   return code;
 };

@@ -21,7 +21,6 @@ export default class MoveToObjectState {
 
       setTimeout(() => {
         this.player.setVelocity(0);
-        console.log("Bewegung abgeschlossen!");
       }, 400);
     }
   }
