@@ -23,7 +23,6 @@ Blockly.common.defineBlocksWithJsonArray([
 ]);
 
 javascriptGenerator['scan_for_object'] = function (block) {
-    // console.log(block);
     var value_look_for = javascriptGenerator.valueToCode(block, 'look for', javascriptGenerator.ORDER_ATOMIC);
     var code = "yield;\n"
     code +=

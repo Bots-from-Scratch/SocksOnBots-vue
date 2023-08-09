@@ -20,13 +20,10 @@ function launch(containerId) {
     physics: {
       default: "arcade",
       arcade: {
-        // gravity: { y: 300 },
         debug: true,
       },
     },
     pixelArt: true,
-    // scene: [GameScene_Level_1, PreloadScene, GameScene_Level_4, GameScene_Level_3, GameScene_Level_2, CutSceneFirstSock ],
-    // scene: [GameScene_Level_2, PreloadScene, GameScene_Level_4, GameScene_Level_3, GameScene_Level_1, CutSceneFirstSock ],
     scene: [
       MenuScene,
       LobbyMenuScene,
@@ -37,7 +34,6 @@ function launch(containerId) {
       GameScene_Level_2,
       CutSceneFirstSock,
     ],
-    // scene: [CutSceneFirstSock, GameScene_Level_4, PreloadScene, GameScene_Level_1, GameScene_Level_3, GameScene_Level_2  ],
   });
 }
 

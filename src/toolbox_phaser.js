@@ -83,14 +83,6 @@ export var toolboxJson = {
         {
           kind: "BLOCK",
           type: "repeat_x_times",
-          // inputs: {
-          //   TIMES: {
-          //     shadow: {
-          //       type: "math_number",
-          //       fields: { NUM: 10 },
-          //     },
-          //   },
-          // },
         },
         {
           kind: "BLOCK",

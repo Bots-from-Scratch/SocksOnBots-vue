@@ -19,7 +19,6 @@ constructor() {
         this.cursors = this.input.keyboard.createCursorKeys();
 
         this.sprite.play({key: 'wear_sock'});
-        // this.cameras.main.fadeOut(2000, 0, 0, 0)
 
 
     }

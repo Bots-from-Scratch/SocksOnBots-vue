@@ -14,8 +14,6 @@ Blockly.common.defineBlocksWithJsonArray([
 
 
 javascriptGenerator['walked_around'] = function(block) {
-    // TODO: Assemble JavaScript into code variable.
     var code = 'walkedBy';
-    // TODO: Change ORDER_NONE to the correct strength.
     return [code, javascriptGenerator.ORDER_NONE];
 };

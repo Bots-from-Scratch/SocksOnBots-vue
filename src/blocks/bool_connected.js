@@ -13,8 +13,6 @@ Blockly.common.defineBlocksWithJsonArray([
 ])
 
 javascriptGenerator['bool_connected'] = function(block) {
-    // TODO: Assemble JavaScript into code variable.
     var code = 'itemConnected';
-    // TODO: Change ORDER_NONE to the correct strength.
     return [code, javascriptGenerator.ORDER_NONE];
 };

@@ -21,7 +21,6 @@ class CutScene2 extends Scene {
       this.scene.run("SingleplayerScene");
       this.scene.stop("CutScene2");
     });
-    // this.cameras.main.fadeOut(2000, 0, 0, 0)
   }
 
   update() {

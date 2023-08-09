@@ -12,7 +12,6 @@ export default class IdleState {
   enter() {
     this.player.playAfterRepeat({ key: "playerIdle", repeat: -1, repeatDelay: 2000 });
 
-    // const speed = 160
     this.player.setVelocity(0, 0);
   }
 }

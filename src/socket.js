@@ -24,12 +24,10 @@ export const state = reactive({
   chat: ""
 });
 
-// "undefined" means the URL will be computed from the `window.location` object
 const URL =
   process.env.NODE_ENV === "production"
     ? "https://socket-server-3jgo.onrender.com"
     :  "http://localhost:3010";
-      //"http://192.168.50.67:3010/";
 export const socket = io(URL, {
   autoConnect: true,
 });

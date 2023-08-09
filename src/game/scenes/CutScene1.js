@@ -21,7 +21,6 @@ class CutScene1 extends Scene {
     this.sprite
       .play({ key: "story" })
       .once("animationcomplete", () => this.scene.start("SingleplayerScene"));
-    // this.cameras.main.fadeOut(2000, 0, 0, 0)
   }
 
   update() {

@@ -298,15 +298,11 @@ export default {
   },
 
   watch: {
-    /**
-     * Beschreibung von selectedLevel
-     */
     selectedLevel() {
       socket.emit("selectedLevel", {
         roomId: state.room.id,
         level: this.selectedLevel,
       });
-      // this.activeScene.scene.restart();
     },
     "state.playGame": {
       handler() {
@@ -314,25 +310,6 @@ export default {
         this.runGame();
       },
     },
-    // "state.chat": {
-    //   handler(newValue) {
-    //     console.log("=>(Game.vue:319) newValue", newValue);
-    //
-    //     this.chatMessage.value = newValue.chatMessage;
-    //   },
-    // },
-    // "state.selectedLevel": {
-    //   handler(newValue) {
-    //     selectedGameLevel = newValue;
-    //     this.$emit("selectedLevel", selectedGameLevel);
-    //     if (this.game) {
-    //       const lvl = levels.find((lvl) => lvl.number === this.selectedLevel);
-    //       console.log("=>(Game.vue:237) lvl", lvl);
-    //       this.activeScene().prepareLevel(lvl);
-    //     }
-    //   },
-    //   immediate: true,
-    // },
   },
 
   mounted() {

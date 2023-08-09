@@ -82,22 +82,6 @@ class LobbyMenuScene extends Scene {
 
     this.roomButtons = [];
     localRooms.map((room, i) => {
-      // let roomButtonEntry = this.add
-      //   .text(100, bodyStartPoint + 30 + i * 30, room, textStyle)
-      //   .setInteractive()
-      //   .on("pointerover", () => {
-      //     roomButtonEntry.setStyle({ fill: "#006db2" });
-      //     // console.log(room);
-      //   })
-      //   .on("pointerout", () => roomButtonEntry.setStyle({ fill: "#fff" }))
-      //   .on("pointerdown", () => {
-      //     state.roomID = room;
-
-      //     // AUS ConnectionManager - Textzwecke - evtl. auslagern
-      //     connectRoom(room);
-
-      //     this.scene.start("GameScene");
-      //   });
 
       let roomButtonEntry = this.createButton(
         widthGame / 2,
@@ -108,8 +92,6 @@ class LobbyMenuScene extends Scene {
       );
 
       this.roomButtons.push(roomButtonEntry);
-      // this.playButton_lvl_1.setInteractive()
-      // this.playButton_lvl_1.on('pointerover', () => this.playButton_lvl_1.setStyle({ fill: '#006db2' })).on('pointerout', () => this.playButton_lvl_1.setStyle({ fill: '#fff' })).on('pointerdown', () => this.scene.start('GameScene_Level_1'));
     });
     this.maxRoomSize = 2;
     this.roomSizes = [];
@@ -128,8 +110,6 @@ class LobbyMenuScene extends Scene {
   }
 
   update() {
-    // console.log(state.rooms);
-    // this.roomSizes[3].setText("1/2");
     this.roomSizes.forEach((roomSize, index) => {
       roomSize.setText(state.rooms.at(index).connects + "/" + this.maxRoomSize);
     });
@@ -147,7 +127,6 @@ class LobbyMenuScene extends Scene {
     return temp;
   }
 
-  // TODO Versuche Button Creation auszulagern
   createButton(x, y, roomId, scene, isGame) {
     let button = this.add
       .sprite(x, y, "button")
@@ -169,7 +148,6 @@ class LobbyMenuScene extends Scene {
           if (room.connects < 2) {
           }
         } else {
-          // this.scene.stop(this.scene);
           this.scene.start(scene);
         }
       });

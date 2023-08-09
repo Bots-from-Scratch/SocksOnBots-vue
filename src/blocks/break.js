@@ -13,8 +13,5 @@ Blockly.common.defineBlocksWithJsonArray([
 ])
 
 javascriptGenerator['break'] = function(block) {
-    // let code = "yield;";
-    // code += "stopPlayer();"
-    // return code;
     return "break;"
 };

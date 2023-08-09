@@ -22,7 +22,6 @@ class CutScene4 extends Scene {
       this.scene.run("SingleplayerScene");
       this.scene.stop("CutScene4");
     });
-    // this.cameras.main.fadeOut(2000, 0, 0, 0)
   }
 
   update() {

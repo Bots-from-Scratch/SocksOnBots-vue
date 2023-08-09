@@ -99,7 +99,6 @@ export class GameScene extends Scene {
   }
 
   create() {
-    // this.add.image(400, 300, 'sky');
 
     const map = this.make.tilemap({ key: "map" });
 
@@ -179,9 +178,6 @@ export class GameScene extends Scene {
     });
     this.scoreText.setVisible(false).setScrollFactor(0);
 
-    // TODO overlap winning points
-
-
     this.physics.add.overlap(
       this.player,
       this.backgroundLayer,
@@ -224,9 +220,6 @@ export class GameScene extends Scene {
 
     this.gfx = this.add.graphics();
 
-    // this.physics.world.on("worldbounds", (body) => {
-    //   this.collided = true;
-    // });
 
     this.graphic = this.add.graphics({ lineStyle: { color: 0x00ffff } });
     this.graphic.setVisible(false);
@@ -325,7 +318,6 @@ export class GameScene extends Scene {
 
   triggerCutscene(player, triggerPoint) {
     directionPlayer1.up.isClear = false;
-    // this.scene.isPaused();
     if (
       itemKey &&
       collectedItems.some(
@@ -370,8 +362,6 @@ export class GameScene extends Scene {
 
     this.player.body.setMaxSpeed(maxSpeed);
     this.player.body.setCircle(20, 12, 28);
-    // this.player.body.setSize(32, 30, 100, 20);
-    // this.player.setOffset(16, 32);
 
     this.player.setCollideWorldBounds(true);
     this.player.body.onWorldBounds = true;
@@ -470,29 +460,18 @@ export class GameScene extends Scene {
         }
 
         if (_player.body.blocked.up) {
-          // _player.setY(_player.y + 2);
-          // _player.setVelocity(0);
           directionPlayer1.up.isClear = false;
           directionPlayer1.up.isMoving = false;
         } else if (_player.body.blocked.down) {
-          // TODO check setCoordinates for other directions
-          // _player.setY(_player.y - 2);
-          // _player.setVelocity(0);
           directionPlayer1.down.isClear = false;
           directionPlayer1.down.isMoving = false;
         } else if (_player.body.blocked.right) {
-          // _player.setX(_player.x - 2);
-          // _player.setVelocity(0);
           directionPlayer1.right.isClear = false;
           directionPlayer1.right.isMoving = false;
         } else {
-          // _player.setX(_player.x + 2);
-          // _player.setVelocity(0);
           directionPlayer1.left.isClear = false;
           directionPlayer1.left.isMoving = false;
         }
-        // this.player.setVelocityX(0);
-        // this.player.setVelocityY(0);
       }
     };
   }
@@ -503,7 +482,6 @@ export class GameScene extends Scene {
 
   createSock() {
     itemSock = this.physics.add.sprite(420, 2180, "star");
-    // itemSock.setTint(0x006db2);
     itemSock.setScale(0.4);
 
     this.physics.add.overlap(
@@ -541,18 +519,6 @@ export class GameScene extends Scene {
         );
         leaveRoom();
       });
-
-    // this.buttonScan.on("pointerdown", () => {
-    //   objectToScanFor = itemSock;
-    //   if (this.objectIsScanned) {
-    //     if (this.checkIfObjectBlocksViewline(this.viewBlockingObjects)) {
-    //       // console.log("not in view");
-    //       this.scanLineGfx.setVisible(false);
-    //     } else {
-    //       this.scanLineGfx.setVisible(true);
-    //     }
-    //   }
-    // });
 
     this.buttonUp.on("pointerdown", () => {
       this.score += 10;
@@ -595,11 +561,6 @@ export class GameScene extends Scene {
   }
 
   processCallback(obj1, obj2) {
-    //  This function can perform your own additional checks on the 2 objects that collided.
-    //  For example, you could test for velocity, health, etc.
-    //  This function needs to return either true or false. If it returns true then collision carries on (separating the two objects).
-    //  If it returns false the collision is assumed to have failed and aborts, no further checks or separation happen.
-
     if (obj1.body) {
       return true;
     } else {
@@ -700,9 +661,6 @@ export class GameScene extends Scene {
       this.player.setVelocity(0);
       collectedItems.push(key);
     }
-    // this.resetDirection();
-    // this.player.setAcceleration(0);
-    // console.log("=>(Game.vue:1025) collectKey objectToScan");
   }
 
   collectStar(player, star) {
@@ -724,19 +682,9 @@ export class GameScene extends Scene {
   }
 
   checkForWin(sprite, object) {
-    // this.updateLevels(this.getActiveLevel().number + 1);
     this.doorSound.play();
   }
 
-  // resetMovement() {
-  //   directionPlayer1.right.isMoving = false;
-  //   directionPlayer1.left.isMoving = false;
-  //   directionPlayer1.up.isMoving = false;
-  //   directionPlayer1.down.isMoving = false;
-  //   directionPlayer1.toObject.isMoving = false;
-  // }
-
-  // TODO reset isClear when turning away
   resetDirection() {
     if (Object.keys(directionPlayer1).length > 0) {
       directionPlayer1.right.isClear = true;
@@ -749,7 +697,6 @@ export class GameScene extends Scene {
       directionPlayer1.down.isMoving = false;
       directionPlayer1.toObject.isClear = false;
       directionPlayer1.toObject.isMoving = false;
-      // socket.emit("directionSelf", directionPlayer1)
     }
   }
 
@@ -767,7 +714,6 @@ export class GameScene extends Scene {
       true
     );
     if (tile && tile.properties.slowingDown) {
-      // slow down the player
       this.player.setMaxVelocity(maxSpeed / 2);
     } else {
       this.player.setMaxVelocity(maxSpeed);
@@ -777,10 +723,6 @@ export class GameScene extends Scene {
   // TODO Levelcheck for socket packages
   update() {
     this.checkIfTileIsSlowingDown();
-
-    // if (!this.isPausingCodeExecution) {
-    //     sendDirectionToSocket();
-    // }
 
     if (Object.entries(state.directionSelf).length > 0) {
       directionPlayer1 = toRaw(state.directionSelf);

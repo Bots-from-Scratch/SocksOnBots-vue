@@ -1,6 +1,4 @@
 import { Scene } from "phaser";
-// import { state } from "@/socket";
-import { textStyle } from "../utils";
 
 import logo from "@/assets/logo-full.png";
 import background from "@/assets/BG_menuBG.png";
@@ -32,56 +30,26 @@ class MenuScene extends Scene {
     const widthGame = this.scale.width;
     const heightGame = this.scale.height;
 
-    // console.log("=>(MenuScene.js:31) ", heightGame);
 
     this.add.image(widthGame, heightGame, "background").setScrollFactor(0);
 
     this.hoverSound = this.sound.add("hoverSound");
 
-    // this.cam = this.cameras.main.setBounds(0, 0, widthGame*4.5 , heightGame*4.5 );
     this.input.on("pointermove", (pointer) => {
-      // console.log(pointer.x);
       this.cameras.main.startFollow(pointer, true, 0.1);
     });
-    // this.centerX = this.scale.width / 2;
-    // this.centerY = this.scale.height / 2;
-    // this.input.on("pointermove", (pointer) => {
-    //   if (pointer.x < this.centerX) {
-    //     // Maus bewegt sich nach links, den Hintergrund nach rechts verschieben
-    //     this.cameras.main.scrollX -= 1;
-    //   } else if (pointer.x > this.centerX) {
-    //     // Maus bewegt sich nach rechts, den Hintergrund nach links verschieben
-    //     this.cameras.main.scrollX += 1;
-    //   }
-    //
-    //   if (pointer.y < this.centerY) {
-    //     // Maus bewegt sich nach oben, den Hintergrund nach unten verschieben
-    //     this.cameras.main.scrollY -= 1;
-    //   } else if (pointer.y > this.centerY) {
-    //     // Maus bewegt sich nach unten, den Hintergrund nach oben verschieben
-    //     this.cameras.main.scrollY += 1;
-    //   }
-    // });
 
     this.horizon1 = this.add
       .image(-50, heightGame, "horizon")
       .setOrigin(0, 1)
       .setScale(1.1)
       .setScrollFactor(0.05, 0);
-    // this.horizon2 = this.add
-    //   .image(this.horizon1.width, heightGame, "horizon")
-    //   .setOrigin(0, 1)
-    //   .setScrollFactor(0.05, 0);
 
     this.city1 = this.add
       .image(-50, heightGame, "city")
       .setOrigin(0, 1)
       .setScale(1.1)
       .setScrollFactor(0.1, 0);
-    // this.city2 = this.add
-    //   .image(this.city1.width, heightGame, "city")
-    //   .setOrigin(0, 1)
-    //   .setScrollFactor(0.1, 0);
 
     this.logoIcon = this.add
       .image(widthGame / 2, 70, "logo")
@@ -109,13 +77,8 @@ class MenuScene extends Scene {
   }
 
   update() {
-    // console.log("IMAGE", this.city1);
-    // this.city1.x = this.city1.x - 1;
-    // console.log(Scene.game.input.x);
-    // console.log(Scene.game.input.y);
   }
 
-  // TODO Versuche Button Creation auszulagern
   createButton(x, y, text, scene) {
     const button = this.add
       .sprite(x, y, "button")
@@ -129,7 +92,6 @@ class MenuScene extends Scene {
       .on("pointerdown", () => button.play({ key: "click" }))
       .on("pointerup", () => {
         button.play({ key: "hover" });
-        // this.scene.stop(this.scene);
         this.scene.start(scene);
       });
 
