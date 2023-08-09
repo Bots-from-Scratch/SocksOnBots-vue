@@ -20,7 +20,7 @@ function launch(containerId) {
     physics: {
       default: "arcade",
       arcade: {
-        debug: true,
+        debug: false,
       },
     },
     pixelArt: true,

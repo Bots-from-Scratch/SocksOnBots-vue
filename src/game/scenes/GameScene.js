@@ -747,7 +747,7 @@ export class GameScene extends Scene {
 
         this.checkIfPlayerWalkedAroundBlockingObjects(distClosest, hypot);
 
-        this.drawLineBetweenPlayerAndBlockingObject();
+        // this.drawLineBetweenPlayerAndBlockingObject(); // zu Debug Zwecken
       }
 
       this.updateTexts(distClosest);
